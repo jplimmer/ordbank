@@ -1,3 +1,4 @@
+import NavBar from '@/components/nav-bar';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -25,9 +26,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased content-grid grid-rows-[1fr_auto] min-h-svh`}
       >
         {children}
+        <footer>
+          <NavBar />
+        </footer>
       </body>
     </html>
   );
