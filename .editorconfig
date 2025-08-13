@@ -1,0 +1,2 @@
+[*.{js,ts,jsx,tsx,json,md,yml,yaml,html,css}]
+end_of_line = lf
