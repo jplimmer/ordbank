@@ -11,7 +11,7 @@ export default function Card({
 }) {
   return (
     <div
-      className={`border rounded p-4 text-center hover:shadow-md ${className}`}
+      className={`border rounded-2xl p-6 text-center hover:shadow-md ${className}`}
     >
       {link ? (
         <Link href={link}>
