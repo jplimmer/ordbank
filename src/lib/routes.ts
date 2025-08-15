@@ -5,4 +5,4 @@ export const ROUTES = {
   WORD_LIST: '/word-list',
   USER_GUIDE: '/user-guide',
   HEALTH_CHECK: '',
-};
+} as const;

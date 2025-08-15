@@ -39,3 +39,5 @@ export async function deleteWord(id: number) {
   await db.delete(wordListTable).where(eq(wordListTable.id, id));
   revalidatePath(ROUTES.WORD_LIST);
 }
+
+export async function updateWord() {}
