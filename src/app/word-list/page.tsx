@@ -1,13 +1,11 @@
 import { WordListTable } from '@/components/WordListTable';
 import { ROUTES } from '@/lib/routes';
-import { getWordList } from '@/lib/wordListActions';
+import { deleteWord, getWordList } from '@/lib/wordListActions';
 import { House, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function WordListPage() {
   const wordList = await getWordList();
-  // const columns = getTableColumns(wordListTable);
-  // const colNames = Object.keys(columns).filter((key) => key !== 'id');
 
   return (
     <main className="content-grid grid-rows-[auto_1fr] justify-items-center items-start">
@@ -22,7 +20,7 @@ export default async function WordListPage() {
           </Link>
         </nav>
       </header>
-      <WordListTable wordList={wordList} />
+      <WordListTable wordList={wordList} onDelete={deleteWord} />
     </main>
   );
 }

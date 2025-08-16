@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 interface WordListTableProps {
   wordList: WordListItem[];
-  //   onDelete: (id: number) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
   //   onEdit: (data: WordListItem) => Promise<void>;
 }
 
@@ -14,7 +14,8 @@ const colNames = Object.values(WORD_LIST_UI_COLS);
 type SortField = keyof typeof WORD_LIST_UI_COLS;
 type SortDirection = 'asc' | 'desc';
 
-export function WordListTable({ wordList }: WordListTableProps) {
+export function WordListTable({ wordList, onDelete }: WordListTableProps) {
+  const [loading, setLoading] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -45,6 +46,19 @@ export function WordListTable({ wordList }: WordListTableProps) {
     );
   };
 
+  const handleDelete = async (item: WordListItem) => {
+    if (!confirm(`Delete ${item.swedish}?`)) return;
+
+    setLoading(true);
+    try {
+      await onDelete(item.id);
+    } catch (error) {
+      alert(`Error deleting word: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <table className="table-fixed text-center w-[90%] m-4 border-collapse ">
       <thead>
@@ -65,16 +79,16 @@ export function WordListTable({ wordList }: WordListTableProps) {
         </tr>
       </thead>
       <tbody className="[&>tr:nth-child(odd)]:bg-white [&>tr:nth-child(even)]:bg-neutral-100 ">
-        {sortedWordList.map(({ id, swedish, english }) => (
-          <tr key={id}>
-            <td className="border border-neutral-300">{swedish}</td>
-            <td className="border border-neutral-300">{english}</td>
+        {sortedWordList.map((item) => (
+          <tr key={item.id}>
+            <td className="border border-neutral-300">{item.swedish}</td>
+            <td className="border border-neutral-300">{item.english}</td>
             <td className="border border-neutral-300">
               <div className="flex justify-center gap-4">
                 <button>
                   <Edit size={16} />
                 </button>
-                <button>
+                <button onClick={() => handleDelete(item)}>
                   <Trash2 size={16} />
                 </button>
               </div>
