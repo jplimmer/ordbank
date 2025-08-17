@@ -120,8 +120,8 @@ class SimpleLogger implements Logger {
 // const logger = new SimpleLogger(level as LogLevel);
 
 // Create separate logger instances for server and client
-const serverLogger = new SimpleLogger();
-const clientLogger = new SimpleLogger();
+const serverLogger = new SimpleLogger('debug');
+const clientLogger = new SimpleLogger('debug');
 
 /**
  * Returns the shared instance of the logger depending on environment.
