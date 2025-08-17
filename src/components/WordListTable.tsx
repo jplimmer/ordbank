@@ -1,8 +1,11 @@
 'use client';
 
 import { WORD_LIST_UI_COLS, WordListItem } from '@/db/schema';
+import { getLogger } from '@/utils/logger';
 import { ChevronDown, ChevronUp, Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+
+const logger = getLogger();
 
 interface WordListTableProps {
   wordList: WordListItem[];
@@ -62,8 +65,10 @@ export function WordListTable({
     setLoading(true);
     try {
       await onDelete(item.id);
+      logger.info(`Word with id ${item.id} deleted`);
     } catch (error) {
-      alert(`Error deleting word: ${error}`);
+      logger.error('Error deleting word:', error);
+      alert('Word could not be deleted - please try again');
     } finally {
       setLoading(false);
     }
@@ -81,10 +86,14 @@ export function WordListTable({
 
   const handleEditSave = async (item: WordListItem) => {
     setLoading(true);
-    onEdit(item);
     try {
+      logger.debug('Updating word with new data:', item);
+      onEdit(item);
+      setEditingId(null);
+      setEditForm({ swedish: '', english: '' });
     } catch (error) {
-      alert(`Error saving word: ${error}`);
+      logger.error('Error saving word:', error);
+      alert('Word could not be saved - please try again');
     } finally {
       setLoading(false);
     }
@@ -152,7 +161,9 @@ export function WordListTable({
                 {editingId === item.id ? (
                   <>
                     <button
-                      onClick={() => handleEditSave(item)}
+                      onClick={() =>
+                        handleEditSave({ id: item.id, ...editForm })
+                      }
                       disabled={loading}
                       className="text-green-600 hover:text-green-800 disabled:opacity-50"
                     >

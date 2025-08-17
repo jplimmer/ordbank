@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { wordListTable } from '@/db/schema';
+import { WordListItem, wordListTable } from '@/db/schema';
 import { getLogger } from '@/utils/logger';
 import { eq } from 'drizzle-orm/sqlite-core/expressions';
 import { revalidatePath } from 'next/cache';
@@ -40,6 +40,11 @@ export async function deleteWord(id: number) {
   revalidatePath(ROUTES.WORD_LIST);
 }
 
-export async function updateWord() {
-  logger.info('Update logic goes here...');
+export async function updateWord({ id, swedish, english }: WordListItem) {
+  await db
+    .update(wordListTable)
+    .set({ swedish: swedish, english: english })
+    .where(eq(wordListTable.id, id));
+  logger.info(`Updated id ${id} with "${swedish}: ${english}"`);
+  revalidatePath(ROUTES.WORD_LIST);
 }
