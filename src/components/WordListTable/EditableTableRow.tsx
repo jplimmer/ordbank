@@ -15,7 +15,7 @@ interface EditableTableRowProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-export default function EditableTableRow({
+export function EditableTableRow({
   item,
   isEditing,
   onEditStart,
