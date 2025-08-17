@@ -1,6 +1,6 @@
 import { WordListTable } from '@/components/WordListTable';
 import { ROUTES } from '@/lib/routes';
-import { deleteWord, getWordList } from '@/lib/wordListActions';
+import { deleteWord, getWordList, updateWord } from '@/lib/wordListActions';
 import { House, Plus } from 'lucide-react';
 import Link from 'next/link';
 
@@ -20,7 +20,11 @@ export default async function WordListPage() {
           </Link>
         </nav>
       </header>
-      <WordListTable wordList={wordList} onDelete={deleteWord} />
+      <WordListTable
+        wordList={wordList}
+        onDelete={deleteWord}
+        onEdit={updateWord}
+      />
     </main>
   );
 }

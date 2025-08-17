@@ -40,4 +40,6 @@ export async function deleteWord(id: number) {
   revalidatePath(ROUTES.WORD_LIST);
 }
 
-export async function updateWord() {}
+export async function updateWord() {
+  logger.info('Update logic goes here...');
+}

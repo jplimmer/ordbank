@@ -7,17 +7,27 @@ import { useState } from 'react';
 interface WordListTableProps {
   wordList: WordListItem[];
   onDelete: (id: number) => Promise<void>;
-  //   onEdit: (data: WordListItem) => Promise<void>;
+  onEdit: (data: WordListItem) => Promise<void>;
 }
 
 const colNames = Object.values(WORD_LIST_UI_COLS);
-type SortField = keyof typeof WORD_LIST_UI_COLS;
+type WordListKeys = keyof typeof WORD_LIST_UI_COLS;
 type SortDirection = 'asc' | 'desc';
+type EditForm = Record<WordListKeys, string>;
 
-export function WordListTable({ wordList, onDelete }: WordListTableProps) {
+export function WordListTable({
+  wordList,
+  onDelete,
+  onEdit,
+}: WordListTableProps) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortField, setSortField] = useState<WordListKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({
+    swedish: '',
+    english: '',
+  });
 
   const sortedWordList = [...wordList].sort((a, b) => {
     if (!sortField) return 0;
@@ -30,14 +40,14 @@ export function WordListTable({ wordList, onDelete }: WordListTableProps) {
     return 0;
   });
 
-  const handleSort = (field: SortField) => {
+  const handleSort = (field: WordListKeys) => {
     if (!(sortField === field)) {
       setSortField(field);
     }
     setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
   };
 
-  const getSortIcon = (field: SortField) => {
+  const getSortIcon = (field: WordListKeys) => {
     if (sortField !== field) return null;
     return sortDirection === 'asc' ? (
       <ChevronUp size={16} />
@@ -54,6 +64,27 @@ export function WordListTable({ wordList, onDelete }: WordListTableProps) {
       await onDelete(item.id);
     } catch (error) {
       alert(`Error deleting word: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditStart = (item: WordListItem) => {
+    setEditingId(item.id);
+    setEditForm({ swedish: item.swedish, english: item.english });
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditForm({ swedish: '', english: '' });
+  };
+
+  const handleEditSave = async (item: WordListItem) => {
+    setLoading(true);
+    onEdit(item);
+    try {
+    } catch (error) {
+      alert(`Error saving word: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -81,16 +112,78 @@ export function WordListTable({ wordList, onDelete }: WordListTableProps) {
       <tbody className="[&>tr:nth-child(odd)]:bg-white [&>tr:nth-child(even)]:bg-neutral-100 ">
         {sortedWordList.map((item) => (
           <tr key={item.id}>
-            <td className="border border-neutral-300">{item.swedish}</td>
-            <td className="border border-neutral-300">{item.english}</td>
+            <td className="border border-neutral-300">
+              {editingId === item.id ? (
+                <input
+                  type="text"
+                  value={editForm.swedish}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      swedish: e.target.value,
+                    }))
+                  }
+                  className="w-full px-2 py-1 border rounded"
+                />
+              ) : (
+                item.swedish
+              )}
+            </td>
+            <td className="border border-neutral-300">
+              {editingId === item.id ? (
+                <input
+                  type="text"
+                  value={editForm.english}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      english: e.target.value,
+                    }))
+                  }
+                  className="w-full px-2 py-1 border rounded"
+                  autoFocus
+                />
+              ) : (
+                item.english
+              )}
+            </td>
             <td className="border border-neutral-300">
               <div className="flex justify-center gap-4">
-                <button>
-                  <Edit size={16} />
-                </button>
-                <button onClick={() => handleDelete(item)}>
-                  <Trash2 size={16} />
-                </button>
+                {editingId === item.id ? (
+                  <>
+                    <button
+                      onClick={() => handleEditSave(item)}
+                      disabled={loading}
+                      className="text-green-600 hover:text-green-800 disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => handleEditCancel()}
+                      disabled={loading}
+                      className="text-gray-600 hover:text-red-800 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleEditStart(item)}
+                      disabled={loading}
+                      className="hover:text-blue-800 disabled:opacity-50"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item)}
+                      disabled={loading}
+                      className="hover:text-red-800 disabled:opacity-50"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
               </div>
             </td>
           </tr>
