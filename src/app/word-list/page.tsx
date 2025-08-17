@@ -1,4 +1,4 @@
-import { WordListTable } from '@/components/WordListTable';
+import { WordListTable } from '@/components/WordListTable/WordListTable';
 import { ROUTES } from '@/lib/routes';
 import { deleteWord, getWordList, updateWord } from '@/lib/wordListActions';
 import { House, Plus } from 'lucide-react';
