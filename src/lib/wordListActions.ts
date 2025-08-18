@@ -10,7 +10,6 @@ import { ROUTES } from './routes';
 const logger = getLogger();
 
 export async function getWordList() {
-  logger.debug('Fetching wordListTable...');
   return await db.select().from(wordListTable).orderBy(wordListTable.id);
 }
 
