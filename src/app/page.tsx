@@ -7,6 +7,7 @@ export default function Home() {
       <h1 className="mb-4">Ordbank</h1>
       <Link
         href={ROUTES.ADD_WORD}
+        scroll={false}
         className="border rounded-2xl p-6 text-center hover:shadow-md w-1/2"
       >
         Add Word

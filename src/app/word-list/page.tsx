@@ -14,7 +14,7 @@ export default async function WordListPage() {
         <header className="flex relative justify-center items-center w-full py-6">
           <h1 className="flex-1 text-center font-bold">Word List</h1>
           <nav className="flex absolute right-0 gap-2">
-            <Link href={ROUTES.ADD_WORD}>
+            <Link href={ROUTES.ADD_WORD} scroll={false}>
               <Plus size={32} />
             </Link>
             <Link href={ROUTES.HOME}>
