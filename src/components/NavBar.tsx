@@ -12,7 +12,7 @@ export default function NavBar() {
           </Link>
         </li>
         <li>
-          <Link href={ROUTES.WORD_LIST}>
+          <Link href={ROUTES.VOCAB}>
             <BookType size={32} />
           </Link>
         </li>

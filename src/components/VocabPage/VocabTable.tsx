@@ -1,29 +1,27 @@
 'use client';
 
-import { WORD_LIST_UI_COLS, WordListItem } from '@/db/schema';
+import { VocabItem } from '@/db/schema';
+import { getDefaultLanguages } from '@/lib/language-utils';
+import { VocabActionResult } from '@/lib/vocabActions';
 import { useState } from 'react';
 import { EditableTableRow } from './EditableTableRow';
 import { SortableTableHeader } from './SortableTableHeader';
-import { SortDirection, WordListKeys } from './types';
+import { SortDirection, VocabTableKeys } from './types';
 
-interface WordListTableProps {
-  wordList: WordListItem[];
-  onDelete: (id: number) => Promise<void>;
-  onEdit: (data: WordListItem) => Promise<void>;
+interface VocabTableProps {
+  vocab: VocabItem[];
+  onDelete: (id: number) => Promise<VocabActionResult>;
+  onEdit: (data: VocabItem) => Promise<VocabActionResult>;
 }
 
-export function WordListTable({
-  wordList,
-  onDelete,
-  onEdit,
-}: WordListTableProps) {
-  const colNames = Object.values(WORD_LIST_UI_COLS);
+export function VocabTable({ vocab, onDelete, onEdit }: VocabTableProps) {
+  const { source, target } = getDefaultLanguages();
 
-  const [sortField, setSortField] = useState<WordListKeys | null>(null);
+  const [sortField, setSortField] = useState<VocabTableKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const sortedWordList = [...wordList].sort((a, b) => {
+  const sortedVocab = [...vocab].sort((a, b) => {
     if (!sortField) return 0;
 
     const aVal = a[sortField].toLowerCase();
@@ -34,7 +32,7 @@ export function WordListTable({
     return 0;
   });
 
-  const handleSort = (field: WordListKeys) => {
+  const handleSort = (field: VocabTableKeys) => {
     if (!(sortField === field)) {
       setSortField(field);
       setSortDirection('asc');
@@ -47,21 +45,25 @@ export function WordListTable({
     <table className="table-fixed text-center w-[90%] m-4 border-collapse">
       <thead>
         <tr>
-          {colNames.map((name) => (
-            <SortableTableHeader
-              key={name}
-              field={name}
-              label={name.charAt(0).toUpperCase() + name.slice(1)}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-            />
-          ))}
+          <SortableTableHeader
+            field="source"
+            label={source.name}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
+          <SortableTableHeader
+            field="target"
+            label={target.name}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
           <th className="p-2 border border-neutral-300" />
         </tr>
       </thead>
       <tbody className="[&>tr:nth-child(odd)]:bg-white [&>tr:nth-child(even)]:bg-neutral-100 ">
-        {sortedWordList.map((item) => (
+        {sortedVocab.map((item) => (
           <EditableTableRow
             key={item.id}
             item={item}

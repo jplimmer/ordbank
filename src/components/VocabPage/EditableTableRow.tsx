@@ -1,4 +1,5 @@
-import { WordListItem } from '@/db/schema';
+import { VocabItem } from '@/db/schema';
+import { VocabActionResult } from '@/lib/vocabActions';
 import { getLogger } from '@/utils/logger';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -7,12 +8,12 @@ import { EditForm } from './types';
 const logger = getLogger();
 
 interface EditableTableRowProps {
-  item: WordListItem;
+  item: VocabItem;
   isEditing: boolean;
   onEditStart: (id: number) => void;
   onEditEnd: () => void;
-  onEdit: (data: WordListItem) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
+  onEdit: (data: VocabItem) => Promise<VocabActionResult>;
+  onDelete: (id: number) => Promise<VocabActionResult>;
 }
 
 export function EditableTableRow({
@@ -25,22 +26,22 @@ export function EditableTableRow({
 }: EditableTableRowProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [editForm, setEditForm] = useState<EditForm>({
-    swedish: item.swedish,
-    english: item.english,
+    source: item.source,
+    target: item.target,
   });
 
   const handleEditStart = () => {
     setEditForm({
-      swedish: item.swedish,
-      english: item.english,
+      source: item.source,
+      target: item.target,
     });
     onEditStart(item.id);
   };
 
   const handleEditCancel = () => {
     setEditForm({
-      swedish: item.swedish,
-      english: item.english,
+      source: item.source,
+      target: item.target,
     });
     onEditEnd();
   };
@@ -60,7 +61,7 @@ export function EditableTableRow({
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete ${item.swedish}?`)) return;
+    if (!confirm(`Delete ${item.source}?`)) return;
 
     setLoading(true);
     try {
@@ -84,25 +85,25 @@ export function EditableTableRow({
         {isEditing ? (
           <input
             type="text"
-            value={editForm.swedish}
-            onChange={(e) => handleFormChange('swedish', e.target.value)}
+            value={editForm.source}
+            onChange={(e) => handleFormChange('source', e.target.value)}
             className="w-full px-2 py-1 border rounded"
           />
         ) : (
-          item.swedish
+          item.source
         )}
       </td>
       <td className="border border-neutral-300">
         {isEditing ? (
           <input
             type="text"
-            value={editForm.english}
-            onChange={(e) => handleFormChange('english', e.target.value)}
+            value={editForm.target}
+            onChange={(e) => handleFormChange('target', e.target.value)}
             className="w-full px-2 py-1 border rounded"
             autoFocus
           />
         ) : (
-          item.english
+          item.target
         )}
       </td>
       <td className="border border-neutral-300">
