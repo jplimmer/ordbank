@@ -1,7 +1,7 @@
 export const ROUTES = {
   HOME: '/',
-  WORD_LIST: '/word-list',
-  ADD_WORD: '/add-word',
+  VOCAB: '/vocab',
+  ADD_VOCAB: '/add-vocab',
   TEST: '/test',
   USER_GUIDE: '/user-guide',
   HEALTH_CHECK: '',

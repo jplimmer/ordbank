@@ -1,15 +1,15 @@
 'use client';
 
-import { addWord } from '@/lib/wordListActions';
+import { addVocab } from '@/lib/vocabActions';
 import { ActionResult } from 'next/dist/server/app-render/types';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
-import { AddWordForm } from './AddWordForm';
+import { AddVocabForm } from './AddVocabForm';
 
-export function AddWordHandler() {
+export function AddVocabHandler() {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<ActionResult, FormData>(
-    addWord,
+    addVocab,
     { success: false }
   );
 
@@ -20,6 +20,6 @@ export function AddWordHandler() {
   }, [state.success, router]);
 
   return (
-    <AddWordForm state={state} formAction={formAction} isPending={isPending} />
+    <AddVocabForm state={state} formAction={formAction} isPending={isPending} />
   );
 }

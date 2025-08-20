@@ -1,16 +1,16 @@
-import { WordListActionResult } from '@/lib/wordListActions';
+import { VocabActionResult } from '@/lib/vocabActions';
 
-interface AddWordFormProps {
-  state: WordListActionResult;
+interface AddVocabFormProps {
+  state: VocabActionResult;
   formAction: (formData: FormData) => void;
   isPending: boolean;
 }
 
-export function AddWordForm({
+export function AddVocabForm({
   state,
   formAction,
   isPending,
-}: AddWordFormProps) {
+}: AddVocabFormProps) {
   return (
     <div className="space-y-4">
       <h2 className="font-bold text-center">Add Word</h2>

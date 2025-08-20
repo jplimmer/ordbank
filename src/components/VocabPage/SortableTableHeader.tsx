@@ -1,12 +1,12 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { SortDirection, WordListKeys } from './types';
+import { SortDirection, VocabKeys } from './types';
 
 interface SortableTableHeaderProps {
-  field: WordListKeys;
+  field: VocabKeys;
   label: string;
-  sortField: WordListKeys | null;
+  sortField: VocabKeys | null;
   sortDirection: SortDirection;
-  onSort: (field: WordListKeys) => void;
+  onSort: (field: VocabKeys) => void;
 }
 
 export function SortableTableHeader({

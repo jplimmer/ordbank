@@ -1,30 +1,26 @@
 'use client';
 
-import { WORD_LIST_UI_COLS, WordListItem } from '@/db/schema';
-import { WordListActionResult } from '@/lib/wordListActions';
+import { VOCAB_UI_COLS, VocabItem } from '@/db/schema';
+import { VocabActionResult } from '@/lib/vocabActions';
 import { useState } from 'react';
 import { EditableTableRow } from './EditableTableRow';
 import { SortableTableHeader } from './SortableTableHeader';
-import { SortDirection, WordListKeys } from './types';
+import { SortDirection, VocabKeys } from './types';
 
-interface WordListTableProps {
-  wordList: WordListItem[];
-  onDelete: (id: number) => Promise<WordListActionResult>;
-  onEdit: (data: WordListItem) => Promise<WordListActionResult>;
+interface VocabTableProps {
+  vocab: VocabItem[];
+  onDelete: (id: number) => Promise<VocabActionResult>;
+  onEdit: (data: VocabItem) => Promise<VocabActionResult>;
 }
 
-export function WordListTable({
-  wordList,
-  onDelete,
-  onEdit,
-}: WordListTableProps) {
-  const colNames = Object.values(WORD_LIST_UI_COLS);
+export function VocabTable({ vocab, onDelete, onEdit }: VocabTableProps) {
+  const colNames = Object.values(VOCAB_UI_COLS);
 
-  const [sortField, setSortField] = useState<WordListKeys | null>(null);
+  const [sortField, setSortField] = useState<VocabKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const sortedWordList = [...wordList].sort((a, b) => {
+  const sortedVocab = [...vocab].sort((a, b) => {
     if (!sortField) return 0;
 
     const aVal = a[sortField].toLowerCase();
@@ -35,7 +31,7 @@ export function WordListTable({
     return 0;
   });
 
-  const handleSort = (field: WordListKeys) => {
+  const handleSort = (field: VocabKeys) => {
     if (!(sortField === field)) {
       setSortField(field);
       setSortDirection('asc');
@@ -62,7 +58,7 @@ export function WordListTable({
         </tr>
       </thead>
       <tbody className="[&>tr:nth-child(odd)]:bg-white [&>tr:nth-child(even)]:bg-neutral-100 ">
-        {sortedWordList.map((item) => (
+        {sortedVocab.map((item) => (
           <EditableTableRow
             key={item.id}
             item={item}

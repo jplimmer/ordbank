@@ -1,15 +1,15 @@
-import { WordListTable } from '@/components/WordListPage/WordListTable';
+import { VocabTable } from '@/components/VocabPage/VocabTable';
 import { ROUTES } from '@/lib/routes';
-import { deleteWord, getWordList, updateWord } from '@/lib/wordListActions';
+import { deleteVocabItem, getVocab, updateVocabItem } from '@/lib/vocabActions';
 import { House, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-export default async function WordListPage() {
-  const result = await getWordList();
+export default async function VocabPage() {
+  const result = await getVocab();
   if (!result.data) return;
 
-  const wordList = result.data;
+  const vocab = result.data;
 
   return (
     <main className="content-grid grid-rows-[auto_1fr] justify-items-center items-start">
@@ -17,7 +17,7 @@ export default async function WordListPage() {
         <header className="flex relative justify-center items-center w-full py-6">
           <h1 className="flex-1 text-center font-bold">Word List</h1>
           <nav className="flex absolute right-0 gap-2">
-            <Link href={ROUTES.ADD_WORD} scroll={false}>
+            <Link href={ROUTES.ADD_VOCAB} scroll={false}>
               <Plus size={32} />
             </Link>
             <Link href={ROUTES.HOME}>
@@ -25,10 +25,10 @@ export default async function WordListPage() {
             </Link>
           </nav>
         </header>
-        <WordListTable
-          wordList={wordList}
-          onDelete={deleteWord}
-          onEdit={updateWord}
+        <VocabTable
+          vocab={vocab}
+          onDelete={deleteVocabItem}
+          onEdit={updateVocabItem}
         />
       </Suspense>
     </main>
