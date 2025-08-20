@@ -1,10 +1,10 @@
-import { AddWordForm } from '@/components/AddWordForm';
+import { AddWordHandler } from '@/components/AddWord/AddWordHandler';
 import { Modal } from '@/components/Modal';
 
 export default function AddWordModal() {
   return (
     <Modal>
-      <AddWordForm />
+      <AddWordHandler />
     </Modal>
   );
 }
