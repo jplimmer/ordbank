@@ -1,5 +1,5 @@
-import { VOCAB_UI_COLS } from '@/db/schema';
+import { VocabItem } from '@/db/schema';
 
-export type VocabKeys = keyof typeof VOCAB_UI_COLS;
+export type VocabTableKeys = Exclude<keyof VocabItem, 'id'>;
 export type SortDirection = 'asc' | 'desc';
-export type EditForm = Record<VocabKeys, string>;
+export type EditForm = Record<VocabTableKeys, string>;

@@ -1,11 +1,12 @@
 'use client';
 
-import { VOCAB_UI_COLS, VocabItem } from '@/db/schema';
+import { VocabItem } from '@/db/schema';
+import { getDefaultLanguages } from '@/lib/language-utils';
 import { VocabActionResult } from '@/lib/vocabActions';
 import { useState } from 'react';
 import { EditableTableRow } from './EditableTableRow';
 import { SortableTableHeader } from './SortableTableHeader';
-import { SortDirection, VocabKeys } from './types';
+import { SortDirection, VocabTableKeys } from './types';
 
 interface VocabTableProps {
   vocab: VocabItem[];
@@ -14,9 +15,9 @@ interface VocabTableProps {
 }
 
 export function VocabTable({ vocab, onDelete, onEdit }: VocabTableProps) {
-  const colNames = Object.values(VOCAB_UI_COLS);
+  const { source, target } = getDefaultLanguages();
 
-  const [sortField, setSortField] = useState<VocabKeys | null>(null);
+  const [sortField, setSortField] = useState<VocabTableKeys | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -31,7 +32,7 @@ export function VocabTable({ vocab, onDelete, onEdit }: VocabTableProps) {
     return 0;
   });
 
-  const handleSort = (field: VocabKeys) => {
+  const handleSort = (field: VocabTableKeys) => {
     if (!(sortField === field)) {
       setSortField(field);
       setSortDirection('asc');
@@ -44,16 +45,20 @@ export function VocabTable({ vocab, onDelete, onEdit }: VocabTableProps) {
     <table className="table-fixed text-center w-[90%] m-4 border-collapse">
       <thead>
         <tr>
-          {colNames.map((name) => (
-            <SortableTableHeader
-              key={name}
-              field={name}
-              label={name.charAt(0).toUpperCase() + name.slice(1)}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-            />
-          ))}
+          <SortableTableHeader
+            field="source"
+            label={source.name}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
+          <SortableTableHeader
+            field="target"
+            label={target.name}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
           <th className="p-2 border border-neutral-300" />
         </tr>
       </thead>

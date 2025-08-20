@@ -6,12 +6,6 @@ export const users = sqliteTable('users', {
   name: text().notNull(),
 });
 
-// Single source of truth for displayed column names
-export const VOCAB_UI_COLS = {
-  source: 'swedish',
-  target: 'english',
-} as const;
-
 export const vocabulary = sqliteTable('vocabulary', {
   id: int('id').primaryKey({ autoIncrement: true }),
   source: text().unique().notNull(),
