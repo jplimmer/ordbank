@@ -8,14 +8,14 @@ export const users = sqliteTable('users', {
 
 // Single source of truth for displayed column names
 export const VOCAB_UI_COLS = {
-  swedish: 'swedish',
-  english: 'english',
+  source: 'swedish',
+  target: 'english',
 } as const;
 
 export const vocabulary = sqliteTable('vocabulary', {
   id: int('id').primaryKey({ autoIncrement: true }),
-  [VOCAB_UI_COLS.swedish]: text().unique().notNull(),
-  [VOCAB_UI_COLS.english]: text().notNull(),
+  source: text().unique().notNull(),
+  target: text().notNull(),
 });
 
 export type VocabItem = InferSelectModel<typeof vocabulary>;

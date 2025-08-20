@@ -17,10 +17,7 @@ export interface VocabActionResult<T = void> {
 
 export async function getVocab(): Promise<VocabActionResult<VocabItem[]>> {
   try {
-    const vocab = await db
-      .select()
-      .from(vocabulary)
-      .orderBy(vocabulary.swedish);
+    const vocab = await db.select().from(vocabulary).orderBy(vocabulary.source);
 
     return { success: true, data: vocab, message: '' };
   } catch (error) {
@@ -33,18 +30,18 @@ export async function addVocab(
   prevState: VocabActionResult,
   formData: FormData
 ): Promise<VocabActionResult> {
-  const swedish = formData.get('swedish') as string;
-  const english = formData.get('english') as string;
+  const source = formData.get('source') as string;
+  const target = formData.get('target') as string;
 
-  if (!swedish || !english) {
+  if (!source || !target) {
     logger.error('Both words are required');
     return { success: false, message: 'Both words are required' };
   }
 
   try {
     await db.insert(vocabulary).values({
-      swedish: swedish.trim(),
-      english: english.trim(),
+      source: source.trim(),
+      target: target.trim(),
     });
 
     revalidatePath(ROUTES.VOCAB);
@@ -73,15 +70,15 @@ export async function deleteVocabItem(id: number): Promise<VocabActionResult> {
 
 export async function updateVocabItem({
   id,
-  swedish,
-  english,
+  source,
+  target,
 }: VocabItem): Promise<VocabActionResult> {
   try {
     await db
       .update(vocabulary)
-      .set({ swedish: swedish, english: english })
+      .set({ source: source, target: target })
       .where(eq(vocabulary.id, id));
-    logger.debug(`Updated vocab item ${id} with "${swedish}: ${english}"`);
+    logger.debug(`Updated vocab item ${id} with "${source}: ${target}"`);
     revalidatePath(ROUTES.VOCAB);
     return { success: true };
   } catch (error) {
