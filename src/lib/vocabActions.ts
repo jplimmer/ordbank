@@ -17,7 +17,10 @@ export interface VocabActionResult<T = void> {
 
 export async function getVocab(): Promise<VocabActionResult<VocabItem[]>> {
   try {
-    const vocab = await db.select().from(vocabulary).orderBy(vocabulary.id);
+    const vocab = await db
+      .select()
+      .from(vocabulary)
+      .orderBy(vocabulary.swedish);
 
     return { success: true, data: vocab, message: '' };
   } catch (error) {
