@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 export default async function WordListPage() {
-  const wordList = await getWordList();
+  const result = await getWordList();
+  if (!result.data) return;
+
+  const wordList = result.data;
 
   return (
     <main className="content-grid grid-rows-[auto_1fr] justify-items-center items-start">

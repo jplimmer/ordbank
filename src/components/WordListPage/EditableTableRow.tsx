@@ -1,4 +1,5 @@
 import { WordListItem } from '@/db/schema';
+import { WordListActionResult } from '@/lib/wordListActions';
 import { getLogger } from '@/utils/logger';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -11,8 +12,8 @@ interface EditableTableRowProps {
   isEditing: boolean;
   onEditStart: (id: number) => void;
   onEditEnd: () => void;
-  onEdit: (data: WordListItem) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
+  onEdit: (data: WordListItem) => Promise<WordListActionResult>;
+  onDelete: (id: number) => Promise<WordListActionResult>;
 }
 
 export function EditableTableRow({

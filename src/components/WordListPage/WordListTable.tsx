@@ -1,6 +1,7 @@
 'use client';
 
 import { WORD_LIST_UI_COLS, WordListItem } from '@/db/schema';
+import { WordListActionResult } from '@/lib/wordListActions';
 import { useState } from 'react';
 import { EditableTableRow } from './EditableTableRow';
 import { SortableTableHeader } from './SortableTableHeader';
@@ -8,8 +9,8 @@ import { SortDirection, WordListKeys } from './types';
 
 interface WordListTableProps {
   wordList: WordListItem[];
-  onDelete: (id: number) => Promise<void>;
-  onEdit: (data: WordListItem) => Promise<void>;
+  onDelete: (id: number) => Promise<WordListActionResult>;
+  onEdit: (data: WordListItem) => Promise<WordListActionResult>;
 }
 
 export function WordListTable({
