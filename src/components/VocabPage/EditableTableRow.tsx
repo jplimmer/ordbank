@@ -60,6 +60,16 @@ export function EditableTableRow({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !loading) {
+      e.preventDefault();
+      handleEditSave();
+    } else if (e.key === 'Escape' && !loading) {
+      e.preventDefault();
+      handleEditCancel();
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm(`Delete ${item.source}?`)) return;
 
@@ -87,6 +97,7 @@ export function EditableTableRow({
             type="text"
             value={editForm.source}
             onChange={(e) => handleFormChange('source', e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full px-2 py-1 border rounded"
           />
         ) : (
@@ -99,6 +110,7 @@ export function EditableTableRow({
             type="text"
             value={editForm.target}
             onChange={(e) => handleFormChange('target', e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full px-2 py-1 border rounded"
             autoFocus
           />
