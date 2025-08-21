@@ -13,7 +13,7 @@ export default function Home() {
         Add Word
       </Link>
       <Link
-        href={ROUTES.TEST}
+        href={ROUTES.TEST_SETTINGS}
         className="border rounded-2xl p-6 text-center hover:shadow-md w-1/2"
       >
         Test
