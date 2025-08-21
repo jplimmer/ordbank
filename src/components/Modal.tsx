@@ -15,9 +15,16 @@ export function Modal({
 }: ModalProps) {
   const router = useRouter();
 
-  function closeModal() {
+  const closeModal = () => {
     router.back();
-  }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeModal();
+    }
+  };
 
   return (
     <div
@@ -26,6 +33,7 @@ export function Modal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
         className={`bg-neutral-50 rounded-lg p-6 overflow-auto ${dialogClassName}`}
       >
         {children}
