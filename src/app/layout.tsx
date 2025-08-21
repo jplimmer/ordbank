@@ -27,6 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="apple-mobile-web-app-title" content="OrdBank" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased content-grid grid-rows-[1fr_auto] min-h-svh`}
       >
