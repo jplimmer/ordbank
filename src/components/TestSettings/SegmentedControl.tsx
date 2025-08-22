@@ -1,10 +1,15 @@
-export default function SegmentedControl({
+type Option<T extends string> = {
+  label: string;
+  value: T;
+};
+
+export default function SegmentedControl<T extends string>({
   label,
   options,
   defaultIndex,
 }: {
   label: string;
-  options: string[];
+  options: readonly Option<T>[];
   defaultIndex: number;
 }) {
   return (
@@ -12,11 +17,11 @@ export default function SegmentedControl({
       <legend>{label}</legend>
       <div className="flex gap-1">
         {options.map((option, idx) => (
-          <label key={option} className="cursor-pointer">
+          <label key={option.value} className="cursor-pointer">
             <input
               type="radio"
               name={`${label}-choice`}
-              value={option}
+              value={option.value}
               defaultChecked={idx === defaultIndex}
               className="peer hidden"
               required
@@ -30,7 +35,7 @@ export default function SegmentedControl({
                 peer-checked:scale-105
               "
             >
-              {option}
+              {option.label}
             </span>
           </label>
         ))}

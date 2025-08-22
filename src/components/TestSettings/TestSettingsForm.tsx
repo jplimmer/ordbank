@@ -1,8 +1,17 @@
 'use client';
 
 import { LANGUAGES } from '@/config/languages';
+import {
+  LANGUAGE_DIRECTION_OPTIONS,
+  LanguageDirection,
+  TEST_FORMAT_LABELS,
+  TEST_FORMAT_OPTIONS,
+  TEST_LENGTH_LABELS,
+  TEST_LENGTH_OPTIONS,
+} from '@/config/test-settings';
 import { updateTestSettings } from '@/lib/testSettingsActions';
 import { UserProfile } from '@/lib/user';
+import { buildOptions } from '@/utils/buildOptions';
 import { useActionState } from 'react';
 import SegmentedControl from './SegmentedControl';
 
@@ -15,12 +24,27 @@ export default function TestSettingsForm({
     success: false,
   });
 
+  const { testLength, testFormat, languageDirection } =
+    userProfile.testSettings;
+
+  // Map UserProfile languages to option labels
   const { source, target } = userProfile.languages;
   const sourceLanguage = LANGUAGES[source].name;
   const targetLanguage = LANGUAGES[target].name;
 
-  // const { testLength, testFormat, languageDirection } =
-  //   userProfile.testSettings;
+  const directionLabels: Record<LanguageDirection, string> = {
+    source: sourceLanguage,
+    target: targetLanguage,
+    both: 'Both',
+  };
+
+  // Build options with labels
+  const lengthOptions = buildOptions(TEST_LENGTH_OPTIONS, TEST_LENGTH_LABELS);
+  const formatOptions = buildOptions(TEST_FORMAT_OPTIONS, TEST_FORMAT_LABELS);
+  const directionOptions = LANGUAGE_DIRECTION_OPTIONS.map((dir) => ({
+    label: directionLabels[dir],
+    value: dir,
+  }));
 
   return (
     <div className="space-y-4">
@@ -28,7 +52,7 @@ export default function TestSettingsForm({
       <form action={formAction} className="flex flex-col space-y-4">
         <SegmentedControl
           label="Test Length"
-          options={['Time', 'Questions', 'Unlimited']}
+          options={lengthOptions}
           defaultIndex={2}
         />
         {/* <input
@@ -40,13 +64,13 @@ export default function TestSettingsForm({
 
         <SegmentedControl
           label="Test Format"
-          options={['Typing', 'Multiple Choice', 'Both']}
+          options={formatOptions}
           defaultIndex={1}
         />
 
         <SegmentedControl
           label="Language Direction"
-          options={[sourceLanguage, targetLanguage, 'Both']}
+          options={directionOptions}
           defaultIndex={2}
         />
 

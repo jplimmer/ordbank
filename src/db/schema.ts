@@ -1,6 +1,6 @@
 import { LanguageCode } from '@/config/languages';
 import {
-  LanugageDirection,
+  LanguageDirection,
   TestFormat,
   TestLength,
 } from '@/config/test-settings';
@@ -39,7 +39,7 @@ export const testSettings = sqliteTable('test_settings', {
     .references(() => users.id, { onDelete: 'cascade' }),
   testLength: text().$type<TestLength>(),
   testFormat: text().$type<TestFormat>(),
-  languageDirection: text().$type<LanugageDirection>(),
+  languageDirection: text().$type<LanguageDirection>(),
 });
 
 // Relationships
