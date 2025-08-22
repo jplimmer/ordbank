@@ -22,6 +22,20 @@
       "when": 1755694905413,
       "tag": "0002_needy_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1755858351966,
+      "tag": "0003_parched_mandrill",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1755858982388,
+      "tag": "0004_nappy_miek",
+      "breakpoints": true
     }
   ]
 }
