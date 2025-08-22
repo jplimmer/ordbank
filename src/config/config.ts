@@ -12,8 +12,8 @@ export const APP_CONFIG: APP_CONFIG = {
     target: 'en',
   },
   defaultTestSettings: {
-    testLength: 'Unlimited',
-    testFormat: 'Multiple Choice',
-    languageDirection: 'Both',
+    testLength: 'unlimited',
+    testFormat: 'multiple_choice',
+    languageDirection: 'both',
   },
 } as const;

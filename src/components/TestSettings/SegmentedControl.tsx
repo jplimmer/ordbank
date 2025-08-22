@@ -6,23 +6,23 @@ type Option<T extends string> = {
 export default function SegmentedControl<T extends string>({
   label,
   options,
-  defaultIndex,
+  defaultValue,
 }: {
   label: string;
   options: readonly Option<T>[];
-  defaultIndex: number;
+  defaultValue: T;
 }) {
   return (
     <fieldset className="space-y-2">
       <legend>{label}</legend>
       <div className="flex gap-1">
-        {options.map((option, idx) => (
+        {options.map((option) => (
           <label key={option.value} className="cursor-pointer">
             <input
               type="radio"
               name={`${label}-choice`}
               value={option.value}
-              defaultChecked={idx === defaultIndex}
+              defaultChecked={option.value === defaultValue}
               className="peer hidden"
               required
             />

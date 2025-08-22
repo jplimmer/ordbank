@@ -53,7 +53,7 @@ export default function TestSettingsForm({
         <SegmentedControl
           label="Test Length"
           options={lengthOptions}
-          defaultIndex={2}
+          defaultValue={testLength}
         />
         {/* <input
           type="text"
@@ -65,13 +65,13 @@ export default function TestSettingsForm({
         <SegmentedControl
           label="Test Format"
           options={formatOptions}
-          defaultIndex={1}
+          defaultValue={testFormat}
         />
 
         <SegmentedControl
           label="Language Direction"
           options={directionOptions}
-          defaultIndex={2}
+          defaultValue={languageDirection}
         />
 
         {state.message && (
