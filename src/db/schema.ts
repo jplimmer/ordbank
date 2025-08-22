@@ -1,3 +1,4 @@
+import { LanguageCode } from '@/config/languages';
 import {
   LanugageDirection,
   TestFormat,
@@ -12,11 +13,21 @@ export const users = sqliteTable('users', {
   username: text().notNull(),
 });
 
-export const vocabulary = sqliteTable('vocabulary', {
+export const languagePairs = sqliteTable('language_pairs', {
   id: int('id').primaryKey({ autoIncrement: true }),
   userId: int()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  source: text().$type<LanguageCode>(),
+  target: text().$type<LanguageCode>(),
+  name: text().notNull(),
+});
+
+export const vocabulary = sqliteTable('vocabulary', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  languagePairId: int()
+    .notNull()
+    .references(() => languagePairs.id, { onDelete: 'cascade' }),
   source: text().unique().notNull(),
   target: text().notNull(),
 });
@@ -32,15 +43,26 @@ export const testSettings = sqliteTable('test_settings', {
 });
 
 // Relationships
-export const usersRelations = relations(users, ({ many }) => ({
-  vocabulary: many(vocabulary),
-  testSettings: many(testSettings),
+export const usersRelations = relations(users, ({ many, one }) => ({
+  languagePairs: many(languagePairs),
+  testSettings: one(testSettings),
 }));
 
+export const languagePairsRelations = relations(
+  languagePairs,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [languagePairs.userId],
+      references: [users.id],
+    }),
+    vocabulary: many(vocabulary),
+  })
+);
+
 export const vocabularyRelations = relations(vocabulary, ({ one }) => ({
-  user: one(users, {
-    fields: [vocabulary.userId],
-    references: [users.id],
+  user: one(languagePairs, {
+    fields: [vocabulary.languagePairId],
+    references: [languagePairs.id],
   }),
 }));
 
