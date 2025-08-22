@@ -1,15 +1,26 @@
 'use client';
 
-import { getDefaultLanguages } from '@/lib/language-utils';
-import { updateSettings } from '@/lib/testSettingsActions';
+import { LANGUAGES } from '@/config/languages';
+import { updateTestSettings } from '@/lib/testSettingsActions';
+import { UserProfile } from '@/lib/user';
 import { useActionState } from 'react';
 import SegmentedControl from './SegmentedControl';
 
-export default function TestSettingsForm() {
-  const [state, formAction, isPending] = useActionState(updateSettings, {
+export default function TestSettingsForm({
+  userProfile,
+}: {
+  userProfile: UserProfile;
+}) {
+  const [state, formAction, isPending] = useActionState(updateTestSettings, {
     success: false,
   });
-  const { source, target } = getDefaultLanguages();
+
+  const { source, target } = userProfile.languages;
+  const sourceLanguage = LANGUAGES[source].name;
+  const targetLanguage = LANGUAGES[target].name;
+
+  // const { testLength, testFormat, languageDirection } =
+  //   userProfile.testSettings;
 
   return (
     <div className="space-y-4">
@@ -35,7 +46,7 @@ export default function TestSettingsForm() {
 
         <SegmentedControl
           label="Language Direction"
-          options={[source.name, target.name, 'Both']}
+          options={[sourceLanguage, targetLanguage, 'Both']}
           defaultIndex={2}
         />
 

@@ -7,8 +7,9 @@ export const LANGUAGES = {
 } as const;
 
 export type LanguageCode = keyof typeof LANGUAGES;
+export type Language = (typeof LANGUAGES)[LanguageCode];
 
-export interface LanguageSettings {
+export interface LanguagePair {
   source: LanguageCode;
   target: LanguageCode;
 }

@@ -1,8 +1,8 @@
-import { LanguageSettings } from './languages';
+import { LanguagePair } from './languages';
 import { TestSettings } from './test-settings';
 
 interface APP_CONFIG {
-  defaultLanguages: LanguageSettings;
+  defaultLanguages: LanguagePair;
   defaultTestSettings: TestSettings;
 }
 
