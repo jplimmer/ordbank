@@ -1,27 +1,23 @@
+'use client';
+
 import { getDefaultLanguages } from '@/lib/language-utils';
-import { TestSettingsActionResult } from '@/lib/testSettingsActions';
+import { updateSettings } from '@/lib/testSettingsActions';
+import { useActionState } from 'react';
 import SegmentedControl from './SegmentedControl';
 
-interface TestSettingsProps {
-  state: TestSettingsActionResult;
-  formAction: (formData: FormData) => void;
-  isPending: boolean;
-}
-
-export default function TestSettingsForm({
-  state,
-  formAction,
-  isPending,
-}: TestSettingsProps) {
+export default function TestSettingsForm() {
+  const [state, formAction, isPending] = useActionState(updateSettings, {
+    success: false,
+  });
   const { source, target } = getDefaultLanguages();
 
   return (
     <div className="space-y-4">
       <h1 className="font-bold text-center">Test Settings</h1>
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="flex flex-col space-y-4">
         <SegmentedControl
           label="Test Length"
-          options={['Timed', 'Questions', 'Unlimited']}
+          options={['Time', 'Questions', 'Unlimited']}
           defaultIndex={2}
         />
         {/* <input
@@ -32,7 +28,7 @@ export default function TestSettingsForm({
         /> */}
 
         <SegmentedControl
-          label="TestFormat"
+          label="Test Format"
           options={['Typing', 'Multiple Choice', 'Both']}
           defaultIndex={1}
         />
