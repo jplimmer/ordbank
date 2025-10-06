@@ -12,8 +12,8 @@ export const languagePairs = pgTable('language_pairs', {
   userId: integer()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  source: text().notNull(),
-  target: text().notNull(),
+  sourceLanguage: text().notNull(),
+  targetLanguage: text().notNull(),
   name: text().notNull(),
 });
 
