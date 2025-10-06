@@ -3,27 +3,27 @@ import { integer, pgTable, text, varchar } from 'drizzle-orm/pg-core';
 
 // Tables
 export const users = pgTable('users', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  username: varchar('username', { length: 255 }).notNull(),
 });
 
 export const languagePairs = pgTable('language_pairs', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer()
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  sourceLanguage: text().notNull(),
-  targetLanguage: text().notNull(),
-  name: text().notNull(),
+  sourceLanguage: text('source_language').notNull(),
+  targetLanguage: text('target_language').notNull(),
+  pairName: text('pair_name').notNull(),
 });
 
 export const vocabulary = pgTable('vocabulary', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  languagePairId: integer()
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  languagePairId: integer('language_pair_id')
     .notNull()
     .references(() => languagePairs.id, { onDelete: 'cascade' }),
-  source: text().notNull().unique(),
-  target: text().notNull(),
+  source: text('source').notNull().unique(),
+  target: text('target').notNull(),
 });
 
 // Relationships
