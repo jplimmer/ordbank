@@ -1,5 +1,5 @@
-import { VocabItem } from '@/db/schema';
-import { VocabActionResult } from '@/lib/vocabActions';
+import { VocabItem } from '@/lib/db/schema';
+import { VocabActionResult } from '@/lib/vocab-actions';
 import { getLogger } from '@/utils/logger';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
