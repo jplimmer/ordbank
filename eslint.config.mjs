@@ -1,26 +1,21 @@
-import next from 'eslint-config-next';
-import prettierConfig from 'eslint-config-prettier';
-import prettierPlugin from 'eslint-plugin-prettier';
+import { FlatCompat } from '@eslint/eslintrc';
 
-export default [
+const compat = new FlatCompat({
+  baseDirectory: import.meta.dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends('next/core-web-vitals', 'next/typescript', 'prettier'),
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
     ignores: [
       'node_modules/**',
       '.next/**',
       'out/**',
       'build/**',
       'next-env.d.ts',
+      '.husky/',
     ],
   },
-  next(),
-  prettierConfig,
-  {
-    plugins: {
-      prettier: prettierPlugin,
-    },
-    rules: {
-      'prettier/prettier': 'error',
-    },
-  },
 ];
+
+export default eslintConfig;
