@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { VocabItem, vocabulary } from '@/lib/db/schema';
-import { getLogger } from '@/utils/logger';
+import { getLogger } from '@/lib/logger';
 import { eq } from 'drizzle-orm/sqlite-core/expressions';
 import { revalidatePath } from 'next/cache';
 import { ROUTES } from './routes';
