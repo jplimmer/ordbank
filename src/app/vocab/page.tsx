@@ -5,7 +5,7 @@ import {
   updateVocabItem,
 } from '@/lib/actions/vocab-actions';
 import { ROUTES } from '@/lib/constants/routes';
-import { House, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -26,9 +26,6 @@ export default async function VocabPage() {
           <nav className="flex absolute right-0 gap-2">
             <Link href={ROUTES.ADD_VOCAB} scroll={false}>
               <Plus size={32} />
-            </Link>
-            <Link href={ROUTES.HOME}>
-              <House size={32} />
             </Link>
           </nav>
         </header>
