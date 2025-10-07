@@ -1,4 +1,4 @@
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import { BookType, Heart, Info } from 'lucide-react';
 import Link from 'next/link';
 

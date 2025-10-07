@@ -1,10 +1,10 @@
 import { VocabTable } from '@/components/VocabPage/VocabTable';
-import { ROUTES } from '@/lib/routes';
 import {
   deleteVocabItem,
   getVocab,
   updateVocabItem,
-} from '@/lib/vocab-actions';
+} from '@/lib/actions/vocab-actions';
+import { ROUTES } from '@/lib/constants/routes';
 import { House, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
