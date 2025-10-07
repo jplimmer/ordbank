@@ -20,14 +20,11 @@ export const columns: ColumnDef<VocabItem>[] = [
     id: 'actions',
     header: '',
     cell: () => {
-      const handleUpdate = () => {
-        console.log('Update function goes here');
-      };
       const handleDelete = () => {
         console.log('Delete function goes here');
       };
 
-      return <ActionsMenu deleteFn={handleDelete} updateFn={handleUpdate} />;
+      return <ActionsMenu deleteFn={handleDelete} updateHref={'/'} />;
     },
   },
 ];
