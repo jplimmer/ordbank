@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       {/* Filter input */}
-      <div className="py-2">
+      <div className="py-4">
         <Label htmlFor="table-filter" className="sr-only">
           Table filter input
         </Label>
