@@ -21,7 +21,7 @@ export async function getVocab(
 ): Promise<Result<VocabItem[]>> {
   try {
     // TO DO - Verify user is authenticated
-    const userId = 2;
+    const userId = 1;
     if (!userId) {
       return { success: false, error: 'Unauthorised' };
     }
