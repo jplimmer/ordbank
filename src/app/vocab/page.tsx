@@ -1,13 +1,9 @@
-import { VocabTable } from '@/components/VocabPage/VocabTable';
-import {
-  deleteVocabItem,
-  getVocab,
-  updateVocabItem,
-} from '@/lib/actions/vocab-actions';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
+import { columns } from '@/components/vocab/columns';
+import { getVocab } from '@/lib/actions/vocab-actions';
 import { ROUTES } from '@/lib/constants/routes';
-import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { Suspense } from 'react';
 
 export default async function VocabPage() {
   // TO DO - get languagePairId from URL/context/cookies
@@ -19,22 +15,24 @@ export default async function VocabPage() {
   const vocab = result.data;
 
   return (
-    <main className="content-grid grid-rows-[auto_1fr] justify-items-center items-start">
-      <Suspense fallback={<div>Loading...</div>}>
-        <header className="flex relative justify-center items-center w-full py-6">
-          <h1 className="flex-1 text-center font-bold">Word List</h1>
-          <nav className="flex absolute right-0 gap-2">
-            <Link href={ROUTES.ADD_VOCAB} scroll={false}>
-              <Plus size={32} />
-            </Link>
-          </nav>
-        </header>
-        <VocabTable
-          vocab={vocab}
-          onDelete={deleteVocabItem}
-          onEdit={updateVocabItem}
+    <main className="content-grid grid-rows-[auto_1fr] space-y-8 justify-items-center items-start">
+      <h1 className="text-center text-4xl font-semibold mt-8">Vocabulary</h1>
+      <div className="space-y-8">
+        <DataTable
+          columns={columns}
+          data={vocab}
+          filterPlaceholder="Find a word..."
         />
-      </Suspense>
+        <Button
+          asChild
+          variant="outline"
+          className="w-full bg-green-700 text-white hover:bg-green-700/30"
+        >
+          <Link href={ROUTES.ADD_VOCAB} scroll={false}>
+            Add word
+          </Link>
+        </Button>
+      </div>
     </main>
   );
 }

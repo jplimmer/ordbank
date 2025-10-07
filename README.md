@@ -6,26 +6,61 @@ A vocabulary learning application built with **Next.js** and **Drizzle ORM**.
 
 Currently in development, this app will allow language learners to test themselves on the vocabulary they find most challenging.
 
-### Features
+## Contents
+
+- ✨ [Features](#-features)
+- 🛠 [Tech stack](#-tech-stack)
+- ⚙️ [Installation](#️-installation)
+- 📂 [Project Structure](#-project-structure)
+- 🧩 [Contributing](#-contributing)
+- 📜 [License](#-license)
+
+## ✨ Features
 
 - **Vocabulary Management:** add, edit and delete vocabulary entries with source language terms and translations
 - **Interactive testing:** Multiple testing modes, including typing and multiple choice (Planned)
 - **Flexible Practice:** Set time limits, question counts or unlimited practice sessions (Planned)
 - **Adaptive Learning:** Words you struggle with most feature more heavily in tests (Planned)
 
-## Tech stack
+## 🛠 Tech stack
 
-- **Framework:** Next.js 15 with TypeScript
-- **Database:** SQLite with Drizzle ORM
-- **Styling:** Tailwind CSS 4, Lucide React
-- **Development:** ESLint, Prettier, Turbopack
+#### Core Framework & Language
 
-## Pre-requisites
+- **[Next.js 15 (App Router)](https://nextjs.org/docs)** - React framework for server-side rendering, routing, and modern app architecture
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript for improved developer experience and code reliability
+
+#### Database & ORM
+
+- **[PostgresSQL](https://www.postgresql.org/)** - Powerful, open-source relational database
+- **[Neon](https://neon.com/)** - Serverless PostgreSQL platform with branching and autoscaling
+- **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript-first ORM for type-safe database queries and migrations
+
+#### Styling & UI
+
+- **[Tailwind CSS](https://tailwindcss.com/docs/styling-with-utility-classes)** - Utility-first CSS framework for responsive design
+- **[shadcn/ui](https://ui.shadcn.com/docs)** - Composable UI component library built on Radix UI
+- **[Radix UI](https://www.radix-ui.com/primitives/docs/overview/introduction)** - Unstyled, accessible component primitives
+- **[Lucide React](https://lucide.dev/icons/)** - Modern icon library
+
+#### Features & Functionality
+
+- **[Zod](https://zod.dev/)** - Runtime type validation for forms and data schemas
+- **[Clerk](https://clerk.com/)** - Authentication and protected routes
+- **[React Hot Toast](https://react-hot-toast.com/)** - Toast notification system for user feedback
+
+#### Development Tools
+
+- **[ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)** - Code linting and formatting for consistent code style
+- **[Husky](https://typicode.github.io/husky/)** - Git hooks for automated pre-commit quality checks
+
+## ⚙️ Installation
+
+### Pre-requisites
 
 - Node.js (version 20 or higher recommended)
 - **npm** or **yarn** package manager
 
-## Getting started
+### Steps
 
 1. Clone the repository:
 
@@ -40,11 +75,10 @@ Currently in development, this app will allow language learners to test themselv
    npm install
    ```
 
-3. Set up the database:
+3. Add your neon database connection to your `.env` file (see [`.env.example`](.env.example)):
 
-   ```bash
-   npm run db:generate
-   npm run db:migrate
+   ```
+   DATABASE_URL=your_neon_connection_string
    ```
 
 4. Start the development server:
@@ -55,22 +89,30 @@ Currently in development, this app will allow language learners to test themselv
 
 5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 ordbank/
 ├── src/
-│   ├── app/           # Next.js app router pages
-│   ├── components/    # Reusable React components
-│   ├── db/            # Database schema and configuration
-│   ├── lib/           # Shared
-│   └── utils/         # Utility functions and helpers
-├── public/            # Static assets
-├── drizzle/           # Database migrations
-└── README.md          # This file
+│   ├── app/               # Next.js App Router pages and routes
+│   │   ├── @modal/        # Parallel slot for intercepting modal routes
+│   │   ├── test/
+│   │   ├── vocab/
+│   │   ├── user-guide/
+│   │   └── page.tsx
+│   ├── components/        # Reusable React components organised by feature
+│   └── lib/
+│       ├── actions/       # Server actions
+│       ├── constants/
+│       ├── db/            # Database schema and configuration
+│       ├── logger.ts
+│       └── utils.ts
+├── public/                # Static assets
+├── package.json
+└── README.md
 ```
 
-## Contributing
+## 🧩 Contributing
 
 This is currently a personal project, but I'm open to contributions! If you'd like to contribute:
 
@@ -97,6 +139,6 @@ This is currently a personal project, but I'm open to contributions! If you'd li
 
 5. Open a pull request from your fork to the main repository.
 
-## License
+## 📜 License
 
 This project is private and not currently licensed for public use.
