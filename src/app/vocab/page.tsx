@@ -24,7 +24,11 @@ export default async function VocabPage() {
           </Link>
         </nav>
       </header>
-      <DataTable columns={columns} data={vocab} />
+      <DataTable
+        columns={columns}
+        data={vocab}
+        filterPlaceholder="Find a word..."
+      />
     </main>
   );
 }

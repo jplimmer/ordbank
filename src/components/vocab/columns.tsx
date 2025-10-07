@@ -33,5 +33,6 @@ export const columns: ColumnDef<VocabItem>[] = [
 
       return <ActionsMenu deleteFn={handleDelete} updateHref={'/'} />;
     },
+    enableGlobalFilter: false,
   },
 ];
