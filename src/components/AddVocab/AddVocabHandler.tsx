@@ -1,6 +1,6 @@
 'use client';
 
-import { addVocab } from '@/lib/vocabActions';
+import { addVocab } from '@/lib/vocab-actions';
 import { ActionResult } from 'next/dist/server/app-render/types';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';

@@ -1,4 +1,4 @@
-import { VocabItem } from '@/db/schema';
+import { VocabItem } from '@/lib/db/schema';
 
 export type VocabTableKeys = Exclude<keyof VocabItem, 'id'>;
 export type SortDirection = 'asc' | 'desc';

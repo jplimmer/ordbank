@@ -1,11 +1,12 @@
 'use server';
 
-import { db } from '@/db';
-import { VocabItem, vocabulary } from '@/db/schema';
-import { getLogger } from '@/utils/logger';
+import { db } from '@/lib/db';
+import { languagePairs, VocabItem, vocabulary } from '@/lib/db/schema';
+import { getLogger } from '@/lib/logger';
 import { eq } from 'drizzle-orm/sqlite-core/expressions';
 import { revalidatePath } from 'next/cache';
-import { ROUTES } from './routes';
+import { ROUTES } from '../constants/routes';
+import { Result } from '../types/types';
 
 const logger = getLogger();
 
@@ -15,14 +16,37 @@ export interface VocabActionResult<T = void> {
   message?: string;
 }
 
-export async function getVocab(): Promise<VocabActionResult<VocabItem[]>> {
+export async function getVocab(
+  languagePairId: number
+): Promise<Result<VocabItem[]>> {
   try {
-    const vocab = await db.select().from(vocabulary).orderBy(vocabulary.source);
+    // TO DO - Verify user is authenticated
+    const userId = 1;
+    if (!userId) {
+      return { success: false, error: 'Unauthorised' };
+    }
 
-    return { success: true, data: vocab, message: '' };
+    // Verify the languagePair belongs to the user
+    const languagePair = await db.query.languagePairs.findFirst({
+      where: eq(languagePairs.id, languagePairId),
+    });
+
+    if (!languagePair || languagePair.userId !== userId) {
+      return {
+        success: false,
+        error: 'Language pair not found or access denied',
+      };
+    }
+    const vocab = await db
+      .select()
+      .from(vocabulary)
+      .where(eq(vocabulary.languagePairId, languagePairId))
+      .orderBy(vocabulary.source);
+
+    return { success: true, data: vocab };
   } catch (error) {
-    logger.error('Failed to retrieve Vocabulary', error);
-    return { success: false, message: 'Failed to retrieve Vocabulary' };
+    logger.error('Failed to retrieve vocabulary:', error);
+    return { success: false, error: 'Failed to retrieve vocabulary' };
   }
 }
 
@@ -30,6 +54,7 @@ export async function addVocab(
   prevState: VocabActionResult,
   formData: FormData
 ): Promise<VocabActionResult> {
+  const langPairId = Number(formData.get('languagePairId') as string);
   const source = formData.get('source') as string;
   const target = formData.get('target') as string;
 
@@ -40,6 +65,7 @@ export async function addVocab(
 
   try {
     await db.insert(vocabulary).values({
+      languagePairId: langPairId,
       source: source.trim(),
       target: target.trim(),
     });
@@ -54,6 +80,8 @@ export async function addVocab(
 }
 
 export async function deleteVocabItem(id: number): Promise<VocabActionResult> {
+  //
+
   try {
     await db.delete(vocabulary).where(eq(vocabulary.id, id));
     logger.debug(`Deleted vocab item ${id}`);

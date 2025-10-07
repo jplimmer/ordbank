@@ -1,8 +1,8 @@
 'use client';
 
-import { VocabItem } from '@/db/schema';
+import { VocabItem } from '@/lib/db/schema';
 import { getDefaultLanguages } from '@/lib/language-utils';
-import { VocabActionResult } from '@/lib/vocabActions';
+import { VocabActionResult } from '@/lib/vocab-actions';
 import { useState } from 'react';
 import { EditableTableRow } from './EditableTableRow';
 import { SortableTableHeader } from './SortableTableHeader';

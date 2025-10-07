@@ -1,4 +1,4 @@
-import { ROUTES } from '@/lib/routes';
+import { ROUTES } from '@/lib/constants/routes';
 import Link from 'next/link';
 
 export default function Home() {

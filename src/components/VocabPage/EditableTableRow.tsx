@@ -1,6 +1,6 @@
-import { VocabItem } from '@/db/schema';
-import { VocabActionResult } from '@/lib/vocabActions';
-import { getLogger } from '@/utils/logger';
+import { VocabItem } from '@/lib/db/schema';
+import { getLogger } from '@/lib/logger';
+import { VocabActionResult } from '@/lib/vocab-actions';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { EditForm } from './types';
