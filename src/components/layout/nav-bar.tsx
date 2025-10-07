@@ -1,14 +1,14 @@
 import { ROUTES } from '@/lib/constants/routes';
-import { BookType, Heart, Info } from 'lucide-react';
+import { BookType, Info, UserRound } from 'lucide-react';
 import Link from 'next/link';
 
-export default function NavBar() {
+export function NavBar() {
   return (
     <nav className="mb-4 py-4">
       <ul className="flex justify-around">
         <li>
-          <Link href={ROUTES.USER_GUIDE}>
-            <Info size={32} />
+          <Link href={ROUTES.ACCOUNT}>
+            <UserRound size={32} />
           </Link>
         </li>
         <li>
@@ -17,8 +17,8 @@ export default function NavBar() {
           </Link>
         </li>
         <li>
-          <Link href={ROUTES.HEALTH_CHECK}>
-            <Heart size={32} />
+          <Link href={ROUTES.USER_GUIDE}>
+            <Info size={32} />
           </Link>
         </li>
       </ul>
