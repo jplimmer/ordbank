@@ -16,12 +16,16 @@ export const columns: ColumnDef<VocabItem>[] = [
     header: ({ column }) => (
       <SortableColumnHeader column={column} header={source} />
     ),
+    size: 150,
+    minSize: 120,
   },
   {
     accessorKey: 'target',
     header: ({ column }) => (
       <SortableColumnHeader column={column} header={target} />
     ),
+    size: 150,
+    minSize: 120,
   },
   {
     id: 'actions',
@@ -33,6 +37,8 @@ export const columns: ColumnDef<VocabItem>[] = [
 
       return <ActionsMenu deleteFn={handleDelete} updateHref={'/'} />;
     },
+    size: 40,
+    maxSize: 50,
     enableGlobalFilter: false,
   },
 ];
