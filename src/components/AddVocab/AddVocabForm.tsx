@@ -1,4 +1,4 @@
-import { VocabActionResult } from '@/lib/vocab-actions';
+import { VocabActionResult } from '@/lib/actions/vocab-actions';
 
 interface AddVocabFormProps {
   state: VocabActionResult;
