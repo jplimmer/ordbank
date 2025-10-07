@@ -10,8 +10,11 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 export default async function VocabPage() {
-  const result = await getVocab();
-  if (!result.data) return;
+  // TO DO - get languagePairId from URL/context/cookies
+  const langPairId = 1;
+
+  const result = await getVocab(langPairId);
+  if (!result.success) return;
 
   const vocab = result.data;
 
