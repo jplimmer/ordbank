@@ -16,9 +16,7 @@ export default async function VocabPage() {
 
   return (
     <main className="content-grid grid-rows-[auto_1fr] space-y-8 justify-items-center items-start">
-      <h1 className="text-center text-4xl font-semibold py-4 mt-16">
-        Vocabulary
-      </h1>
+      <h1 className="text-center text-4xl font-semibold mt-8">Vocabulary</h1>
       <div className="space-y-8">
         <DataTable
           columns={columns}
