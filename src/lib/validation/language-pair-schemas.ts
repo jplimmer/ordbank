@@ -3,6 +3,7 @@ import {
   createSelectSchema,
   createUpdateSchema,
 } from 'drizzle-zod';
+import { z } from 'zod';
 import { languagePairs } from '../db/schema';
 
 // Constants for validation
@@ -10,6 +11,7 @@ const MAX_NAME_LENGTH = 20;
 
 // Validation schema for fetching lanugage pairs
 export const languagePairSelectSchema = createSelectSchema(languagePairs);
+export const languagePairArraySelectSchema = z.array(languagePairSelectSchema);
 
 // Validation schema for adding new language pair - user cannot define userId or
 // name (should be handled by data service)

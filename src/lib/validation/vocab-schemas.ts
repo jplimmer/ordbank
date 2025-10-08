@@ -3,13 +3,15 @@ import {
   createSelectSchema,
   createUpdateSchema,
 } from 'drizzle-zod';
+import { z } from 'zod';
 import { vocabulary } from '../db/schema';
 
 // Constants for validation
 const MAX_WORD_LENGTH = 50;
 
 // Validation schema for fetching vocab
-export const vocabSelectSchema = createSelectSchema(vocabulary);
+export const vocabItemSelectSchema = createSelectSchema(vocabulary);
+export const vocabSelectSchema = z.array(vocabItemSelectSchema);
 
 // Validation schema for adding new vocab
 export const vocabInsertSchema = createInsertSchema(vocabulary, {
