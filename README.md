@@ -2,7 +2,7 @@
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
-A vocabulary learning application built with **Next.js** and **Drizzle ORM**.
+A vocabulary learning application built with **Next.js**, **Neon PostgreSQL** and **Drizzle ORM**.
 
 Currently in development, this app will allow language learners to test themselves on the vocabulary they find most challenging.
 
@@ -13,7 +13,7 @@ Currently in development, this app will allow language learners to test themselv
 - ⚙️ [Installation for development](#️-installation-for-development)
 - 📂 [Project structure](#-project-structure)
 - 🧩 [Contributing](#-contributing)
-- 📜 [License](#-license)
+- 📜 [Licence](#-licence)
 
 ## ✨ Features
 
@@ -106,6 +106,9 @@ ordbank/
 │       ├── actions/       # Server actions
 │       ├── constants/
 │       ├── db/            # Database schema and configuration
+│       ├── services/      # Database operations
+│       ├── types/
+│       ├── validation/    # Zod validation schemas
 │       ├── logger.ts
 │       └── utils.ts
 ├── public/                # Static assets
@@ -140,6 +143,6 @@ This is currently a personal project, but I'm open to contributions! If you'd li
 
 5. Open a pull request from your fork to the main repository.
 
-## 📜 License
+## 📜 Licence
 
 This project is private and not currently licensed for public use.
