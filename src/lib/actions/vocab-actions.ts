@@ -1,12 +1,11 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { languagePairs, vocabulary } from '@/lib/db/schema';
+import { vocabulary } from '@/lib/db/schema';
 import { getLogger } from '@/lib/logger';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { ROUTES } from '../constants/routes';
-import { Result } from '../types/types';
 import { VocabItem } from '../types/vocab';
 
 const logger = getLogger();
@@ -15,40 +14,6 @@ export interface VocabActionResult<T = void> {
   success: boolean;
   data?: T;
   message?: string;
-}
-
-export async function getVocab(
-  languagePairId: number
-): Promise<Result<VocabItem[]>> {
-  try {
-    // TO DO - Verify user is authenticated
-    const userId = 1;
-    if (!userId) {
-      return { success: false, error: 'Unauthorised' };
-    }
-
-    // Verify the languagePair belongs to the user
-    const languagePair = await db.query.languagePairs.findFirst({
-      where: eq(languagePairs.id, languagePairId),
-    });
-
-    if (!languagePair || languagePair.userId !== userId) {
-      return {
-        success: false,
-        error: 'Language pair not found or access denied',
-      };
-    }
-    const vocab = await db
-      .select()
-      .from(vocabulary)
-      .where(eq(vocabulary.languagePairId, languagePairId))
-      .orderBy(vocabulary.source);
-
-    return { success: true, data: vocab };
-  } catch (error) {
-    logger.error('Failed to retrieve vocabulary:', error);
-    return { success: false, error: 'Failed to retrieve vocabulary' };
-  }
 }
 
 export async function addVocab(

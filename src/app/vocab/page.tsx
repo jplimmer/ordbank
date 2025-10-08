@@ -1,15 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from '@/components/vocab/columns';
-import { getVocab } from '@/lib/actions/vocab-actions';
 import { ROUTES } from '@/lib/constants/routes';
+import { getVocab } from '@/lib/services/vocab-service';
 import Link from 'next/link';
 
 export default async function VocabPage() {
+  // TO DO - authenticate user
+  const userId = 1;
+
   // TO DO - get languagePairId from URL/context/cookies
   const langPairId = 1;
 
-  const result = await getVocab(langPairId);
+  const result = await getVocab(userId, langPairId);
   if (!result.success) return;
 
   const vocab = result.data;
