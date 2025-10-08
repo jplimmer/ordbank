@@ -1,4 +1,4 @@
-import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import { integer, pgTable, text, varchar } from 'drizzle-orm/pg-core';
 
 // Tables
@@ -48,7 +48,3 @@ export const vocabularyRelations = relations(vocabulary, ({ one }) => ({
     references: [languagePairs.id],
   }),
 }));
-
-// Generated types
-export type VocabItem = InferSelectModel<typeof vocabulary>;
-export type NewVocabItem = InferInsertModel<typeof vocabulary>;

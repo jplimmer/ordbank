@@ -10,8 +10,8 @@ Currently in development, this app will allow language learners to test themselv
 
 - ✨ [Features](#-features)
 - 🛠 [Tech stack](#-tech-stack)
-- ⚙️ [Installation](#️-installation)
-- 📂 [Project Structure](#-project-structure)
+- ⚙️ [Installation for development](#️-installation-for-development)
+- 📂 [Project structure](#-project-structure)
 - 🧩 [Contributing](#-contributing)
 - 📜 [License](#-license)
 
@@ -53,12 +53,13 @@ Currently in development, this app will allow language learners to test themselv
 - **[ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)** - Code linting and formatting for consistent code style
 - **[Husky](https://typicode.github.io/husky/)** - Git hooks for automated pre-commit quality checks
 
-## ⚙️ Installation
+## ⚙️ Installation for development
 
 ### Pre-requisites
 
 - Node.js (version 20 or higher recommended)
 - **npm** or **yarn** package manager
+- Neon PostgreSQL database
 
 ### Steps
 
@@ -89,7 +90,7 @@ Currently in development, this app will allow language learners to test themselv
 
 5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## 📂 Project Structure
+## 📂 Project structure
 
 ```
 ordbank/

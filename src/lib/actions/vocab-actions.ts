@@ -1,12 +1,13 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { languagePairs, VocabItem, vocabulary } from '@/lib/db/schema';
+import { languagePairs, vocabulary } from '@/lib/db/schema';
 import { getLogger } from '@/lib/logger';
-import { eq } from 'drizzle-orm/sqlite-core/expressions';
+import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { ROUTES } from '../constants/routes';
 import { Result } from '../types/types';
+import { VocabItem } from '../types/vocab';
 
 const logger = getLogger();
 
