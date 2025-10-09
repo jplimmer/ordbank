@@ -1,9 +1,7 @@
 'use client';
 
-import { deleteVocabAction } from '@/lib/actions/vocab';
 import { VocabItem } from '@/lib/types/vocab';
 import { ColumnDef } from '@tanstack/react-table';
-import { toast } from 'react-hot-toast';
 import { SortableColumnHeader } from '../ui/sortable-column-header';
 import { ActionsMenu } from './actions-menu';
 
@@ -35,16 +33,7 @@ export const columns: ColumnDef<VocabItem>[] = [
     cell: ({ row }) => {
       const vocabItem = row.original;
 
-      const handleDelete = async () => {
-        const deleteResult = await deleteVocabAction(vocabItem.id);
-        if (deleteResult.success) {
-          toast.success(`'${vocabItem.source}' deleted!`);
-        } else {
-          toast.error('Word could not be deleted, please try again.');
-        }
-      };
-
-      return <ActionsMenu deleteFn={handleDelete} updateHref={'/'} />;
+      return <ActionsMenu vocabItem={vocabItem} />;
     },
     size: 40,
     maxSize: 50,
