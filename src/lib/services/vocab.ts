@@ -15,7 +15,8 @@ import {
 import {
   assertLanguagePairOwnership,
   assertVocabItemOwnership,
-} from './check-ownership';
+  UserProfile,
+} from './auth';
 
 const logger = getLogger();
 
@@ -85,17 +86,16 @@ export const createVocabItem = async (
 };
 
 export const updateVocabItem = async (
-  userId: number,
-  languagePairId: number,
+  userProfile: UserProfile,
   vocabItemId: number,
   updates: UpdateVocabItem
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    assertLanguagePairOwnership(userId, languagePairId);
+    assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
 
     // Verify the vocabItem belongs to the langaugePair
-    assertVocabItemOwnership(languagePairId, vocabItemId);
+    assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
 
     // Validate vocab item updates
     const parseResult = vocabUpdateSchema.safeParse(updates);
@@ -123,16 +123,15 @@ export const updateVocabItem = async (
 };
 
 export const deleteVocabItem = async (
-  userId: number,
-  languagePairId: number,
+  userProfile: UserProfile,
   vocabId: number
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    assertLanguagePairOwnership(userId, languagePairId);
+    assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
 
     // Verify the vocabItem belongs to the langaugePair
-    assertVocabItemOwnership(languagePairId, vocabId);
+    assertVocabItemOwnership(userProfile.languagePairId, vocabId);
 
     // Delete item from database and return deleted item
     const [deletedItem] = await db

@@ -1,6 +1,38 @@
+'use server';
+
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
+import { Result } from '../types/types';
+
+export interface UserProfile {
+  userId: number;
+  languagePairId: number;
+}
+
+export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
+  // TO DO - authenticate user
+  const userId = 1;
+  if (!userId) {
+    return { success: false, error: 'User not authenticated' };
+  }
+
+  // TO DO - fetch profile (cookies, fallback database)
+  const languagePairId = 1;
+  if (!languagePairId) {
+    return { success: false, error: 'No lanugage pair selected' };
+  }
+
+  const belongs = languagePairBelongsToUser(userId, languagePairId);
+  if (!belongs) {
+    return {
+      success: false,
+      error: 'Unauthorised: Language pair does not belong to the current user.',
+    };
+  }
+
+  return { success: true, data: { userId, languagePairId } };
+};
 
 export const languagePairBelongsToUser = async (
   userId: number,
