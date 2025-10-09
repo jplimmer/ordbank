@@ -33,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased content-grid grid-rows-[1fr_auto] min-h-svh`}
       >
-        {children}
+        <main className="full-width content-grid">{children}</main>
         <footer>
           <NavBar />
         </footer>
