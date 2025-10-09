@@ -21,18 +21,20 @@ import {
 const logger = getLogger();
 
 export const getVocab = async (
-  userId: number,
-  languagePairId: number
+  userProfile: UserProfile
 ): Promise<Result<VocabItem[]>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userId, languagePairId);
+    await assertLanguagePairOwnership(
+      userProfile.userId,
+      userProfile.languagePairId
+    );
 
     // Fetch vocabulary data from db
     const vocab = await db
       .select()
       .from(vocabulary)
-      .where(eq(vocabulary.languagePairId, languagePairId))
+      .where(eq(vocabulary.languagePairId, userProfile.languagePairId))
       .orderBy(vocabulary.source);
 
     // Validate database response
@@ -45,7 +47,7 @@ export const getVocab = async (
       return { success: false, error: errorMsg };
     }
 
-    return { success: true, data: vocab };
+    return { success: true, data: parseResult.data };
   } catch (error) {
     const errorMsg = `Failed to get vocabulary: ${error instanceof Error ? error.message : String(error)}`;
     logger.error(errorMsg, { error });
