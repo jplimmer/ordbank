@@ -1,17 +1,21 @@
 'use server';
 
-import { db } from '@/lib/db';
-import { vocabulary } from '@/lib/db/schema';
 import { getLogger } from '@/lib/logger';
-import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { ROUTES } from '../constants/routes';
 import { getCurrentProfile } from '../services/auth';
-import { createVocabItem, deleteVocabItem } from '../services/vocab';
+import {
+  createVocabItem,
+  deleteVocabItem,
+  updateVocabItem,
+} from '../services/vocab';
 import { Result } from '../types/types';
 import { VocabItem } from '../types/vocab';
-import { vocabInsertSchema } from '../validation/vocab-schemas';
+import {
+  vocabInsertSchema,
+  vocabUpdateSchema,
+} from '../validation/vocab-schemas';
 
 const logger = getLogger();
 
@@ -25,7 +29,7 @@ export const createVocabAction = async (
     return profileCheck;
   }
 
-  // Untyped - will be handled by validation
+  // Untyped object from formData for validation
   const newVocabItem = {
     languagePairId: profileCheck.data.languagePairId,
     source: formData.get('source'),
@@ -53,23 +57,43 @@ export const createVocabAction = async (
   return { success: true, data: createResult.data };
 };
 
-export const updateVocabAction = async ({
-  id,
-  source,
-  target,
-}: VocabItem): Promise<Result<VocabItem>> => {
-  try {
-    await db
-      .update(vocabulary)
-      .set({ source: source, target: target })
-      .where(eq(vocabulary.id, id));
-    logger.debug(`Updated vocab item ${id} with "${source}: ${target}"`);
-    revalidatePath(ROUTES.VOCAB);
-    return { success: true };
-  } catch (error) {
-    logger.error(`Failed to update vocab item ${id}`, error);
-    return { success: false, error: `Failed to update vocab item ${id}` };
+export const updateVocabAction = async (
+  prevState: Result<VocabItem>,
+  vocabId: number,
+  formData: FormData
+): Promise<Result<VocabItem>> => {
+  // Authenticate user profile
+  const profileCheck = await getCurrentProfile();
+  if (!profileCheck.success) {
+    return profileCheck;
   }
+
+  // Untyped object from formData for validation
+  const updates = {
+    source: formData.get('source'),
+    target: formData.get('target'),
+  };
+
+  // Parse form data before sending to service (fail fast)
+  const parseResult = vocabUpdateSchema.safeParse(updates);
+  if (!parseResult.success) {
+    const errors = z.flattenError(parseResult.error).fieldErrors;
+    const errorMsg = `Updated vocabulary data validation failed: ${parseResult.error.message}`;
+    logger.error(errorMsg, { error: errors });
+    return { success: false, error: errorMsg };
+  }
+
+  // Update item in database
+  const updateResult = await updateVocabItem(
+    profileCheck.data,
+    vocabId,
+    parseResult.data
+  );
+  if (!updateResult.success) return updateResult;
+
+  // Revalidate route and return updated item
+  revalidatePath(ROUTES.VOCAB);
+  return { success: true, data: updateResult.data };
 };
 
 export const deleteVocabAction = async (

@@ -58,7 +58,7 @@ export const getVocab = async (
 export const createVocabItem = async (
   userId: number,
   newVocabItem: InsertVocabItem
-): Promise<Result<number>> => {
+): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
     await assertLanguagePairOwnership(userId, newVocabItem.languagePairId);
@@ -73,13 +73,14 @@ export const createVocabItem = async (
       return { success: false, error: errorMsg };
     }
 
-    // Add to database and return new id
-    const [newId] = await db
+    // Add to database and return new item
+    const [newItem] = await db
       .insert(vocabulary)
       .values(parseResult.data)
-      .returning({ id: vocabulary.id });
+      .returning();
 
-    return { success: true, data: newId.id };
+    logger.info(`Added '${newItem.source}' with id ${newItem.id} to database`);
+    return { success: true, data: newItem };
   } catch (error) {
     const errorMsg = `Failed to create vocab item: ${error instanceof Error ? error.message : String(error)}`;
     logger.error(errorMsg, { error });
@@ -116,6 +117,7 @@ export const updateVocabItem = async (
       .where(eq(vocabulary.id, vocabItemId))
       .returning();
 
+    logger.info(`Updated vocab item ${updatedItem.id} in database`);
     return { success: true, data: updatedItem };
   } catch (error) {
     const errorMsg = `Failed to update vocab item: ${error instanceof Error ? error.message : String(error)}`;
