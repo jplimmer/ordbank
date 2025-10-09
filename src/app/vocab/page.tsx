@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from '@/components/vocab/columns';
 import { ROUTES } from '@/lib/constants/routes';
-import { getVocab } from '@/lib/services/vocab-service';
+import { getVocab } from '@/lib/services/vocab';
 import Link from 'next/link';
 
 export default async function VocabPage() {
