@@ -141,6 +141,7 @@ export const deleteVocabItem = async (
       .where(eq(vocabulary.id, vocabId))
       .returning();
 
+    logger.info(`Deleted vocab item ${deletedItem.id} from database`);
     return { success: true, data: deletedItem };
   } catch (error) {
     const errorMsg = `Failed to delete vocab item: ${error instanceof Error ? error.message : String(error)}`;

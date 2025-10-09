@@ -1,6 +1,6 @@
 'use client';
 
-import { addVocab } from '@/lib/actions/vocab-actions';
+import { createVocabAction } from '@/lib/actions/vocab';
 import { ActionResult } from 'next/dist/server/app-render/types';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
@@ -9,7 +9,7 @@ import { AddVocabForm } from './AddVocabForm';
 export function AddVocabHandler() {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState<ActionResult, FormData>(
-    addVocab,
+    createVocabAction,
     { success: false }
   );
 
