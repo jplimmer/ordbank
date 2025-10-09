@@ -58,8 +58,8 @@ export const createVocabAction = async (
 };
 
 export const updateVocabAction = async (
-  prevState: Result<VocabItem>,
   vocabId: number,
+  prevState: Result<VocabItem>,
   formData: FormData
 ): Promise<Result<VocabItem>> => {
   // Authenticate user profile
