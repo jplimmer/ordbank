@@ -1,10 +1,8 @@
-import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { AddVocabDialog } from '@/components/vocab/add-vocab-dialog';
 import { columns } from '@/components/vocab/columns';
-import { ROUTES } from '@/lib/constants/routes';
 import { getCurrentProfile } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
-import Link from 'next/link';
 
 export default async function VocabPage() {
   // Authenticate user profile
@@ -14,12 +12,12 @@ export default async function VocabPage() {
     return;
   }
 
+  // Get vocab for given user profile
   const result = await getVocab(profileCheck.data);
   if (!result.success) {
-    // TO DO - handle error
+    // TO DO - handle error (log out? Account page?)
     return;
   }
-
   const vocab = result.data;
 
   return (
@@ -31,15 +29,7 @@ export default async function VocabPage() {
           data={vocab}
           filterPlaceholder="Find a word..."
         />
-        <Button
-          asChild
-          variant="outline"
-          className="w-full bg-green-700 text-white hover:bg-green-700/30"
-        >
-          <Link href={ROUTES.ADD_VOCAB} scroll={false}>
-            Add word
-          </Link>
-        </Button>
+        <AddVocabDialog />
       </div>
     </main>
   );
