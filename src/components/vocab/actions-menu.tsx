@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { DeleteVocabAlertContent } from './delete-vocab-alert-content';
@@ -24,8 +23,7 @@ export function ActionsMenu({ vocabItem }: { vocabItem: VocabItem }) {
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="min-w-[5.5rem]">
             <DialogTrigger asChild>
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </DialogTrigger>

@@ -29,14 +29,17 @@ export const columns: ColumnDef<VocabItem>[] = [
   },
   {
     id: 'actions',
-    header: '',
+    header: 'Actions',
     cell: ({ row }) => {
       const vocabItem = row.original;
 
       return <ActionsMenu vocabItem={vocabItem} />;
     },
-    size: 40,
-    maxSize: 50,
+    meta: {
+      align: 'end',
+    },
+    size: 80,
+    minSize: 80,
     enableGlobalFilter: false,
   },
 ];
