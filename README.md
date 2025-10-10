@@ -98,8 +98,10 @@ ordbank/
 │   ├── app/               # Next.js App Router pages and routes
 │   │   ├── @modal/        # Parallel slot for intercepting modal routes
 │   │   ├── test/
-│   │   ├── vocab/
 │   │   ├── user-guide/
+│   │   ├── vocab/
+│   │   ├── globals.css
+│   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/        # Reusable React components organised by feature
 │   └── lib/
