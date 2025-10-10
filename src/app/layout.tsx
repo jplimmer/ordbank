@@ -1,4 +1,5 @@
 import { NavBar } from '@/components/layout';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Ordbank',
-  description: 'A Next.js app for learning Swedish vocabulary',
+  description: 'A Next.js app for learning vocabulary',
 };
 
 export default function RootLayout({
@@ -31,16 +32,23 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-title" content="OrdBank" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased content-grid grid-rows-[1fr_auto] min-h-svh`}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
       >
-        <main className="full-width content-grid">{children}</main>
-        <footer>
-          <NavBar />
-        </footer>
-        {modal}
-        <Toaster />
-      </body>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased content-grid grid-rows-[1fr_auto] min-h-svh`}
+        >
+          <main className="full-width content-grid">{children}</main>
+          <footer>
+            <NavBar />
+          </footer>
+          {modal}
+          <Toaster />
+        </body>
+      </ThemeProvider>
     </html>
   );
 }
