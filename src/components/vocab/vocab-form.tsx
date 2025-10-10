@@ -1,7 +1,7 @@
 'use client';
 
 import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
-import { Result } from '@/lib/types/types';
+import { FormResult } from '@/lib/types/types';
 import { VocabItem } from '@/lib/types/vocab';
 import Form from 'next/form';
 import { useActionState } from 'react';
@@ -23,7 +23,7 @@ type VocabFormProps =
 export function VocabForm({ props }: { props: VocabFormProps }) {
   const editMode = props.mode === 'edit';
 
-  const initialState: Result<VocabItem> = {
+  const initialState: FormResult<VocabItem> = {
     success: false,
     error: '',
   };
@@ -36,7 +36,7 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
 
   return (
     <div>
-      <Form action={formAction} className="space-y-8">
+      <Form action={formAction} className="grid space-y-4">
         <div className="grid gap-2">
           <Label htmlFor="source">{source}</Label>
           <Input
@@ -44,9 +44,16 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
             name="source"
             defaultValue={editMode ? props.initialData.source : ''}
             required
+            autoComplete="off"
             autoFocus
           />
+          {!state.success && state.fieldErrors?.source && (
+            <p className="text-destructive text-sm">
+              {state.fieldErrors.source.join('. ')}
+            </p>
+          )}
         </div>
+
         <div className="grid gap-2">
           <Label htmlFor="target">{target}</Label>
           <Input
@@ -54,10 +61,31 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
             name="target"
             defaultValue={editMode ? props.initialData.target : ''}
             required
+            autoComplete="off"
           />
+          {!state.success && state.fieldErrors?.target && (
+            <p className="text-destructive text-sm">
+              {state.fieldErrors.target.join('. ')}
+            </p>
+          )}
         </div>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Submitting' : 'Submit'}
+
+        {!state.success && !state.fieldErrors && (
+          <p className="text-destructive text-sm">{state.error}</p>
+        )}
+
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-fit justify-self-end"
+        >
+          {editMode
+            ? isPending
+              ? 'Saving changes...'
+              : 'Save changes'
+            : isPending
+              ? 'Submitting...'
+              : 'Submit'}
         </Button>
       </Form>
     </div>

@@ -10,7 +10,7 @@ import {
   deleteVocabItem,
   updateVocabItem,
 } from '../services/vocab';
-import { Result } from '../types/types';
+import { FormResult, Result } from '../types/types';
 import { VocabItem } from '../types/vocab';
 import {
   vocabInsertSchema,
@@ -20,9 +20,9 @@ import {
 const logger = getLogger();
 
 export const createVocabAction = async (
-  prevState: Result<VocabItem>,
+  prevState: FormResult<VocabItem>,
   formData: FormData
-): Promise<Result<VocabItem>> => {
+): Promise<FormResult<VocabItem>> => {
   // Authenticate user profile
   const profileCheck = await getCurrentProfile();
   if (!profileCheck.success) {
@@ -39,10 +39,14 @@ export const createVocabAction = async (
   // Parse form data before sending to service (fail fast)
   const parseResult = vocabInsertSchema.safeParse(newVocabItem);
   if (!parseResult.success) {
-    const errors = z.flattenError(parseResult.error).fieldErrors;
-    const errorMsg = `New vocabulary data validation failed: ${parseResult.error.message}`;
-    logger.error(errorMsg, { error: errors });
-    return { success: false, error: errorMsg };
+    logger.debug('flattenError', z.flattenError(parseResult.error));
+    const fieldErrors = z.flattenError(parseResult.error).fieldErrors;
+    logger.error('Validation failed:', { error: fieldErrors });
+    return {
+      success: false,
+      error: 'Please correct the invalid form inputs',
+      fieldErrors: fieldErrors,
+    };
   }
 
   // Add vocab item to database
@@ -59,9 +63,9 @@ export const createVocabAction = async (
 
 export const updateVocabAction = async (
   vocabId: number,
-  prevState: Result<VocabItem>,
+  prevState: FormResult<VocabItem>,
   formData: FormData
-): Promise<Result<VocabItem>> => {
+): Promise<FormResult<VocabItem>> => {
   // Authenticate user profile
   const profileCheck = await getCurrentProfile();
   if (!profileCheck.success) {
@@ -77,10 +81,13 @@ export const updateVocabAction = async (
   // Parse form data before sending to service (fail fast)
   const parseResult = vocabUpdateSchema.safeParse(updates);
   if (!parseResult.success) {
-    const errors = z.flattenError(parseResult.error).fieldErrors;
-    const errorMsg = `Updated vocabulary data validation failed: ${parseResult.error.message}`;
-    logger.error(errorMsg, { error: errors });
-    return { success: false, error: errorMsg };
+    const fieldErrors = z.flattenError(parseResult.error).fieldErrors;
+    logger.error('Validation failed:', { error: fieldErrors });
+    return {
+      success: false,
+      error: 'Please correct the invalid form inputs',
+      fieldErrors: fieldErrors,
+    };
   }
 
   // Update item in database
