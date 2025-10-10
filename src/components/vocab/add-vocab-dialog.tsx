@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { Button, ButtonVariants } from '../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,14 +10,17 @@ import {
 } from '../ui/dialog';
 import { VocabForm } from './vocab-form';
 
-export function AddVocabDialog() {
+export function AddVocabDialog({
+  variant = 'outline',
+  className,
+}: {
+  variant?: ButtonVariants['variant'];
+  className?: string;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full bg-green-700 text-white hover:bg-green-700/30"
-        >
+        <Button variant={variant} className={`${className}`}>
           Add word
         </Button>
       </DialogTrigger>

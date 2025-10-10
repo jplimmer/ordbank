@@ -29,7 +29,7 @@ export default async function VocabPage() {
           data={vocab}
           filterPlaceholder="Find a word..."
         />
-        <AddVocabDialog />
+        <AddVocabDialog className="w-full" />
       </div>
     </main>
   );
