@@ -26,7 +26,7 @@ export const createVocabAction = async (
   // Authenticate user profile
   const profileCheck = await getCurrentProfile();
   if (!profileCheck.success) {
-    return profileCheck;
+    return { success: false, error: profileCheck.error, formData: formData };
   }
 
   // Untyped object from formData for validation
@@ -46,6 +46,7 @@ export const createVocabAction = async (
       success: false,
       error: 'Please correct the invalid form inputs',
       fieldErrors: fieldErrors,
+      formData: formData,
     };
   }
 
@@ -54,7 +55,9 @@ export const createVocabAction = async (
     profileCheck.data.userId,
     parseResult.data
   );
-  if (!createResult.success) return createResult;
+  if (!createResult.success) {
+    return { success: false, error: createResult.error, formData: formData };
+  }
 
   // Revalidate route and return created item
   revalidatePath(ROUTES.VOCAB);
@@ -69,7 +72,7 @@ export const updateVocabAction = async (
   // Authenticate user profile
   const profileCheck = await getCurrentProfile();
   if (!profileCheck.success) {
-    return profileCheck;
+    return { success: false, error: profileCheck.error, formData: formData };
   }
 
   // Untyped object from formData for validation
@@ -87,6 +90,7 @@ export const updateVocabAction = async (
       success: false,
       error: 'Please correct the invalid form inputs',
       fieldErrors: fieldErrors,
+      formData: formData,
     };
   }
 
@@ -96,7 +100,9 @@ export const updateVocabAction = async (
     vocabId,
     parseResult.data
   );
-  if (!updateResult.success) return updateResult;
+  if (!updateResult.success) {
+    return { success: false, error: updateResult.error, formData: formData };
+  }
 
   // Revalidate route and return updated item
   revalidatePath(ROUTES.VOCAB);

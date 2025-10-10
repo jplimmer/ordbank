@@ -21,15 +21,11 @@ export function AddVocabDialog() {
           Add word
         </Button>
       </DialogTrigger>
-      <DialogContent aria-describedby={undefined}>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>Add word</DialogTitle>
+          <DialogTitle className="py-2">Add new word</DialogTitle>
         </DialogHeader>
-        <VocabForm
-          props={{
-            mode: 'create',
-          }}
-        ></VocabForm>
+        <VocabForm mode="create" />
       </DialogContent>
     </Dialog>
   );

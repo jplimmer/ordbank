@@ -10,16 +10,11 @@ export function UpdateVocabDialogContent({
   vocabItem: VocabItem;
 }) {
   return (
-    <DialogContent aria-describedby={undefined}>
+    <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
       <DialogHeader>
-        <DialogTitle>{`Edit '${vocabItem.source}'`}</DialogTitle>
+        <DialogTitle className="py-2">{`Edit '${vocabItem.source}'`}</DialogTitle>
       </DialogHeader>
-      <VocabForm
-        props={{
-          mode: 'edit',
-          initialData: vocabItem,
-        }}
-      ></VocabForm>
+      <VocabForm mode="edit" initialData={vocabItem} />
     </DialogContent>
   );
 }

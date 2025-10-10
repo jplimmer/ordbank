@@ -3,6 +3,7 @@
 import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
 import { FormResult } from '@/lib/types/types';
 import { VocabItem } from '@/lib/types/vocab';
+import { getFormValue } from '@/lib/utils';
 import Form from 'next/form';
 import { useActionState } from 'react';
 import { Button } from '../ui/button';
@@ -20,12 +21,25 @@ type VocabFormProps =
       initialData: VocabItem;
     };
 
-export function VocabForm({ props }: { props: VocabFormProps }) {
+export function VocabForm(props: VocabFormProps) {
   const editMode = props.mode === 'edit';
+
+  // Initial form data based on mode - used for initial state and default input values
+  const createInitialFormData = (vocabItem?: VocabItem): FormData => {
+    const formData = new FormData();
+
+    if (vocabItem) {
+      formData.set('source', vocabItem.source);
+      formData.set('target', vocabItem.target);
+    }
+
+    return formData;
+  };
 
   const initialState: FormResult<VocabItem> = {
     success: false,
     error: '',
+    formData: createInitialFormData(editMode ? props.initialData : undefined),
   };
 
   const action = editMode
@@ -33,6 +47,9 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
     : createVocabAction;
 
   const [state, formAction, isPending] = useActionState(action, initialState);
+
+  // Set fallback formData for use in input default values
+  const formData = !state.success ? state.formData : new FormData();
 
   return (
     <div>
@@ -42,7 +59,7 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
           <Input
             id="source"
             name="source"
-            defaultValue={editMode ? props.initialData.source : ''}
+            defaultValue={getFormValue(formData, 'source')}
             required
             autoComplete="off"
             autoFocus
@@ -59,7 +76,7 @@ export function VocabForm({ props }: { props: VocabFormProps }) {
           <Input
             id="target"
             name="target"
-            defaultValue={editMode ? props.initialData.target : ''}
+            defaultValue={getFormValue(formData, 'target')}
             required
             autoComplete="off"
           />
