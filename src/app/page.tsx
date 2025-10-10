@@ -6,7 +6,7 @@ export default function Home() {
     <main className="flex flex-col justify-center items-center gap-4 min-h-full">
       <h1 className="mb-4">Ordbank</h1>
       <Link
-        href={ROUTES.ADD_VOCAB}
+        href={ROUTES.VOCAB}
         scroll={false}
         className="border rounded-2xl p-6 text-center hover:shadow-md w-1/2"
       >
