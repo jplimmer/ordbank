@@ -1,17 +1,23 @@
-import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { AddVocabDialog } from '@/components/vocab/add-vocab-dialog';
 import { columns } from '@/components/vocab/columns';
-import { getVocab } from '@/lib/actions/vocab-actions';
-import { ROUTES } from '@/lib/constants/routes';
-import Link from 'next/link';
+import { getCurrentProfile } from '@/lib/services/auth';
+import { getVocab } from '@/lib/services/vocab';
 
 export default async function VocabPage() {
-  // TO DO - get languagePairId from URL/context/cookies
-  const langPairId = 1;
+  // Authenticate user profile
+  const profileCheck = await getCurrentProfile();
+  if (!profileCheck.success) {
+    // TO DO - redirect to login
+    return;
+  }
 
-  const result = await getVocab(langPairId);
-  if (!result.success) return;
-
+  // Get vocab for given user profile
+  const result = await getVocab(profileCheck.data);
+  if (!result.success) {
+    // TO DO - handle error (log out? Account page?)
+    return;
+  }
   const vocab = result.data;
 
   return (
@@ -23,15 +29,7 @@ export default async function VocabPage() {
           data={vocab}
           filterPlaceholder="Find a word..."
         />
-        <Button
-          asChild
-          variant="outline"
-          className="w-full bg-green-700 text-white hover:bg-green-700/30"
-        >
-          <Link href={ROUTES.ADD_VOCAB} scroll={false}>
-            Add word
-          </Link>
-        </Button>
+        <AddVocabDialog className="w-full" />
       </div>
     </main>
   );

@@ -1,8 +1,7 @@
 'use client';
 
-import { DialogTitle } from '@radix-ui/react-dialog';
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent, DialogHeader } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 interface ModalProps {
   children: React.ReactNode;
@@ -18,7 +17,7 @@ export function Modal({ children, title, showTitle }: ModalProps) {
       open={true}
       onOpenChange={(open: boolean) => !open && router.back()}
     >
-      <DialogContent aria-describedby={undefined}>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle className={showTitle ? '' : 'sr-only'}>
             {title}

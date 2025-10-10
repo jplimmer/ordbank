@@ -1,6 +1,6 @@
 'use client';
 
-import { VocabItem } from '@/lib/db/schema';
+import { VocabItem } from '@/lib/types/vocab';
 import { ColumnDef } from '@tanstack/react-table';
 import { SortableColumnHeader } from '../ui/sortable-column-header';
 import { ActionsMenu } from './actions-menu';
@@ -29,16 +29,17 @@ export const columns: ColumnDef<VocabItem>[] = [
   },
   {
     id: 'actions',
-    header: '',
-    cell: () => {
-      const handleDelete = () => {
-        console.log('Delete function goes here');
-      };
+    header: 'Actions',
+    cell: ({ row }) => {
+      const vocabItem = row.original;
 
-      return <ActionsMenu deleteFn={handleDelete} updateHref={'/'} />;
+      return <ActionsMenu vocabItem={vocabItem} />;
     },
-    size: 40,
-    maxSize: 50,
+    meta: {
+      align: 'end',
+    },
+    size: 80,
+    minSize: 80,
     enableGlobalFilter: false,
   },
 ];

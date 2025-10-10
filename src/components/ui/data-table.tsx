@@ -84,7 +84,10 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      style={{ width: header.getSize() }}
+                      style={{
+                        width: header.getSize(),
+                        textAlign: header.column.columnDef.meta?.align,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -108,7 +111,10 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      style={{ width: cell.column.getSize() }}
+                      style={{
+                        width: cell.column.getSize(),
+                        textAlign: cell.column.columnDef.meta?.align,
+                      }}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
