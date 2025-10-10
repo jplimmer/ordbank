@@ -1,6 +1,5 @@
 import { DataTable } from '@/components/ui/data-table';
-import { AddVocabDialog } from '@/components/vocab/add-vocab-dialog';
-import { columns } from '@/components/vocab/columns';
+import { AddVocabDialog, columns } from '@/components/vocab';
 import { getCurrentProfile } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
 
