@@ -59,7 +59,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Filter input */}
       <div>
         <Label htmlFor="table-filter" className="sr-only">
@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
           placeholder={filterPlaceholder ?? 'Search...'}
           value={globalFilter}
           onChange={(e) => table.setGlobalFilter(e.target.value)}
-          className="text-sm"
+          className="text-sm placeholder:italic"
         />
       </div>
 

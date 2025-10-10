@@ -21,9 +21,9 @@ export default async function VocabPage() {
   const vocab = result.data;
 
   return (
-    <main className="content-grid grid-rows-[auto_1fr] space-y-8 justify-items-center items-start">
-      <h1 className="text-center text-4xl font-semibold mt-8">Vocabulary</h1>
-      <div className="space-y-8">
+    <main className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
+      <h1 className="text-center text-2xl font-semibold">Vocabulary</h1>
+      <div className="space-y-4">
         <DataTable
           columns={columns}
           data={vocab}
