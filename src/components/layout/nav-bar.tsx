@@ -13,17 +13,20 @@ export function NavBar() {
     <nav className="mb-4 py-4">
       <ul className="flex justify-around">
         <li>
-          <Link href={ROUTES.ACCOUNT}>
+          <Link href={ROUTES.ACCOUNT} aria-label="Account">
             <UserRound size={32} />
           </Link>
         </li>
         <li>
-          <Link href={isHome ? ROUTES.VOCAB : ROUTES.HOME}>
+          <Link
+            href={isHome ? ROUTES.VOCAB : ROUTES.HOME}
+            aria-label={isHome ? 'Vocab list' : 'Home'}
+          >
             {isHome ? <BookType size={32} /> : <Home size={32} />}
           </Link>
         </li>
         <li>
-          <Link href={ROUTES.USER_GUIDE}>
+          <Link href={ROUTES.USER_GUIDE} aria-label="User guide">
             <Info size={32} />
           </Link>
         </li>
