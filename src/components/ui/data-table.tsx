@@ -32,12 +32,14 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filter?: boolean;
   filterPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filter = true,
   filterPlaceholder,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -61,18 +63,20 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-2">
       {/* Filter input */}
-      <div>
-        <Label htmlFor="table-filter" className="sr-only">
-          Table filter input
-        </Label>
-        <Input
-          id="table-filter"
-          placeholder={filterPlaceholder ?? 'Search...'}
-          value={globalFilter}
-          onChange={(e) => table.setGlobalFilter(e.target.value)}
-          className="text-sm placeholder:italic"
-        />
-      </div>
+      {filter && (
+        <div>
+          <Label htmlFor="table-filter" className="sr-only">
+            Table filter input
+          </Label>
+          <Input
+            id="table-filter"
+            placeholder={filterPlaceholder ?? 'Search...'}
+            value={globalFilter}
+            onChange={(e) => table.setGlobalFilter(e.target.value)}
+            className="text-sm placeholder:italic"
+          />
+        </div>
+      )}
 
       {/* Table */}
       <div className="overflow-hidden rounded-md border">
