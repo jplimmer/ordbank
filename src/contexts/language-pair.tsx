@@ -1,7 +1,7 @@
 'use client';
 
 import { LanguagePair } from '@/lib/types/language-pair';
-import { createContext, use, useState } from 'react';
+import { createContext, use, useMemo, useState } from 'react';
 
 type LanguagePairContextType = {
   activePair: LanguagePair;
@@ -25,10 +25,13 @@ export function LanguagePairProvider({
     setActivePair(newPair);
   };
 
-  const value: LanguagePairContextType = {
-    activePair,
-    switchPair,
-  };
+  const value: LanguagePairContextType = useMemo(
+    () => ({
+      activePair,
+      switchPair,
+    }),
+    [activePair]
+  );
 
   return <LanguagePairContext value={value}>{children}</LanguagePairContext>;
 }
