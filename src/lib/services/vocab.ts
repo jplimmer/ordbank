@@ -42,8 +42,8 @@ export const getVocab = async (
 
     if (!parseResult.success) {
       const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Vocabulary data validation failed: ${parseResult.error.message}`;
-      logger.error(errorMsg, { error: errors });
+      const errorMsg = `Vocabulary data validation failed: ${errors}`;
+      logger.error(errorMsg);
       return { success: false, error: errorMsg };
     }
 
@@ -68,8 +68,8 @@ export const createVocabItem = async (
 
     if (!parseResult.success) {
       const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `New vocabulary data validation failed: ${parseResult.error.message}`;
-      logger.error(errorMsg, { error: errors });
+      const errorMsg = `New vocabulary data validation failed: ${errors}`;
+      logger.error(errorMsg);
       return { success: false, error: errorMsg };
     }
 
@@ -79,7 +79,7 @@ export const createVocabItem = async (
       .values(parseResult.data)
       .returning();
 
-    logger.info(`Added '${newItem.source}' with id ${newItem.id} to database`);
+    logger.info(`Added '${newItem.source}' to database with id ${newItem.id}`);
     return { success: true, data: newItem };
   } catch (error) {
     const errorMsg = `Failed to create vocab item: ${error instanceof Error ? error.message : String(error)}`;
@@ -95,18 +95,21 @@ export const updateVocabItem = async (
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
+    await assertLanguagePairOwnership(
+      userProfile.userId,
+      userProfile.languagePairId
+    );
 
     // Verify the vocabItem belongs to the languagePair
-    assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
+    await assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
 
     // Validate vocab item updates
     const parseResult = vocabUpdateSchema.safeParse(updates);
 
     if (!parseResult.success) {
       const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Updated vocabulary data validation failed: ${parseResult.error.message}`;
-      logger.error(errorMsg, { error: errors });
+      const errorMsg = `Updated vocabulary data validation failed: ${errors}`;
+      logger.error(errorMsg);
       return { success: false, error: errorMsg };
     }
 
@@ -132,10 +135,13 @@ export const deleteVocabItem = async (
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
+    await assertLanguagePairOwnership(
+      userProfile.userId,
+      userProfile.languagePairId
+    );
 
     // Verify the vocabItem belongs to the languagePair
-    assertVocabItemOwnership(userProfile.languagePairId, vocabId);
+    await assertVocabItemOwnership(userProfile.languagePairId, vocabId);
 
     // Delete item from database and return deleted item
     const [deletedItem] = await db
