@@ -1,5 +1,5 @@
 import { NavBar, ThemeToggle } from '@/components/layout';
-import { ThemeProvider } from '@/components/providers/theme-provider';
+import { ThemeProvider } from '@/contexts/theme-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
