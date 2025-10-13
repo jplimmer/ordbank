@@ -104,6 +104,7 @@ ordbank/
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/        # Reusable React components organised by feature
+│   ├── contexts/          # React contexts for global UI state
 │   └── lib/
 │       ├── actions/       # Server actions
 │       ├── constants/
