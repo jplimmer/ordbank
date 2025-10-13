@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguagePairContext } from '@/contexts/language-pair';
 import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
 import { FormResult } from '@/lib/types/types';
 import { VocabItem } from '@/lib/types/vocab';
@@ -10,10 +11,6 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
-// TO DO - update column names using languagePair context/url
-const source = 'Swedish';
-const target = 'English';
-
 type VocabFormProps =
   | { mode: 'create' }
   | {
@@ -23,6 +20,9 @@ type VocabFormProps =
 
 export function VocabForm(props: VocabFormProps) {
   const editMode = props.mode === 'edit';
+
+  const { sourceLanguage, targetLanguage } =
+    useLanguagePairContext().activePair;
 
   // Initial form data based on mode - used for initial state and default input values
   const createInitialFormData = (vocabItem?: VocabItem): FormData => {
@@ -55,7 +55,9 @@ export function VocabForm(props: VocabFormProps) {
     <div>
       <Form action={formAction} className="grid space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="source">{source}</Label>
+          <Label htmlFor="source" className="capitalize">
+            {sourceLanguage}
+          </Label>
           <Input
             id="source"
             name="source"
@@ -72,7 +74,9 @@ export function VocabForm(props: VocabFormProps) {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="target">{target}</Label>
+          <Label htmlFor="target" className="capitalize">
+            {targetLanguage}
+          </Label>
           <Input
             id="target"
             name="target"

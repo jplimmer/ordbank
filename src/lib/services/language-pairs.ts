@@ -21,22 +21,23 @@ export const getLanguagePair = async (
     await assertLanguagePairOwnership(userId, languagePairId);
 
     // Fetch language pair data from db
-    const langPair = await db
-      .select()
-      .from(languagePairs)
-      .where(eq(languagePairs.id, languagePairId));
+    const langPair = await db.query.languagePairs.findFirst({
+      where: eq(languagePairs.id, languagePairId),
+    });
 
     // Validate database response
     const parseResult = languagePairSelectSchema.safeParse(langPair);
 
     if (!parseResult.success) {
       const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Vocabulary data validation failed: ${parseResult.error.message}`;
+      const errorMsg = `Language pair validation failed: ${parseResult.error.message}`;
       logger.error(errorMsg, { error: errors });
       return { success: false, error: errorMsg };
     }
 
-    logger.info(`Fetched data for active language pair ${langPair}`);
+    logger.info(
+      `Fetched data for active language pair (${parseResult.data.pairName})`
+    );
     return { success: true, data: parseResult.data };
   } catch (error) {
     const errorMsg = `Failed to get LanguagePair: ${error instanceof Error ? error.message : String(error)}`;

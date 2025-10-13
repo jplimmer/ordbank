@@ -1,34 +1,36 @@
-import { DataTable } from '@/components/ui/data-table';
-import { AddVocabDialog, columns } from '@/components/vocab';
+import { Spinner } from '@/components/ui/spinner';
+import { AddVocabDialog, VocabTable } from '@/components/vocab';
 import { getCurrentProfile } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
+import { VocabItem } from '@/lib/types/vocab';
+import { Suspense } from 'react';
 
 export default async function VocabPage() {
-  // Authenticate user profile
-  const profileCheck = await getCurrentProfile();
-  if (!profileCheck.success) {
-    // TO DO - redirect to login
-    return;
-  }
-
   // Get vocab for given user profile
-  const result = await getVocab(profileCheck.data);
-  if (!result.success) {
-    // TO DO - handle error (log out? Account page?)
-    return;
-  }
-  const vocab = result.data;
+  const getUserVocab = async (): Promise<VocabItem[]> => {
+    // Authenticate user profile
+    const profileCheck = await getCurrentProfile();
+    if (!profileCheck.success) {
+      // TO DO - redirect to login?
+      return [];
+    }
+
+    const result = await getVocab(profileCheck.data);
+    if (!result.success) {
+      // TO DO - handle errors
+      return [];
+    }
+    return result.data;
+  };
 
   return (
     <main className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
       <h1 className="text-center text-2xl font-semibold">Vocabulary</h1>
       <div className="space-y-4">
-        <DataTable
-          columns={columns}
-          data={vocab}
-          filterPlaceholder="Find a word..."
-        />
-        <AddVocabDialog className="w-full" />
+        <Suspense fallback={<Spinner />}>
+          <VocabTable dataPromise={getUserVocab()} />
+          <AddVocabDialog className="w-full" />
+        </Suspense>
       </div>
     </main>
   );

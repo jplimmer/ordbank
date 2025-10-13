@@ -19,7 +19,7 @@ const getCookiesActiveLanguagePair = async (): Promise<number | undefined> => {
   const cookieString = cookieStore.get(activePairCookieName)?.value;
   const parsedString = Number(cookieString);
   const langPairId = Number.isFinite(parsedString) ? parsedString : undefined;
-  logger.info('Fetched cookies activeLanguagePairId:', langPairId);
+  logger.debug('Fetched cookies activeLanguagePairId:', langPairId);
   return langPairId;
 };
 
@@ -50,7 +50,7 @@ const getDbActiveLanguagePair = async (
     columns: { activeLanguagePairId: true },
   });
 
-  logger.info(
+  logger.debug(
     'Fetched database activeLanguagePairId:',
     result?.activeLanguagePairId
   );
