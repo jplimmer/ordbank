@@ -108,7 +108,7 @@ ordbank/
 │       ├── actions/       # Server actions
 │       ├── constants/
 │       ├── db/            # Database schema and configuration
-│       ├── services/      # Database operations
+│       ├── services/      # Database and authentication operations
 │       ├── types/
 │       ├── validation/    # Zod validation schemas
 │       ├── logger.ts
