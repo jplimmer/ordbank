@@ -1,12 +1,11 @@
 'use client';
 
 import { LanguagePair } from '@/lib/types/language-pair';
-import { createContext, use } from 'react';
+import { createContext, use, useState } from 'react';
 
 type LanguagePairContextType = {
   activePair: LanguagePair;
-  //   switchPair: (languagePairId: number) => Promise<void>;
-  //   isLoading: boolean;
+  switchPair: (newPair: LanguagePair) => void;
 };
 
 const LanguagePairContext = createContext<LanguagePairContextType | undefined>(
@@ -20,22 +19,26 @@ export function LanguagePairProvider({
   children: React.ReactNode;
   initialPair: LanguagePair;
 }) {
-  // const [activePair, setActivePair] = useState<LanguagePair>(initialPair);
-  // const [isLoading, setIsLoading] = useState(false);
+  const [activePair, setActivePair] = useState<LanguagePair>(initialPair);
 
-  return (
-    <LanguagePairContext value={{ activePair: initialPair }}>
-      {children}
-    </LanguagePairContext>
-  );
+  const switchPair = (newPair: LanguagePair) => {
+    setActivePair(newPair);
+  };
+
+  const value: LanguagePairContextType = {
+    activePair,
+    switchPair,
+  };
+
+  return <LanguagePairContext value={value}>{children}</LanguagePairContext>;
 }
 
 export function useLanguagePairContext() {
-  const ctx = use(LanguagePairContext);
-  if (!ctx) {
+  const context = use(LanguagePairContext);
+  if (!context) {
     throw new Error(
       'useLanguagePairContext must be used within a LanguagePairProvider'
     );
   }
-  return ctx;
+  return context;
 }

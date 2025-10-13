@@ -1,6 +1,5 @@
 import { Spinner } from '@/components/ui/spinner';
-import { AddVocabDialog } from '@/components/vocab';
-import { VocabTable } from '@/components/vocab/vocab-table';
+import { AddVocabDialog, VocabTable } from '@/components/vocab';
 import { getCurrentProfile } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
 import { VocabItem } from '@/lib/types/vocab';
