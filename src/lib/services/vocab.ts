@@ -97,7 +97,7 @@ export const updateVocabItem = async (
     // Verify the languagePair belongs to the user
     assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
 
-    // Verify the vocabItem belongs to the langaugePair
+    // Verify the vocabItem belongs to the languagePair
     assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
 
     // Validate vocab item updates
@@ -134,7 +134,7 @@ export const deleteVocabItem = async (
     // Verify the languagePair belongs to the user
     assertLanguagePairOwnership(userProfile.userId, userProfile.languagePairId);
 
-    // Verify the vocabItem belongs to the langaugePair
+    // Verify the vocabItem belongs to the languagePair
     assertVocabItemOwnership(userProfile.languagePairId, vocabId);
 
     // Delete item from database and return deleted item
