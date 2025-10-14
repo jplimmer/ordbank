@@ -1,8 +1,6 @@
 'use server';
 
-import { getLogger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 import { ROUTES } from '../constants/routes';
 import { getCurrentProfile } from '../services/auth';
 import {
@@ -12,12 +10,11 @@ import {
 } from '../services/vocab';
 import { FormResult, Result } from '../types/types';
 import { VocabItem } from '../types/vocab';
+import { handleValidationError } from '../utils';
 import {
   vocabInsertSchema,
   vocabUpdateSchema,
 } from '../validation/vocab-schemas';
-
-const logger = getLogger();
 
 export const createVocabAction = async (
   prevState: FormResult<VocabItem>,
@@ -39,13 +36,14 @@ export const createVocabAction = async (
   // Parse form data before sending to service (fail fast)
   const parseResult = vocabInsertSchema.safeParse(newVocabItem);
   if (!parseResult.success) {
-    logger.debug('flattenError', z.flattenError(parseResult.error));
-    const fieldErrors = z.flattenError(parseResult.error).fieldErrors;
-    logger.error('Validation failed:', { error: fieldErrors });
+    const validationError = handleValidationError(
+      parseResult.error,
+      'Add vocab item'
+    );
     return {
       success: false,
-      error: 'Please correct the invalid form inputs',
-      fieldErrors: fieldErrors,
+      error: validationError.message,
+      fieldErrors: validationError.fieldErrors,
       formData: formData,
     };
   }
@@ -84,12 +82,14 @@ export const updateVocabAction = async (
   // Parse form data before sending to service (fail fast)
   const parseResult = vocabUpdateSchema.safeParse(updates);
   if (!parseResult.success) {
-    const fieldErrors = z.flattenError(parseResult.error).fieldErrors;
-    logger.error('Validation failed:', { error: fieldErrors });
+    const validationError = handleValidationError(
+      parseResult.error,
+      'Update vocab item'
+    );
     return {
       success: false,
-      error: 'Please correct the invalid form inputs',
-      fieldErrors: fieldErrors,
+      error: validationError.message,
+      fieldErrors: validationError.fieldErrors,
       formData: formData,
     };
   }

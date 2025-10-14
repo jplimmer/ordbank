@@ -1,7 +1,6 @@
 'server-only';
 
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
 import { db } from '../db';
 import { languagePairs } from '../db/schema';
 import { getLogger } from '../logger';
@@ -11,6 +10,7 @@ import {
   UpdateLanguagePair,
 } from '../types/language-pair';
 import { Result } from '../types/types';
+import { handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,
   languagePairInsertSchema,
@@ -42,10 +42,11 @@ export const getLanguagePair = async (
     const parseResult = languagePairSelectSchema.safeParse(langPair);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Language pair validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Get single language pair'
+      );
+      return { success: false, error: validationError.message };
     }
 
     logger.info(
@@ -72,10 +73,11 @@ export const getLanguagePairs = async (
     const parseResult = languagePairArraySelectSchema.safeParse(langPairs);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Language pairs validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        "Get user's language pairs"
+      );
+      return { success: false, error: validationError.message };
     }
 
     return { success: true, data: parseResult.data };
@@ -99,10 +101,11 @@ export const createLanguagePair = async (
     const parseResult = languagePairInsertSchema.safeParse(newLanguagePair);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `New language pair validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Add language pair'
+      );
+      return { success: false, error: validationError.message };
     }
 
     const { sourceLanguage, targetLanguage } = parseResult.data;
@@ -145,10 +148,11 @@ export const updateLanguagePair = async (
     const parseResult = languagePairUpdateSchema.safeParse(updates);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Updated language pair data validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Update language pair'
+      );
+      return { success: false, error: validationError.message };
     }
 
     // Update item in database and return updated item

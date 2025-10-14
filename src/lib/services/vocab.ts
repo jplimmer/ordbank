@@ -1,12 +1,12 @@
 'server-only';
 
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
 import { db } from '../db';
 import { vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
 import { Result } from '../types/types';
 import { InsertVocabItem, UpdateVocabItem, VocabItem } from '../types/vocab';
+import { handleValidationError } from '../utils';
 import {
   vocabInsertSchema,
   vocabSelectSchema,
@@ -41,10 +41,11 @@ export const getVocab = async (
     const parseResult = vocabSelectSchema.safeParse(vocab);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Vocabulary data validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Get vocab'
+      );
+      return { success: false, error: validationError.message };
     }
 
     return { success: true, data: parseResult.data };
@@ -67,10 +68,11 @@ export const createVocabItem = async (
     const parseResult = vocabInsertSchema.safeParse(newVocabItem);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `New vocabulary data validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Add vocab item'
+      );
+      return { success: false, error: validationError.message };
     }
 
     // Add to database and return new item
@@ -107,10 +109,11 @@ export const updateVocabItem = async (
     const parseResult = vocabUpdateSchema.safeParse(updates);
 
     if (!parseResult.success) {
-      const errors = z.flattenError(parseResult.error).fieldErrors;
-      const errorMsg = `Updated vocabulary data validation failed: ${errors}`;
-      logger.error(errorMsg);
-      return { success: false, error: errorMsg };
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Update vocab item'
+      );
+      return { success: false, error: validationError.message };
     }
 
     // Update item in database and return updated item
