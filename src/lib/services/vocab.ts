@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/types';
+import { Result } from '../types/common';
 import { InsertVocabItem, UpdateVocabItem, VocabItem } from '../types/vocab';
 import { handleValidationError } from '../utils';
 import {

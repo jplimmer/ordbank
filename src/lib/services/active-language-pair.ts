@@ -5,8 +5,8 @@ import { cookies } from 'next/headers';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { getLogger } from '../logger';
+import { Result } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
-import { Result } from '../types/types';
 import { assertLanguagePairOwnership, UserProfile } from './auth';
 import { getLanguagePair } from './language-pairs';
 

@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import { getLogger } from './logger';
-import { ValidationError } from './types/types';
+import { ValidationError } from './types/common';
 
 const logger = getLogger();
 

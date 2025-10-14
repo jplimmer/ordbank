@@ -4,12 +4,12 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs } from '../db/schema';
 import { getLogger } from '../logger';
+import { Result } from '../types/common';
 import {
   InsertLanguagePair,
   LanguagePair,
   UpdateLanguagePair,
 } from '../types/language-pair';
-import { Result } from '../types/types';
 import { handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,

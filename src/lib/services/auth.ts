@@ -3,7 +3,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
-import { Result } from '../types/types';
+import { Result } from '../types/common';
 import { getActiveLanguagePair } from './active-language-pair';
 
 export interface UserProfile {
