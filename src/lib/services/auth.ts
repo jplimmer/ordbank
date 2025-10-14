@@ -4,6 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
 import { Result } from '../types/types';
+import { getActiveLanguagePair } from './active-language-pair';
 
 export interface UserProfile {
   userId: number;
@@ -17,21 +18,16 @@ export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
     return { success: false, error: 'User not authenticated' };
   }
 
-  // TO DO - fetch profile (cookies, fallback database)
-  const languagePairId = 1;
-  if (!languagePairId) {
-    return { success: false, error: 'No lanugage pair selected' };
+  // Get user's last active languagePair
+  const activeLanguage = await getActiveLanguagePair(userId);
+  if (!activeLanguage.success) {
+    return { success: false, error: activeLanguage.error };
   }
 
-  const belongs = languagePairBelongsToUser(userId, languagePairId);
-  if (!belongs) {
-    return {
-      success: false,
-      error: 'Unauthorised: Language pair does not belong to the current user.',
-    };
-  }
-
-  return { success: true, data: { userId, languagePairId } };
+  return {
+    success: true,
+    data: { userId, languagePairId: activeLanguage.data.id },
+  };
 };
 
 export const languagePairBelongsToUser = async (
