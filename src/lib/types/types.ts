@@ -10,3 +10,9 @@ export type FormResult<T> =
       fieldErrors?: Record<string, string[]>;
       formData: FormData;
     };
+
+export type ValidationError<T> = {
+  message: string;
+  formErrors: string[];
+  fieldErrors: { [P in keyof T]?: string[] | undefined };
+};
