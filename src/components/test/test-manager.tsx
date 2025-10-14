@@ -9,7 +9,7 @@ export function TestManager({ settings }: { settings: TestSettings }) {
   const [question, setQuestion] = useState<Question | undefined>(undefined);
 
   return (
-    <div>
+    <div className="space-y-4">
       <Button
         onClick={async () => {
           const q = await getQuestion(settings.direction, settings.answerMode);
@@ -18,15 +18,16 @@ export function TestManager({ settings }: { settings: TestSettings }) {
       >
         Question
       </Button>
-      <div>
-        {question &&
-          Object.entries(question).map(([key, value]) => (
+      {question && (
+        <div>
+          {Object.entries(question).map(([key, value]) => (
             <p key={key}>
               <strong>{key}:</strong>{' '}
               {Array.isArray(value) ? value.join(', ') : String(value)}
             </p>
           ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

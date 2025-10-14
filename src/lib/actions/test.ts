@@ -3,10 +3,13 @@
 import { notFound } from 'next/navigation';
 import { getCurrentProfile } from '../services/auth';
 import {
+  checkAnswer,
   generateMultipleChoiceAnswers,
   selectVocabItem,
+  updateVocabStats,
 } from '../services/test';
 import {
+  Answer,
   AnswerMode,
   AnswerModeSetting,
   Direction,
@@ -17,12 +20,12 @@ export const getQuestion = async (
   direction: Direction,
   answerMode: AnswerModeSetting
 ): Promise<Question> => {
-  const userProfile = await getCurrentProfile();
+  const profileCheck = await getCurrentProfile();
   // TO DO - handle profile error
-  if (!userProfile.success) return notFound();
+  if (!profileCheck.success) return notFound();
 
   // Select vocab item for question
-  const vocabItem = await selectVocabItem(userProfile.data);
+  const vocabItem = await selectVocabItem(profileCheck.data);
 
   // Determine direction to be used
   const effectiveDirection: Direction =
@@ -66,4 +69,19 @@ export const getQuestion = async (
       answerMode: effectiveMode,
     };
   }
+};
+
+export const processAnswer = async (
+  answer: Answer
+): Promise<{ correct: boolean }> => {
+  // Authenticate user profile
+  const profileCheck = await getCurrentProfile();
+  // TO DO - handle profile error
+  if (!profileCheck.success) return notFound();
+
+  const correct = await checkAnswer(answer);
+
+  await updateVocabStats(profileCheck.data, answer.vocabId, correct);
+
+  return { correct: correct };
 };
