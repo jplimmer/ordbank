@@ -31,13 +31,12 @@ export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
 };
 
 export const languagePairBelongsToUser = async (
-  userId: number,
-  languagePairId: number
+  userProfile: UserProfile
 ): Promise<boolean> => {
   const result = await db.query.languagePairs.findFirst({
     where: and(
-      eq(languagePairs.id, languagePairId),
-      eq(languagePairs.userId, userId)
+      eq(languagePairs.id, userProfile.languagePairId),
+      eq(languagePairs.userId, userProfile.userId)
     ),
     columns: { id: true },
   });
@@ -45,11 +44,8 @@ export const languagePairBelongsToUser = async (
   return result !== undefined;
 };
 
-export const assertLanguagePairOwnership = async (
-  userId: number,
-  languagePairId: number
-) => {
-  const belongs = await languagePairBelongsToUser(userId, languagePairId);
+export const assertLanguagePairOwnership = async (userProfile: UserProfile) => {
+  const belongs = await languagePairBelongsToUser(userProfile);
   if (!belongs) {
     throw new Error(
       'Unauthorised: Language pair does not belong to the current user.'

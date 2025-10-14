@@ -7,7 +7,7 @@ import { users } from '../db/schema';
 import { getLogger } from '../logger';
 import { LanguagePair } from '../types/language-pair';
 import { Result } from '../types/types';
-import { assertLanguagePairOwnership } from './auth';
+import { assertLanguagePairOwnership, UserProfile } from './auth';
 import { getLanguagePair } from './language-pairs';
 
 const logger = getLogger();
@@ -19,7 +19,7 @@ const getCookiesActiveLanguagePair = async (): Promise<number | undefined> => {
   const cookieString = cookieStore.get(activePairCookieName)?.value;
   const parsedString = Number(cookieString);
   const langPairId = Number.isFinite(parsedString) ? parsedString : undefined;
-  logger.debug('Fetched cookies activeLanguagePairId:', langPairId);
+  logger.debug(`Fetched cookie ${activePairCookieName}:`, langPairId);
   return langPairId;
 };
 
@@ -58,18 +58,17 @@ const getDbActiveLanguagePair = async (
 };
 
 const setDbActiveLanguagePair = async (
-  userId: number,
-  languagePairId: number
+  userProfile: UserProfile
 ): Promise<Result<number>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userId, languagePairId);
+    await assertLanguagePairOwnership(userProfile);
 
     // Update active language pair for the user in database
     const [updatedUser] = await db
       .update(users)
-      .set({ activeLanguagePairId: languagePairId })
-      .where(eq(users.id, userId))
+      .set({ activeLanguagePairId: userProfile.languagePairId })
+      .where(eq(users.id, userProfile.userId))
       .returning();
 
     logger.info(
@@ -99,18 +98,22 @@ export const getActiveLanguagePair = async (
   if (!activeLanguagePairId)
     return { success: false, error: 'No active language pair id found' };
 
-  return await getLanguagePair(userId, activeLanguagePairId);
+  return await getLanguagePair({
+    userId,
+    languagePairId: activeLanguagePairId,
+  });
 };
 
 export const setActiveLanguagePair = async (
-  userId: number,
-  languagePairId: number
+  userProfile: UserProfile
 ): Promise<Result<LanguagePair>> => {
   // Set cookies
-  const cookiesResult = await setCookiesActiveLanguagePair(languagePairId);
+  const cookiesResult = await setCookiesActiveLanguagePair(
+    userProfile.languagePairId
+  );
 
   // Update database
-  const dbResult = await setDbActiveLanguagePair(userId, languagePairId);
+  const dbResult = await setDbActiveLanguagePair(userProfile);
 
   if (!cookiesResult.success && !dbResult.success) {
     return {
@@ -119,5 +122,5 @@ export const setActiveLanguagePair = async (
     };
   }
 
-  return await getLanguagePair(userId, languagePairId);
+  return await getLanguagePair(userProfile);
 };
