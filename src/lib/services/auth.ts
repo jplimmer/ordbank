@@ -18,7 +18,7 @@ export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
     return { success: false, error: 'User not authenticated' };
   }
 
-  // Get user's last active languagePair
+  // Get user's last active languagePair (including ownership verification)
   const activeLanguage = await getActiveLanguagePair(userId);
   if (!activeLanguage.success) {
     return { success: false, error: activeLanguage.error };
