@@ -27,7 +27,7 @@ export const vocabSelectSchema = z.array(vocabItemSelectSchema);
 export const vocabInsertSchema = createInsertSchema(vocabulary, {
   source: wordFieldSchema,
   target: wordFieldSchema,
-});
+}).omit({ totalAttempts: true, correctAttempts: true, lastAttemptedAt: true });
 
 // Validation schema for updating existing vocab - user cannot update languagePairId
 export const vocabUpdateSchema = createUpdateSchema(vocabulary, {
