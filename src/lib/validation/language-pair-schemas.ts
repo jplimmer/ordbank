@@ -33,6 +33,6 @@ export const languagePairInsertSchema = createInsertSchema(languagePairs, {
 // Validation schema for updating existing language pair - user cannot update userId or
 // name (should be handled by data service)
 export const languagePairUpdateSchema = createUpdateSchema(languagePairs, {
-  sourceLanguage: languageFieldSchema,
-  targetLanguage: languageFieldSchema,
+  sourceLanguage: languageFieldSchema.optional(),
+  targetLanguage: languageFieldSchema.optional(),
 }).omit({ userId: true, pairName: true });

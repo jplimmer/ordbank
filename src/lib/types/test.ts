@@ -28,7 +28,6 @@ export type Question =
 
 export type Answer = {
   vocabId: number;
-  question: string;
   direction: Direction;
   answer: string;
 };

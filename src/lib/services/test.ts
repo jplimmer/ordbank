@@ -3,10 +3,18 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { vocabulary } from '../db/schema';
-import { Direction } from '../types/test';
+import { getLogger } from '../logger';
+import { Result } from '../types/common';
+import { Answer, Direction } from '../types/test';
 import { VocabItem } from '../types/vocab';
 import { shuffle } from '../utils';
-import { assertLanguagePairOwnership, UserProfile } from './auth';
+import {
+  assertLanguagePairOwnership,
+  assertVocabItemOwnership,
+  UserProfile,
+} from './auth';
+
+const logger = getLogger();
 
 export const selectVocabItem = async (
   userProfile: UserProfile
@@ -52,4 +60,51 @@ export const generateMultipleChoiceAnswers = async (
 
   const answerArray = [correct, ...incorrect];
   return shuffle(answerArray);
+};
+
+export const checkAnswer = async ({
+  vocabId,
+  direction,
+  answer,
+}: Answer): Promise<boolean> => {
+  const column = direction === 'sourceToTarget' ? 'target' : 'source';
+  const queryColumn = vocabulary[column];
+
+  const result = await db
+    .select()
+    .from(vocabulary)
+    .where(and(eq(vocabulary.id, vocabId), eq(queryColumn, answer)));
+
+  return result.length > 0;
+};
+
+export const updateVocabStats = async (
+  userProfile: UserProfile,
+  vocabId: number,
+  correct: boolean
+): Promise<Result<null>> => {
+  try {
+    // Verify requested language pair belongs to user
+    await assertLanguagePairOwnership(userProfile);
+
+    // Verify the vocabItem belongs to the languagePair
+    await assertVocabItemOwnership(userProfile.languagePairId, vocabId);
+
+    await db
+      .update(vocabulary)
+      .set({
+        totalAttempts: sql`${vocabulary.totalAttempts} + 1`,
+        correctAttempts: correct
+          ? sql`${vocabulary.correctAttempts} + 1`
+          : vocabulary.correctAttempts,
+        lastAttemptedAt: sql`NOW()`,
+      })
+      .where(eq(vocabulary.id, vocabId));
+    logger.debug(`Updated stats for vocab item ${vocabId}`);
+    return { success: true, data: null };
+  } catch (error) {
+    const errorMsg = `Failed to update stats for vocab item ${vocabId}: ${error instanceof Error ? error.message : String(error)}`;
+    logger.error(errorMsg, { error });
+    return { success: false, error: errorMsg };
+  }
 };
