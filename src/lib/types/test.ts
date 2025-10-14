@@ -1,8 +1,7 @@
-import { VocabItem } from './vocab';
-
 export type Direction = 'sourceToTarget' | 'targetToSource' | 'random';
-export type AnswerModeResponse = 'typed' | 'multipleChoice';
-export type AnswerModeSetting = AnswerModeResponse | 'random';
+export type DirectionSetting = Direction | 'random';
+export type AnswerMode = 'typed' | 'multipleChoice';
+export type AnswerModeSetting = AnswerMode | 'random';
 
 export type TestSettings = {
   direction: Direction;
@@ -10,9 +9,6 @@ export type TestSettings = {
   questionLimit: number | null;
   timeLimitMins: number | null;
 };
-
-// Type to be returned by service when selecting vocab item for question
-export type QuestionVocabItem = Pick<VocabItem, 'id' | 'source' | 'target'>;
 
 // Type to be returned by server action when creating question
 export type Question =
