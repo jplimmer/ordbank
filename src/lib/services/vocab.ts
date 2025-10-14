@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/types';
+import { Result } from '../types/common';
 import { InsertVocabItem, UpdateVocabItem, VocabItem } from '../types/vocab';
 import { handleValidationError } from '../utils';
 import {
@@ -25,10 +25,7 @@ export const getVocab = async (
 ): Promise<Result<VocabItem[]>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(
-      userProfile.userId,
-      userProfile.languagePairId
-    );
+    await assertLanguagePairOwnership(userProfile);
 
     // Fetch vocabulary data from db
     const vocab = await db
@@ -62,7 +59,10 @@ export const createVocabItem = async (
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userId, newVocabItem.languagePairId);
+    await assertLanguagePairOwnership({
+      userId,
+      languagePairId: newVocabItem.languagePairId,
+    });
 
     // Validate new vocab item
     const parseResult = vocabInsertSchema.safeParse(newVocabItem);
@@ -97,10 +97,7 @@ export const updateVocabItem = async (
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(
-      userProfile.userId,
-      userProfile.languagePairId
-    );
+    await assertLanguagePairOwnership(userProfile);
 
     // Verify the vocabItem belongs to the languagePair
     await assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
@@ -138,10 +135,7 @@ export const deleteVocabItem = async (
 ): Promise<Result<VocabItem>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(
-      userProfile.userId,
-      userProfile.languagePairId
-    );
+    await assertLanguagePairOwnership(userProfile);
 
     // Verify the vocabItem belongs to the languagePair
     await assertVocabItemOwnership(userProfile.languagePairId, vocabId);

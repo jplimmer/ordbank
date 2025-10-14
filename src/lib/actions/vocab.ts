@@ -8,7 +8,7 @@ import {
   deleteVocabItem,
   updateVocabItem,
 } from '../services/vocab';
-import { FormResult, Result } from '../types/types';
+import { FormResult, Result } from '../types/common';
 import { VocabItem } from '../types/vocab';
 import { handleValidationError } from '../utils';
 import {

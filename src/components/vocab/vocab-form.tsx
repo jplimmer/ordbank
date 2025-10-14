@@ -2,7 +2,7 @@
 
 import { useLanguagePairContext } from '@/contexts/language-pair';
 import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
-import { FormResult } from '@/lib/types/types';
+import { FormResult } from '@/lib/types/common';
 import { VocabItem } from '@/lib/types/vocab';
 import { getFormValue } from '@/lib/utils';
 import Form from 'next/form';

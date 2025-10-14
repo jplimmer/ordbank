@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm';
-import { integer, pgTable, text, varchar } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from 'drizzle-orm/pg-core';
 
 // Tables
 export const users = pgTable('users', {
@@ -8,24 +15,46 @@ export const users = pgTable('users', {
   activeLanguagePairId: integer('active_language_pair_id').notNull(),
 });
 
-export const languagePairs = pgTable('language_pairs', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  sourceLanguage: text('source_language').notNull(),
-  targetLanguage: text('target_language').notNull(),
-  pairName: text('pair_name').notNull(),
-});
+export const languagePairs = pgTable(
+  'language_pairs',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    sourceLanguage: text('source_language').notNull(),
+    targetLanguage: text('target_language').notNull(),
+    pairName: text('pair_name').notNull(),
+  },
+  (t) => [
+    uniqueIndex('language_pairs_user_source_target_unique').on(
+      t.userId,
+      t.sourceLanguage,
+      t.targetLanguage
+    ),
+  ]
+);
 
-export const vocabulary = pgTable('vocabulary', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  languagePairId: integer('language_pair_id')
-    .notNull()
-    .references(() => languagePairs.id, { onDelete: 'cascade' }),
-  source: text('source').notNull().unique(),
-  target: text('target').notNull(),
-});
+export const vocabulary = pgTable(
+  'vocabulary',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    languagePairId: integer('language_pair_id')
+      .notNull()
+      .references(() => languagePairs.id, { onDelete: 'cascade' }),
+    source: text('source').notNull(),
+    target: text('target').notNull(),
+    totalAttempts: integer('total_attempts').notNull().default(0),
+    correctAttempts: integer('correct_attempts').notNull().default(0),
+    lastAttemptedAt: timestamp('last_attempted_at'),
+  },
+  (t) => [
+    uniqueIndex('vocabulary_language_pair_source_unique').on(
+      t.languagePairId,
+      t.source
+    ),
+  ]
+);
 
 // Relationships
 export const userRelations = relations(users, ({ many }) => ({

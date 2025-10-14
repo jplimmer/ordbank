@@ -4,12 +4,12 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs } from '../db/schema';
 import { getLogger } from '../logger';
+import { Result } from '../types/common';
 import {
   InsertLanguagePair,
   LanguagePair,
   UpdateLanguagePair,
 } from '../types/language-pair';
-import { Result } from '../types/types';
 import { handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,
@@ -17,21 +17,20 @@ import {
   languagePairSelectSchema,
   languagePairUpdateSchema,
 } from '../validation/language-pair-schemas';
-import { assertLanguagePairOwnership } from './auth';
+import { assertLanguagePairOwnership, UserProfile } from './auth';
 
 const logger = getLogger();
 
 export const getLanguagePair = async (
-  userId: number,
-  languagePairId: number
+  userProfile: UserProfile
 ): Promise<Result<LanguagePair>> => {
   try {
     // Verify the language pair belongs to the user
-    await assertLanguagePairOwnership(userId, languagePairId);
+    await assertLanguagePairOwnership(userProfile);
 
     // Fetch language pair data from database
     const langPair = await db.query.languagePairs.findFirst({
-      where: eq(languagePairs.id, languagePairId),
+      where: eq(languagePairs.id, userProfile.languagePairId),
     });
 
     if (!langPair) {
@@ -136,13 +135,12 @@ export const createLanguagePair = async (
 };
 
 export const updateLanguagePair = async (
-  userId: number,
-  languagePairId: number,
+  userProfile: UserProfile,
   updates: UpdateLanguagePair
 ): Promise<Result<LanguagePair>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userId, languagePairId);
+    await assertLanguagePairOwnership(userProfile);
 
     // Validate language pair updates
     const parseResult = languagePairUpdateSchema.safeParse(updates);
@@ -159,7 +157,7 @@ export const updateLanguagePair = async (
     const [updatedItem] = await db
       .update(languagePairs)
       .set(parseResult.data)
-      .where(eq(languagePairs.id, languagePairId))
+      .where(eq(languagePairs.id, userProfile.languagePairId))
       .returning();
 
     logger.info(`Updated language pair ${updatedItem.id} in database`);
@@ -177,7 +175,7 @@ export const deleteLanguagePair = async (
 ): Promise<Result<LanguagePair>> => {
   try {
     // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userId, languagePairId);
+    await assertLanguagePairOwnership({ userId, languagePairId });
 
     // Delete language pair from database and return deleted pair
     const [deletedPair] = await db

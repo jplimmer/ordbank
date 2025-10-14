@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import { getLogger } from './logger';
-import { ValidationError } from './types/types';
+import { ValidationError } from './types/common';
 
 const logger = getLogger();
 
@@ -37,4 +37,17 @@ export const handleValidationError = <T extends object>(
     formErrors: formErrors,
     fieldErrors: fieldErrors,
   };
+};
+
+// Returns a copy of an array with the items randomly shuffled
+export const shuffle = <T>(array: T[]): T[] => {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    // Pick a random index for j
+    const j = Math.floor(Math.random() * (i + 1));
+    // Swap i with j
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
 };
