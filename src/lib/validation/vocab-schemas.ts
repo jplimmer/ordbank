@@ -31,6 +31,6 @@ export const vocabInsertSchema = createInsertSchema(vocabulary, {
 
 // Validation schema for updating existing vocab - user cannot update languagePairId
 export const vocabUpdateSchema = createUpdateSchema(vocabulary, {
-  source: wordFieldSchema,
-  target: wordFieldSchema,
+  source: wordFieldSchema.optional(),
+  target: wordFieldSchema.optional(),
 }).omit({ languagePairId: true });
