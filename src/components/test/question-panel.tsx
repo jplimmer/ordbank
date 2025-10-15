@@ -27,8 +27,9 @@ export function QuestionPanel({ questionWord, direction }: QuestionPanelProps) {
   }
 }
 
+const containerStyle = 'text-center text-2xl space-y-4 cursor-default';
 const questionWordStyle =
-  'inline-block text-2xl font-semibold border rounded-md px-6 py-3';
+  'inline-block text-4xl font-semibold border rounded-md px-6 py-3';
 
 function SourceQuestion({
   targetLanguage,
@@ -38,7 +39,7 @@ function SourceQuestion({
   questionWord: string;
 }) {
   return (
-    <div className="text-center space-y-4 cursor-default">
+    <div className={containerStyle}>
       <p>What does</p>
       <span className={questionWordStyle}>{questionWord}</span>
       <p>
@@ -56,7 +57,7 @@ function TargetQuestion({
   questionWord: string;
 }) {
   return (
-    <div className="text-center space-y-4 cursor-default">
+    <div className={containerStyle}>
       <p>How do you say</p>
       <span className={questionWordStyle}>{questionWord}</span>
       <p>

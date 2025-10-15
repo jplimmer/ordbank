@@ -61,7 +61,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   };
 
   return (
-    <div className="grid justify-center items-center gap-16">
+    <div className="grid justify-center items-center gap-12">
       <QuestionPanel
         questionWord={question.question}
         direction={question.direction}
