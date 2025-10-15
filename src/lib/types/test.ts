@@ -1,10 +1,10 @@
-export type Direction = 'sourceToTarget' | 'targetToSource' | 'random';
+export type Direction = 'sourceToTarget' | 'targetToSource';
 export type DirectionSetting = Direction | 'random';
 export type AnswerMode = 'typed' | 'multipleChoice';
 export type AnswerModeSetting = AnswerMode | 'random';
 
 export type TestSettings = {
-  direction: Direction;
+  direction: DirectionSetting;
   answerMode: AnswerModeSetting;
   questionLimit: number | null;
   timeLimitMins: number | null;
