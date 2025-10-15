@@ -17,7 +17,7 @@ export default async function TestPage() {
   );
 
   return (
-    <div>
+    <div className="grid justify-center items-center">
       <TestManager settings={settings} initialQuestion={initialQuestion} />
     </div>
   );

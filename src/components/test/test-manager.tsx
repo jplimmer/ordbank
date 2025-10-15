@@ -3,8 +3,8 @@
 import { Question, TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
-import { NextQuestionButton } from './next-question-button';
 import { QuestionPanel } from './question-panel';
+import { ResultPanel } from './result-panel';
 import { TypedAnswer } from './typed-answer';
 
 interface TestManagerProps {
@@ -16,8 +16,10 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const [question, setQuestion] = useState<Question>(initialQuestion);
   const [currentAnswer, setCurrentAnswer] = useState<string>('');
 
+  const resetCurrentAnswer = () => setCurrentAnswer('');
+
   return (
-    <div className="space-y-4">
+    <div className="grid justify-center items-center gap-16">
       <QuestionPanel
         questionWord={question.question}
         direction={question.direction}
@@ -31,7 +33,14 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       ) : (
         <TypedAnswer value={currentAnswer} setAnswer={setCurrentAnswer} />
       )}
-      <NextQuestionButton settings={settings} setQuestion={setQuestion} />
+      <ResultPanel
+        settings={settings}
+        setQuestion={setQuestion}
+        resetAnswer={resetCurrentAnswer}
+        vocabId={question.vocabId}
+        direction={question.direction}
+        answer={currentAnswer}
+      />
     </div>
   );
 }
