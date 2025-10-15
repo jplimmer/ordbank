@@ -3,6 +3,7 @@
 import { Question, TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
+import { NextQuestionButton } from './next-question-button';
 import { QuestionPanel } from './question-panel';
 import { TypedAnswer } from './typed-answer';
 
@@ -30,6 +31,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       ) : (
         <TypedAnswer value={currentAnswer} setAnswer={setCurrentAnswer} />
       )}
+      <NextQuestionButton settings={settings} setQuestion={setQuestion} />
     </div>
   );
 }
