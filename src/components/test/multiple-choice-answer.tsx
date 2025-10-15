@@ -21,14 +21,14 @@ export function MultipleChoiceAnswer({
         if (val) setAnswer(val);
       }}
       size="lg"
-      className="gap-4"
+      className="gap-4 w-full"
       disabled={disabled}
     >
       {options.map((option) => (
         <ToggleGroupItem
           key={option}
           value={option}
-          className="text-2xl rounded-md"
+          className="text-2xl font-normal rounded-md border py-8 px-4"
         >
           {option}
         </ToggleGroupItem>

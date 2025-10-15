@@ -27,7 +27,8 @@ export function QuestionPanel({ questionWord, direction }: QuestionPanelProps) {
   }
 }
 
-const questionWordStyle = 'inline-block text-2xl border rounded-md px-6 py-3';
+const questionWordStyle =
+  'inline-block text-2xl font-semibold border rounded-md px-6 py-3';
 
 function SourceQuestion({
   targetLanguage,

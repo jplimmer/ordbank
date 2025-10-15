@@ -18,6 +18,7 @@ export function TypedAnswer({
       value={value}
       onChange={(e) => setAnswer(e.target.value)}
       disabled={disabled}
+      autoFocus
     />
   );
 }
