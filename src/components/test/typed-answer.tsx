@@ -14,6 +14,7 @@ export function TypedAnswer({
   return (
     <Input
       type="text"
+      placeholder="Enter your answer..."
       value={value}
       onChange={(e) => setAnswer(e.target.value)}
       disabled={disabled}
