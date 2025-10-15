@@ -39,7 +39,7 @@ export function ResultPanel({
               </p>
             </>
           )}
-          <Button onClick={nextQuestionFn} disabled={isLoadingNext}>
+          <Button onClick={nextQuestionFn} disabled={isLoadingNext} autoFocus>
             {isLoadingNext ? <Spinner /> : 'Next question'}
           </Button>
         </div>

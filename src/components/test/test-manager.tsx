@@ -77,6 +77,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         <TypedAnswer
           value={currentAnswer}
           setAnswer={setCurrentAnswer}
+          onSubmit={handleSubmit}
           disabled={result !== null || isSubmitting}
         />
       )}
