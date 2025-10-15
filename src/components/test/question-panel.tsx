@@ -1,13 +1,12 @@
 import { useLanguagePairContext } from '@/contexts/language-pair';
 import { Direction } from '@/lib/types/test';
 
-export function QuestionPanel({
-  questionWord,
-  direction,
-}: {
+interface QuestionPanelProps {
   questionWord: string;
   direction: Direction;
-}) {
+}
+
+export function QuestionPanel({ questionWord, direction }: QuestionPanelProps) {
   const { sourceLanguage, targetLanguage } =
     useLanguagePairContext().activePair;
 
