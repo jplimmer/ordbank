@@ -26,8 +26,19 @@ export type Question =
       answers: string[];
     };
 
+// Type to be sent from client to server on answer submission
 export type Answer = {
   vocabId: number;
   direction: Direction;
   answer: string;
 };
+
+// Type to be returned by server action when evaluating answer
+export type AnswerResult =
+  | {
+      correct: true;
+    }
+  | {
+      correct: false;
+      answer: string;
+    };
