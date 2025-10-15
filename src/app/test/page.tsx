@@ -7,7 +7,7 @@ export default async function TestPage() {
   const settings: TestSettings = {
     direction: 'random',
     answerMode: 'random',
-    questionLimit: null,
+    questionLimit: 10,
     timeLimitMins: null,
   };
 

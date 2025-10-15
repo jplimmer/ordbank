@@ -5,6 +5,7 @@ import { getLogger } from '@/lib/logger';
 import { AnswerResult, Question, TestSettings } from '@/lib/types/test';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
+import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
 import { ResultPanel } from './result-panel';
 import { TypedAnswer } from './typed-answer';
@@ -21,6 +22,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const [question, setQuestion] = useState<Question>(initialQuestion);
   const [currentAnswer, setCurrentAnswer] = useState<string>('');
   const [result, setResult] = useState<AnswerResult | null>(null);
+  const [questionCount, setQuestionCount] = useState(1);
 
   // Loading & error-handling
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +63,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       try {
         const q = await getQuestion(settings.direction, settings.answerMode);
         setQuestion(q);
+        setQuestionCount((prev) => prev + 1);
         setCurrentAnswer('');
         setResult(null);
       } catch (error) {
@@ -89,7 +92,14 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   }, [result, isLoadingNext]);
 
   return (
-    <div className="grid justify-center items-center gap-12">
+    <div className="grid justify-center gap-12">
+      <div className="grid grid-cols-2">
+        <QuestionCounter
+          questionLimit={settings.questionLimit}
+          currentQuestion={questionCount}
+        />
+        <div></div>
+      </div>
       <QuestionPanel
         questionWord={question.question}
         direction={question.direction}
