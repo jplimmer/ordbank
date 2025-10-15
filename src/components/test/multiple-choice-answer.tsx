@@ -12,7 +12,15 @@ export function MultipleChoiceAnswer({
   setAnswer,
 }: MultipleChoiceAnswerProps) {
   return (
-    <ToggleGroup type="single" size="lg" className="gap-4">
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(val) => {
+        if (val) setAnswer(val);
+      }}
+      size="lg"
+      className="gap-4"
+    >
       {options.map((option) => (
         <ToggleGroupItem
           key={option}
