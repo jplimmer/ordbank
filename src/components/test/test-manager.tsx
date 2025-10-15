@@ -4,6 +4,7 @@ import { getQuestion } from '@/lib/actions/test';
 import { Question, TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
 import { Button } from '../ui/button';
+import { QuestionPanel } from './question';
 
 export function TestManager({ settings }: { settings: TestSettings }) {
   const [question, setQuestion] = useState<Question | undefined>(undefined);
@@ -19,14 +20,10 @@ export function TestManager({ settings }: { settings: TestSettings }) {
         Question
       </Button>
       {question && (
-        <div>
-          {Object.entries(question).map(([key, value]) => (
-            <p key={key}>
-              <strong>{key}:</strong>{' '}
-              {Array.isArray(value) ? value.join(', ') : String(value)}
-            </p>
-          ))}
-        </div>
+        <QuestionPanel
+          questionWord={question.question}
+          direction={question.direction}
+        />
       )}
     </div>
   );
