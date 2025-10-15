@@ -19,27 +19,45 @@ export function ResultPanel({
   isSubmitting,
   isLoadingNext,
 }: ResultPanelProps) {
+  const buttonStyle = 'text-lg py-5';
+
   return (
-    <div className="grid">
+    <div className="grid text-xl">
       {!result ? (
-        <Button onClick={submitFn} disabled={isSubmitting}>
-          {isSubmitting ? <Spinner /> : 'Submit'}
-        </Button>
+        <div className="grid gap-2">
+          <div>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+          </div>
+          <Button
+            onClick={submitFn}
+            disabled={isSubmitting}
+            className={buttonStyle}
+          >
+            {isSubmitting ? <Spinner /> : 'Submit'}
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-2">
           {result.correct ? (
-            <p className="text-lg text-green-600">Correct!</p>
+            <div>
+              <p>&nbsp;</p>
+              <p className="font-semibold text-green-600">Correct!</p>
+            </div>
           ) : (
-            <>
-              <span className="text-lg text-destructive font-semibold">
-                Incorrect!
-              </span>
+            <div>
+              <span className="font-semibold text-destructive">Incorrect!</span>
               <p className="text-destructive">
                 Correct answer: {result.correctAnswer}
               </p>
-            </>
+            </div>
           )}
-          <Button onClick={nextQuestionFn} disabled={isLoadingNext} autoFocus>
+          <Button
+            onClick={nextQuestionFn}
+            disabled={isLoadingNext}
+            className={buttonStyle}
+            autoFocus
+          >
             {isLoadingNext ? <Spinner /> : 'Next question'}
           </Button>
         </div>
