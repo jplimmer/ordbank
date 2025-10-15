@@ -4,12 +4,14 @@ interface MultipleChoiceAnswerProps {
   options: string[];
   value: string;
   setAnswer: React.Dispatch<React.SetStateAction<string>>;
+  disabled?: boolean;
 }
 
 export function MultipleChoiceAnswer({
   options,
   value,
   setAnswer,
+  disabled = false,
 }: MultipleChoiceAnswerProps) {
   return (
     <ToggleGroup
@@ -20,6 +22,7 @@ export function MultipleChoiceAnswer({
       }}
       size="lg"
       className="gap-4"
+      disabled={disabled}
     >
       {options.map((option) => (
         <ToggleGroupItem

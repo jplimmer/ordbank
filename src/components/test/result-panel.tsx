@@ -19,12 +19,12 @@ export function ResultPanel({
       {!result ? (
         <Button onClick={submitFn}>Submit</Button>
       ) : (
-        <div>
+        <div className="grid gap-2">
           {result.correct ? (
             <p>Correct!</p>
           ) : (
             <>
-              <span className="destructive">Incorrect!</span>
+              <span>Incorrect!</span>
               <p>Correct answer: {result.correctAnswer}</p>
             </>
           )}

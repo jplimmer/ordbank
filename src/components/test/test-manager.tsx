@@ -49,9 +49,14 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           options={question.answers}
           value={currentAnswer}
           setAnswer={setCurrentAnswer}
+          disabled={result !== null}
         />
       ) : (
-        <TypedAnswer value={currentAnswer} setAnswer={setCurrentAnswer} />
+        <TypedAnswer
+          value={currentAnswer}
+          setAnswer={setCurrentAnswer}
+          disabled={result !== null}
+        />
       )}
       <ResultPanel
         result={result}
