@@ -30,7 +30,7 @@ export type Question =
 export type Answer = {
   vocabId: number;
   direction: Direction;
-  answer: string;
+  answerString: string;
 };
 
 // Type to be returned by server action when evaluating answer
@@ -40,5 +40,5 @@ export type AnswerResult =
     }
   | {
       correct: false;
-      answer: string;
+      correctAnswer: string;
     };

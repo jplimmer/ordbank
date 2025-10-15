@@ -86,6 +86,6 @@ export const processAnswer = async (answer: Answer): Promise<AnswerResult> => {
   if (result.correct) {
     return { correct: result.correct };
   } else {
-    return { correct: result.correct, answer: result.answer };
+    return { correct: result.correct, correctAnswer: result.correctAnswer };
   }
 };

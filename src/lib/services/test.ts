@@ -65,7 +65,7 @@ export const generateMultipleChoiceAnswers = async (
 export const checkAnswer = async ({
   vocabId,
   direction,
-  answer,
+  answerString: answer,
 }: Answer): Promise<AnswerResult> => {
   const column = direction === 'sourceToTarget' ? 'target' : 'source';
   const queryColumn = vocabulary[column];
@@ -81,7 +81,7 @@ export const checkAnswer = async ({
   if (correct) {
     return { correct: true };
   } else {
-    return { correct: false, answer: correctAnswer.word };
+    return { correct: false, correctAnswer: correctAnswer.word };
   }
 };
 
