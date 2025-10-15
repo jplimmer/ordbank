@@ -1,10 +1,10 @@
-export type Direction = 'sourceToTarget' | 'targetToSource' | 'random';
+export type Direction = 'sourceToTarget' | 'targetToSource';
 export type DirectionSetting = Direction | 'random';
 export type AnswerMode = 'typed' | 'multipleChoice';
 export type AnswerModeSetting = AnswerMode | 'random';
 
 export type TestSettings = {
-  direction: Direction;
+  direction: DirectionSetting;
   answerMode: AnswerModeSetting;
   questionLimit: number | null;
   timeLimitMins: number | null;
@@ -26,8 +26,19 @@ export type Question =
       answers: string[];
     };
 
+// Type to be sent from client to server on answer submission
 export type Answer = {
   vocabId: number;
   direction: Direction;
-  answer: string;
+  answerString: string;
 };
+
+// Type to be returned by server action when evaluating answer
+export type AnswerResult =
+  | {
+      correct: true;
+    }
+  | {
+      correct: false;
+      correctAnswer: string;
+    };

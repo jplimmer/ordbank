@@ -4,31 +4,47 @@ import { ROUTES } from '@/lib/constants/routes';
 import { BookType, Home, Info, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Button } from '../ui/button';
 
 export function NavBar() {
   const pathname = usePathname();
   const isHome = pathname === ROUTES.HOME;
 
   return (
-    <nav className="mb-4 py-4">
+    <nav className="pb-4">
       <ul className="flex justify-around">
         <li>
-          <Link href={ROUTES.ACCOUNT} aria-label="Account">
-            <UserRound size={32} />
-          </Link>
+          <Button variant="ghost" className="py-2" asChild>
+            <Link href={ROUTES.ACCOUNT} aria-label="Account" className="h-fit">
+              <UserRound className="size-8" />
+            </Link>
+          </Button>
         </li>
         <li>
-          <Link
-            href={isHome ? ROUTES.VOCAB : ROUTES.HOME}
-            aria-label={isHome ? 'Vocab list' : 'Home'}
-          >
-            {isHome ? <BookType size={32} /> : <Home size={32} />}
-          </Link>
+          <Button variant="ghost" className="py-2" asChild>
+            <Link
+              href={isHome ? ROUTES.VOCAB : ROUTES.HOME}
+              aria-label={isHome ? 'Vocab list' : 'Home'}
+              className="h-fit"
+            >
+              {isHome ? (
+                <BookType className="size-8" />
+              ) : (
+                <Home className="size-8" />
+              )}
+            </Link>
+          </Button>
         </li>
         <li>
-          <Link href={ROUTES.USER_GUIDE} aria-label="User guide">
-            <Info size={32} />
-          </Link>
+          <Button variant="ghost" className="py-2" asChild>
+            <Link
+              href={ROUTES.USER_GUIDE}
+              aria-label="User guide"
+              className="h-fit"
+            >
+              <Info className="size-8" />
+            </Link>
+          </Button>
         </li>
       </ul>
     </nav>

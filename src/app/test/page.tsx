@@ -1,4 +1,5 @@
 import { TestManager } from '@/components/test/test-manager';
+import { getQuestion } from '@/lib/actions/test';
 import { TestSettings } from '@/lib/types/test';
 
 export default async function TestPage() {
@@ -10,9 +11,14 @@ export default async function TestPage() {
     timeLimitMins: null,
   };
 
+  const initialQuestion = await getQuestion(
+    settings.direction,
+    settings.answerMode
+  );
+
   return (
-    <div>
-      <TestManager settings={settings} />
+    <div className="content-grid justify-center items-center">
+      <TestManager settings={settings} initialQuestion={initialQuestion} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { db } from '../db';
 import { vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
 import { Result } from '../types/common';
-import { Answer, Direction } from '../types/test';
+import { Answer, AnswerResult, Direction } from '../types/test';
 import { VocabItem } from '../types/vocab';
 import { shuffle } from '../utils';
 import {
@@ -65,17 +65,24 @@ export const generateMultipleChoiceAnswers = async (
 export const checkAnswer = async ({
   vocabId,
   direction,
-  answer,
-}: Answer): Promise<boolean> => {
+  answerString: answer,
+}: Answer): Promise<AnswerResult> => {
   const column = direction === 'sourceToTarget' ? 'target' : 'source';
   const queryColumn = vocabulary[column];
 
-  const result = await db
-    .select()
+  const [correctAnswer] = await db
+    .select({ word: queryColumn })
     .from(vocabulary)
-    .where(and(eq(vocabulary.id, vocabId), eq(queryColumn, answer)));
+    .where(eq(vocabulary.id, vocabId))
+    .limit(1);
 
-  return result.length > 0;
+  const correct = answer === correctAnswer.word;
+
+  if (correct) {
+    return { correct: true };
+  } else {
+    return { correct: false, correctAnswer: correctAnswer.word };
+  }
 };
 
 export const updateVocabStats = async (

@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const iconSize = 32;
+  const iconStyle = 'size-8';
 
   useEffect(() => {
     setMounted(true);
@@ -32,20 +32,20 @@ export function ThemeToggle() {
   // Display icon for current theme
   const icon =
     nextTheme === 'dark' ? (
-      <Moon size={iconSize} />
+      <Moon className={iconStyle} />
     ) : nextTheme === 'light' ? (
-      <Sun size={iconSize} />
+      <Sun className={iconStyle} />
     ) : (
-      <Monitor className="w-20 h-20" />
+      <Monitor className={iconStyle} />
     );
 
   return (
     <Button
       variant="ghost"
-      size="icon"
       onClick={handleToggle}
       title={`Switch to ${nextTheme} theme`}
       aria-label={`Switch to ${nextTheme} theme`}
+      className="h-fit py-2"
     >
       {icon}
     </Button>

@@ -12,12 +12,14 @@ import {
   Answer,
   AnswerMode,
   AnswerModeSetting,
+  AnswerResult,
   Direction,
+  DirectionSetting,
   Question,
 } from '../types/test';
 
 export const getQuestion = async (
-  direction: Direction,
+  direction: DirectionSetting,
   answerMode: AnswerModeSetting
 ): Promise<Question> => {
   const profileCheck = await getCurrentProfile();
@@ -71,17 +73,19 @@ export const getQuestion = async (
   }
 };
 
-export const processAnswer = async (
-  answer: Answer
-): Promise<{ correct: boolean }> => {
+export const processAnswer = async (answer: Answer): Promise<AnswerResult> => {
   // Authenticate user profile
   const profileCheck = await getCurrentProfile();
   // TO DO - handle profile error
   if (!profileCheck.success) return notFound();
 
-  const correct = await checkAnswer(answer);
+  const result = await checkAnswer(answer);
 
-  await updateVocabStats(profileCheck.data, answer.vocabId, correct);
+  await updateVocabStats(profileCheck.data, answer.vocabId, result.correct);
 
-  return { correct: correct };
+  if (result.correct) {
+    return { correct: result.correct };
+  } else {
+    return { correct: result.correct, correctAnswer: result.correctAnswer };
+  }
 };
