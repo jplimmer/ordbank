@@ -1,6 +1,7 @@
 'use client';
 
 import { AnswerResult } from '@/lib/types/test';
+import { RefObject } from 'react';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 
@@ -10,6 +11,7 @@ interface ResultPanelProps {
   nextQuestionFn: () => void;
   isSubmitting: boolean;
   isLoadingNext: boolean;
+  nextButtonRef?: RefObject<HTMLButtonElement | null>;
 }
 
 export function ResultPanel({
@@ -18,6 +20,7 @@ export function ResultPanel({
   nextQuestionFn,
   isSubmitting,
   isLoadingNext,
+  nextButtonRef,
 }: ResultPanelProps) {
   const buttonStyle = 'text-lg py-5';
 
@@ -56,7 +59,7 @@ export function ResultPanel({
             onClick={nextQuestionFn}
             disabled={isLoadingNext}
             className={buttonStyle}
-            autoFocus
+            ref={nextButtonRef}
           >
             {isLoadingNext ? <Spinner /> : 'Next question'}
           </Button>

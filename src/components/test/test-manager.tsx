@@ -3,7 +3,7 @@
 import { getQuestion, processAnswer } from '@/lib/actions/test';
 import { getLogger } from '@/lib/logger';
 import { AnswerResult, Question, TestSettings } from '@/lib/types/test';
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionPanel } from './question-panel';
 import { ResultPanel } from './result-panel';
@@ -17,13 +17,22 @@ interface TestManagerProps {
 }
 
 export function TestManager({ settings, initialQuestion }: TestManagerProps) {
+  // States for question, answer and result
   const [question, setQuestion] = useState<Question>(initialQuestion);
   const [currentAnswer, setCurrentAnswer] = useState<string>('');
   const [result, setResult] = useState<AnswerResult | null>(null);
+
+  // Loading & error-handling
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, startSubmitTransition] = useTransition();
   const [isLoadingNext, startNextTransition] = useTransition();
 
+  // Refs for focus behaviour
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const typedAnswerRef = useRef<HTMLInputElement>(null);
+  const questionRef = useRef<HTMLDivElement>(null);
+
+  //
   const handleSubmit = async () => {
     if (!currentAnswer.trim()) {
       setError('Please enter an answer');
@@ -46,6 +55,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     });
   };
 
+  //
   const handleNextQuestion = async () => {
     startNextTransition(async () => {
       try {
@@ -60,11 +70,30 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     });
   };
 
+  // Focuses on TypedAnswer component or QuestionPanel when new question loads
+  useEffect(() => {
+    if (!result) {
+      if (question.answerMode === 'typed') {
+        typedAnswerRef.current?.focus();
+      } else {
+        questionRef.current?.focus();
+      }
+    }
+  }, [question, result]);
+
+  // Focuses on NextQuestionButton when result returned
+  useEffect(() => {
+    if (result && !isLoadingNext) {
+      nextButtonRef.current?.focus();
+    }
+  }, [result, isLoadingNext]);
+
   return (
     <div className="grid justify-center items-center gap-12">
       <QuestionPanel
         questionWord={question.question}
         direction={question.direction}
+        ref={questionRef}
       />
       {question.answerMode === 'multipleChoice' ? (
         <MultipleChoiceAnswer
@@ -79,6 +108,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           setAnswer={setCurrentAnswer}
           onSubmit={handleSubmit}
           disabled={result !== null || isSubmitting}
+          ref={typedAnswerRef}
         />
       )}
       {error && <p className="text-destructive">{error}</p>}
@@ -88,6 +118,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         nextQuestionFn={handleNextQuestion}
         isSubmitting={isSubmitting}
         isLoadingNext={isLoadingNext}
+        nextButtonRef={nextButtonRef}
       />
     </div>
   );

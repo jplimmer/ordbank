@@ -1,3 +1,4 @@
+import { RefObject } from 'react';
 import { Input } from '../ui/input';
 
 interface TypedAnswerProps {
@@ -5,6 +6,7 @@ interface TypedAnswerProps {
   setAnswer: React.Dispatch<React.SetStateAction<string>>;
   onSubmit?: () => void;
   disabled?: boolean;
+  ref?: RefObject<HTMLInputElement | null>;
 }
 
 export function TypedAnswer({
@@ -12,6 +14,7 @@ export function TypedAnswer({
   setAnswer,
   onSubmit,
   disabled = false,
+  ref,
 }: TypedAnswerProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onSubmit) {
@@ -22,13 +25,13 @@ export function TypedAnswer({
 
   return (
     <Input
+      ref={ref}
       type="text"
       placeholder="Enter your answer..."
       value={value}
       onChange={(e) => setAnswer(e.target.value)}
       onKeyDown={handleKeyDown}
       disabled={disabled}
-      autoFocus
     />
   );
 }
