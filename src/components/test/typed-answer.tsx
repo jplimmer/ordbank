@@ -3,7 +3,7 @@ import { Input } from '../ui/input';
 
 interface TypedAnswerProps {
   value: string;
-  setAnswer: React.Dispatch<React.SetStateAction<string>>;
+  onSetAnswer: (value: string) => void;
   onSubmit?: () => void;
   disabled?: boolean;
   ref?: RefObject<HTMLInputElement | null>;
@@ -11,7 +11,7 @@ interface TypedAnswerProps {
 
 export function TypedAnswer({
   value,
-  setAnswer,
+  onSetAnswer,
   onSubmit,
   disabled = false,
   ref,
@@ -29,7 +29,7 @@ export function TypedAnswer({
       type="text"
       placeholder="Enter your answer..."
       value={value}
-      onChange={(e) => setAnswer(e.target.value)}
+      onChange={(e) => onSetAnswer(e.target.value)}
       onKeyDown={handleKeyDown}
       disabled={disabled}
     />

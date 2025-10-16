@@ -2,7 +2,7 @@
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
-A vocabulary learning application built with **Next.js**, **Neon PostgreSQL** and **Drizzle ORM**.
+A vocabulary learning application built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**.
 
 Currently in development, this app will allow language learners to test themselves on the vocabulary they find most challenging.
 
@@ -18,9 +18,9 @@ Currently in development, this app will allow language learners to test themselv
 ## ✨ Features
 
 - **Vocabulary Management:** add, edit and delete vocabulary entries with source language terms and translations
-- **Interactive testing:** Multiple testing modes, including typing and multiple choice (Planned)
-- **Flexible Practice:** Set time limits, question counts or unlimited practice sessions (Planned)
-- **Adaptive Learning:** Words you struggle with most feature more heavily in tests (Planned)
+- **Interactive testing:** Multiple testing modes, including typing and multiple choice
+- **Flexible Practice:** Set time limits, question counts or unlimited practice sessions
+- **Adaptive Learning:** Words you struggle with most feature more heavily in tests
 
 ## 🛠 Tech stack
 
@@ -105,6 +105,7 @@ ordbank/
 │   │   └── page.tsx
 │   ├── components/        # Reusable React components organised by feature
 │   ├── contexts/          # React contexts for global UI state
+│   ├── hooks/
 │   └── lib/
 │       ├── actions/       # Server actions
 │       ├── constants/
