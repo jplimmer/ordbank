@@ -4,6 +4,7 @@ import { Clock8, TimerIcon } from 'lucide-react';
 interface TimerProps {
   seconds: number;
   isCountingDown?: boolean;
+  lowTime?: number;
   className?: string;
   iconStyle?: string;
 }
@@ -11,12 +12,13 @@ interface TimerProps {
 export function Timer({
   seconds,
   isCountingDown,
+  lowTime = 10,
   className,
   iconStyle,
 }: TimerProps) {
   const displayTime = formatTime(seconds);
 
-  const isLowTime = isCountingDown && seconds < 60 && seconds > 0;
+  const isLowTime = isCountingDown && seconds < lowTime && seconds > 0;
 
   return (
     <div
