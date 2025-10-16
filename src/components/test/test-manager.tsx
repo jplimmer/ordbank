@@ -124,9 +124,18 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   };
 
   // Resets test to initial state
-  const resetTest = () => {
+  const resetTest = async () => {
+    // Reset timer
     reset();
-    dispatch({ type: 'RESET_TEST', payload: initialTestState });
+    // Get new initial question and pass to reducer
+    const newQuestion = await getQuestion(
+      settings.direction,
+      settings.answerMode
+    );
+    dispatch({
+      type: 'RESET_TEST',
+      payload: { ...initialTestState, question: newQuestion },
+    });
   };
 
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
