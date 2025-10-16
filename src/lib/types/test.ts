@@ -1,14 +1,28 @@
-export type Direction = 'sourceToTarget' | 'targetToSource';
-export type DirectionSetting = Direction | 'random';
-export type AnswerMode = 'typed' | 'multipleChoice';
-export type AnswerModeSetting = AnswerMode | 'random';
+import { z } from 'zod';
+import {
+  testSettingsSelectSchema,
+  testSettingsUpdateSchema,
+} from '../validation/test-settings-schemas';
 
-export type TestSettings = {
-  direction: DirectionSetting;
-  answerMode: AnswerModeSetting;
-  questionLimit: number | null;
-  timeLimitMins: number | null;
-};
+// Enum-like objects for drizzle schema
+export const DirectionSettingEnum = [
+  'sourceToTarget',
+  'targetToSource',
+  'random',
+] as const;
+export const AnswerModeSettingEnum = [
+  'typed',
+  'multipleChoice',
+  'random',
+] as const;
+
+// General objects from zod schemas
+export type TestSettings = z.infer<typeof testSettingsSelectSchema>;
+export type UpdateTestSettings = z.infer<typeof testSettingsUpdateSchema>;
+
+// Types for test flow
+export type Direction = Exclude<TestSettings['direction'], 'random'>;
+export type AnswerMode = Exclude<TestSettings['answerMode'], 'random'>;
 
 // Type to be returned by server action when creating question
 export type Question =
@@ -43,12 +57,13 @@ export type AnswerResult =
       correctAnswer: string;
     };
 
+// State and Action types for TestManager's reducer
 export type TestState = {
   inProgress: boolean;
   question: Question;
   currentAnswer: string;
   result: AnswerResult | null;
-  questionCount: number;
+  currentQuestion: number;
   score: number;
   error: string | null;
 };

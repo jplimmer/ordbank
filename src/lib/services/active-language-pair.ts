@@ -44,7 +44,7 @@ const setCookiesActiveLanguagePair = async (
 
 const getDbActiveLanguagePair = async (
   userId: number
-): Promise<number | undefined> => {
+): Promise<number | null | undefined> => {
   const result = await db.query.users.findFirst({
     where: eq(users.id, userId),
     columns: { activeLanguagePairId: true },
@@ -71,6 +71,10 @@ const setDbActiveLanguagePair = async (
       .where(eq(users.id, userProfile.userId))
       .returning();
 
+    if (updatedUser.activeLanguagePairId === null) {
+      return { success: false, error: 'Returned value is still null' };
+    }
+
     logger.info(
       `Updated active language pair to ${updatedUser.activeLanguagePairId} for user ${updatedUser.id} in database`
     );
@@ -85,7 +89,7 @@ const setDbActiveLanguagePair = async (
 export const getActiveLanguagePair = async (
   userId: number
 ): Promise<Result<LanguagePair>> => {
-  let activeLanguagePairId: number | undefined;
+  let activeLanguagePairId: number | null | undefined;
 
   // Get active language pair id from cookies
   activeLanguagePairId = await getCookiesActiveLanguagePair();

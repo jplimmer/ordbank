@@ -1,16 +1,26 @@
 import { TestManager } from '@/components/test/test-manager';
 import { getQuestion } from '@/lib/actions/test';
-import { TestSettings } from '@/lib/types/test';
+import { getCurrentProfile } from '@/lib/services/auth';
+import { getTestSettings } from '@/lib/services/test-settings';
+import { notFound } from 'next/navigation';
 
 export default async function TestPage() {
-  // TO DO - fetch test settings from database
-  const settings: TestSettings = {
-    direction: 'random',
-    answerMode: 'random',
-    questionLimit: 10,
-    timeLimitMins: null,
-  };
+  // Authenticate user profile
+  const profileCheck = await getCurrentProfile();
+  if (!profileCheck.success) {
+    // TO DO - redirect to login/account page?
+    notFound();
+  }
 
+  // Fetch user settings from database
+  const settingsResult = await getTestSettings(profileCheck.data.userId);
+  if (!settingsResult.success) {
+    // TO DO - handle fallback (default settings?)
+    notFound();
+  }
+  const settings = settingsResult.data;
+
+  // Generate first question server-side
   const initialQuestion = await getQuestion(
     settings.direction,
     settings.answerMode
