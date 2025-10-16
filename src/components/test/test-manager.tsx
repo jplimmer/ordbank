@@ -9,6 +9,7 @@ import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
 import { ResultPanel } from './result-panel';
+import { TestSummary } from './test-summary';
 import { Timer } from './timer';
 import { TypedAnswer } from './typed-answer';
 
@@ -20,11 +21,13 @@ interface TestManagerProps {
 }
 
 export function TestManager({ settings, initialQuestion }: TestManagerProps) {
-  // States for question, answer and result
+  // States for test flow
+  const [inProgress, setInProgress] = useState<boolean>(true);
   const [question, setQuestion] = useState<Question>(initialQuestion);
   const [currentAnswer, setCurrentAnswer] = useState<string>('');
   const [result, setResult] = useState<AnswerResult | null>(null);
-  const [questionCount, setQuestionCount] = useState(1);
+  const [questionCount, setQuestionCount] = useState<number>(0);
+  const [score, setScore] = useState<number>(0);
 
   // Loading & error-handling
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +55,15 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           answerString: currentAnswer,
         });
         setResult(result);
+
+        if (result.correct) setScore(score + 1);
+
+        const nextQuestion = questionCount + 1;
+        setQuestionCount(nextQuestion);
+
+        if (settings.questionLimit && nextQuestion >= settings.questionLimit) {
+          handleTestEnd();
+        }
       } catch (error) {
         logger.error('Error processing answer', error);
         setError('Failed to submit answer. Please try again.');
@@ -65,7 +77,6 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       try {
         const q = await getQuestion(settings.direction, settings.answerMode);
         setQuestion(q);
-        setQuestionCount((prev) => prev + 1);
         setCurrentAnswer('');
         setResult(null);
       } catch (error) {
@@ -75,14 +86,11 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     });
   };
 
-  // TO DO - show results component when time expires
-  const handleTimeExpired = () => {
-    logger.info('Time expired!');
-  };
-
-  // TO DO - show results component when question limit reached
-  const handleQuestionLimitReached = () => {
-    logger.info('All questions complete!');
+  // Sets test status to 'not in progress'
+  const handleTestEnd = () => {
+    setTimeout(() => {
+      setInProgress(false);
+    }, 1500);
   };
 
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
@@ -103,12 +111,18 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     }
   }, [result, isLoadingNext]);
 
-  const { seconds, reset } = useTimer({
+  // Define parameters for Timer component
+  const { seconds } = useTimer({
     timeLimitSecs: settings.timeLimitMins
       ? settings.timeLimitMins * 60
       : undefined,
-    onTimeExpired: handleTimeExpired,
+    onTimeExpired: handleTestEnd,
   });
+
+  // Show test summary screen if test not in progress
+  if (!inProgress) {
+    return <TestSummary score={score} totalQuestions={questionCount} />;
+  }
 
   return (
     <div className="grid justify-center gap-12">
