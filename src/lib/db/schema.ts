@@ -70,7 +70,7 @@ export const testSettings = pgTable(
     answerMode: text('answer_mode', { enum: AnswerModeSettingEnum })
       .notNull()
       .default('random'),
-    questionLimit: integer('question_limit'),
+    questionLimit: integer('question_limit').default(10),
     timeLimitMins: integer('time_limit_mins'),
     updatedAt: timestamp('updated_at').defaultNow(),
   },

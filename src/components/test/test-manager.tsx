@@ -83,8 +83,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
         const isTestEnding =
           settings.questionLimit !== null &&
-          // currentQuestion state hasn't updated yet, so need 'equal to or greater than' here
-          currentQuestion + 1 >= settings.questionLimit;
+          currentQuestion >= settings.questionLimit;
 
         if (isTestEnding) handleTestEnd();
       } catch (error) {
@@ -121,7 +120,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const handleTestEnd = () => {
     setTimeout(() => {
       dispatch({ type: 'END_TEST' });
-    }, 1500);
+    }, 1000);
   };
 
   // Resets test to initial state
@@ -170,7 +169,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        totalQuestions={currentQuestion}
+        totalQuestions={currentQuestion - 1}
         onReset={resetTest}
       />
     );
