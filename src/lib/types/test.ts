@@ -1,27 +1,28 @@
-// Enum-like object for drizzle schema
+import { z } from 'zod';
+import {
+  testSettingsSelectSchema,
+  testSettingsUpdateSchema,
+} from '../validation/test-settings-schemas';
+
+// Enum-like objects for drizzle schema
 export const DirectionSettingEnum = [
   'sourceToTarget',
   'targetToSource',
   'random',
 ] as const;
-// Types for test flow
-export type DirectionSetting = (typeof DirectionSettingEnum)[number];
-export type Direction = Exclude<DirectionSetting, 'random'>;
-
 export const AnswerModeSettingEnum = [
   'typed',
   'multipleChoice',
   'random',
 ] as const;
-export type AnswerModeSetting = (typeof AnswerModeSettingEnum)[number];
-export type AnswerMode = Exclude<AnswerModeSetting, 'random'>;
 
-export type TestSettings = {
-  direction: DirectionSetting;
-  answerMode: AnswerModeSetting;
-  questionLimit: number | null;
-  timeLimitMins: number | null;
-};
+// General objects from zod schemas
+export type TestSettings = z.infer<typeof testSettingsSelectSchema>;
+export type UpdateTestSettings = z.infer<typeof testSettingsUpdateSchema>;
+
+// Types for test flow
+export type Direction = Exclude<TestSettings['direction'], 'random'>;
+export type AnswerMode = Exclude<TestSettings['answerMode'], 'random'>;
 
 // Type to be returned by server action when creating question
 export type Question =
