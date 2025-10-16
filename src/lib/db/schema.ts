@@ -7,12 +7,13 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 
 // Tables
 export const users = pgTable('users', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   username: varchar('username', { length: 255 }).notNull(),
-  activeLanguagePairId: integer('active_language_pair_id').notNull(),
+  activeLanguagePairId: integer('active_language_pair_id'),
 });
 
 export const languagePairs = pgTable(
@@ -56,9 +57,33 @@ export const vocabulary = pgTable(
   ]
 );
 
+export const testSettings = pgTable(
+  'test_settings',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    direction: text('direction', { enum: DirectionSettingEnum })
+      .notNull()
+      .default('random'),
+    answerMode: text('answer_mode', { enum: AnswerModeSettingEnum })
+      .notNull()
+      .default('random'),
+    questionLimit: integer('question_limit'),
+    timeLimitMins: integer('time_limit_mins'),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  (t) => [uniqueIndex('test_settings_user_id_unique').on(t.userId)]
+);
+
 // Relationships
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ many, one }) => ({
   languagePairs: many(languagePairs),
+  testSettings: one(testSettings, {
+    fields: [users.id],
+    references: [testSettings.userId],
+  }),
 }));
 
 export const languagePairsRelations = relations(
@@ -76,5 +101,12 @@ export const vocabularyRelations = relations(vocabulary, ({ one }) => ({
   languagePair: one(languagePairs, {
     fields: [vocabulary.languagePairId],
     references: [languagePairs.id],
+  }),
+}));
+
+export const testSettingsRelations = relations(testSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [testSettings.userId],
+    references: [users.id],
   }),
 }));
