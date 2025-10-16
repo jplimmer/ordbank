@@ -63,7 +63,7 @@ export type TestState = {
   question: Question;
   currentAnswer: string;
   result: AnswerResult | null;
-  questionCount: number;
+  currentQuestion: number;
   score: number;
   error: string | null;
 };
