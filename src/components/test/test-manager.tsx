@@ -93,6 +93,11 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     }, 1500);
   };
 
+  // Reset test
+  const resetTest = () => {
+    logger.info('Reset logic here');
+  };
+
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
   useEffect(() => {
     if (!result) {
@@ -121,7 +126,13 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Show test summary screen if test not in progress
   if (!inProgress) {
-    return <TestSummary score={score} totalQuestions={questionCount} />;
+    return (
+      <TestSummary
+        score={score}
+        totalQuestions={questionCount}
+        onReset={resetTest}
+      />
+    );
   }
 
   return (
