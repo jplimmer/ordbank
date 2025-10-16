@@ -3,14 +3,14 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 interface MultipleChoiceAnswerProps {
   options: string[];
   value: string;
-  setAnswer: React.Dispatch<React.SetStateAction<string>>;
+  onSetAnswer: (value: string) => void;
   disabled?: boolean;
 }
 
 export function MultipleChoiceAnswer({
   options,
   value,
-  setAnswer,
+  onSetAnswer,
   disabled = false,
 }: MultipleChoiceAnswerProps) {
   return (
@@ -18,7 +18,7 @@ export function MultipleChoiceAnswer({
       type="single"
       value={value}
       onValueChange={(val) => {
-        if (val) setAnswer(val);
+        if (val) onSetAnswer(val);
       }}
       size="lg"
       className="flex-col md:flex-row items-stretch justify-self-center gap-4"

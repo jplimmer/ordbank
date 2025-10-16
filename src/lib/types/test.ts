@@ -42,3 +42,21 @@ export type AnswerResult =
       correct: false;
       correctAnswer: string;
     };
+
+export type TestState = {
+  inProgress: boolean;
+  question: Question;
+  currentAnswer: string;
+  result: AnswerResult | null;
+  questionCount: number;
+  score: number;
+  error: string | null;
+};
+
+export type TestAction =
+  | { type: 'SET_ANSWER'; payload: string }
+  | { type: 'SUBMIT_ANSWER'; payload: AnswerResult }
+  | { type: 'LOAD_NEXT_QUESTION'; payload: Question }
+  | { type: 'END_TEST' }
+  | { type: 'RESET_TEST'; payload: TestState }
+  | { type: 'SET_ERROR'; payload: string | null };

@@ -3,8 +3,13 @@
 import { useTimer } from '@/hooks/use-timer';
 import { getQuestion, processAnswer } from '@/lib/actions/test';
 import { getLogger } from '@/lib/logger';
-import { AnswerResult, Question, TestSettings } from '@/lib/types/test';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import {
+  Question,
+  TestAction,
+  TestSettings,
+  TestState,
+} from '@/lib/types/test';
+import { useEffect, useReducer, useRef, useTransition } from 'react';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
@@ -21,16 +26,28 @@ interface TestManagerProps {
 }
 
 export function TestManager({ settings, initialQuestion }: TestManagerProps) {
-  // States for test flow
-  const [inProgress, setInProgress] = useState<boolean>(true);
-  const [question, setQuestion] = useState<Question>(initialQuestion);
-  const [currentAnswer, setCurrentAnswer] = useState<string>('');
-  const [result, setResult] = useState<AnswerResult | null>(null);
-  const [questionCount, setQuestionCount] = useState<number>(0);
-  const [score, setScore] = useState<number>(0);
+  const initialTestState: TestState = {
+    inProgress: true,
+    question: initialQuestion,
+    currentAnswer: '',
+    result: null,
+    questionCount: 0,
+    score: 0,
+    error: null,
+  };
 
-  // Loading & error-handling
-  const [error, setError] = useState<string | null>(null);
+  const [testState, dispatch] = useReducer(testReducer, initialTestState);
+  const {
+    question,
+    currentAnswer,
+    result,
+    questionCount,
+    score,
+    error,
+    inProgress,
+  } = testState;
+
+  // Transitions for loading
   const [isSubmitting, startSubmitTransition] = useTransition();
   const [isLoadingNext, startNextTransition] = useTransition();
 
@@ -39,14 +56,18 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const typedAnswerRef = useRef<HTMLInputElement>(null);
   const questionRef = useRef<HTMLDivElement>(null);
 
-  // Submits answer for processing and sets result state
+  // Callback function for children to update current answer
+  const setAnswer = (value: string) => {
+    if (value) dispatch({ type: 'SET_ANSWER', payload: value });
+  };
+
+  // Submits answer for processing, updates result, score and question count
   const handleSubmit = async () => {
     if (!currentAnswer.trim()) {
-      setError('Please enter an answer');
-      return;
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter an answer' });
     }
 
-    setError(null);
+    dispatch({ type: 'SET_ERROR', payload: null });
     startSubmitTransition(async () => {
       try {
         const result = await processAnswer({
@@ -54,48 +75,58 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           direction: question.direction,
           answerString: currentAnswer,
         });
-        setResult(result);
 
-        if (result.correct) setScore(score + 1);
+        dispatch({
+          type: 'SUBMIT_ANSWER',
+          payload: result,
+        });
 
-        const nextQuestion = questionCount + 1;
-        setQuestionCount(nextQuestion);
+        const isTestEnding =
+          settings.questionLimit !== null &&
+          questionCount + 1 >= settings.questionLimit;
 
-        if (settings.questionLimit && nextQuestion >= settings.questionLimit) {
-          handleTestEnd();
-        }
+        if (isTestEnding) handleTestEnd();
       } catch (error) {
         logger.error('Error processing answer', error);
-        setError('Failed to submit answer. Please try again.');
+        dispatch({
+          type: 'SET_ERROR',
+          payload: 'Failed to submit answer. Please try again.',
+        });
       }
     });
   };
 
-  // Sets new question state and resets answer and result states
+  // Loads next question and resets currentAnswer and result
   const handleNextQuestion = async () => {
+    dispatch({ type: 'SET_ERROR', payload: null });
     startNextTransition(async () => {
       try {
-        const q = await getQuestion(settings.direction, settings.answerMode);
-        setQuestion(q);
-        setCurrentAnswer('');
-        setResult(null);
+        const nextQuestion = await getQuestion(
+          settings.direction,
+          settings.answerMode
+        );
+        dispatch({ type: 'LOAD_NEXT_QUESTION', payload: nextQuestion });
       } catch (error) {
         logger.error('Error loading question', error);
-        setError('Failed to load next question. Please try again.');
+        dispatch({
+          type: 'SET_ERROR',
+          payload: 'Failed to load next question. Please try again.',
+        });
       }
     });
   };
 
-  // Sets test status to 'not in progress'
+  // Sets test state 'inProgress' to false, with a delay for user to see final result
   const handleTestEnd = () => {
     setTimeout(() => {
-      setInProgress(false);
+      dispatch({ type: 'END_TEST' });
     }, 1500);
   };
 
-  // Reset test
+  // Resets test to initial state
   const resetTest = () => {
-    logger.info('Reset logic here');
+    reset();
+    dispatch({ type: 'RESET_TEST', payload: initialTestState });
   };
 
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
@@ -117,7 +148,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   }, [result, isLoadingNext]);
 
   // Define parameters for Timer component
-  const { seconds } = useTimer({
+  const { seconds, reset } = useTimer({
     timeLimitSecs: settings.timeLimitMins
       ? settings.timeLimitMins * 60
       : undefined,
@@ -157,13 +188,13 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         <MultipleChoiceAnswer
           options={question.answers}
           value={currentAnswer}
-          setAnswer={setCurrentAnswer}
+          onSetAnswer={setAnswer}
           disabled={result !== null || isSubmitting}
         />
       ) : (
         <TypedAnswer
           value={currentAnswer}
-          setAnswer={setCurrentAnswer}
+          onSetAnswer={setAnswer}
           onSubmit={handleSubmit}
           disabled={result !== null || isSubmitting}
           ref={typedAnswerRef}
@@ -180,4 +211,42 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       />
     </div>
   );
+}
+
+// Reducer to handle state updates from user actions
+function testReducer(state: TestState, action: TestAction): TestState {
+  switch (action.type) {
+    case 'SET_ANSWER': {
+      return {
+        ...state,
+        currentAnswer: action.payload,
+      };
+    }
+    case 'SUBMIT_ANSWER': {
+      return {
+        ...state,
+        result: action.payload,
+        score: action.payload.correct ? state.score + 1 : state.score,
+        questionCount: state.questionCount + 1,
+        error: null,
+      };
+    }
+    case 'LOAD_NEXT_QUESTION': {
+      return {
+        ...state,
+        question: action.payload,
+        currentAnswer: '',
+        result: null,
+      };
+    }
+    case 'END_TEST': {
+      return { ...state, inProgress: false };
+    }
+    case 'RESET_TEST': {
+      return action.payload;
+    }
+    case 'SET_ERROR': {
+      return { ...state, error: action.payload };
+    }
+  }
 }
