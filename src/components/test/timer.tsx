@@ -16,18 +16,18 @@ export function Timer({
 }: TimerProps) {
   const displayTime = formatTime(seconds);
 
-  const isLowTime = isCountingDown && seconds <= 60 && seconds > 0;
+  const isLowTime = isCountingDown && seconds < 60 && seconds > 0;
 
   return (
     <div
-      className={`flex gap-2 items-center text-sm ${isLowTime ? 'text-red-500' : ''} ${className}`}
+      className={`flex gap-2 items-center text-sm ${isLowTime ? 'text-red-600' : ''} ${className}`}
     >
       {isCountingDown ? (
         <TimerIcon className={`size-4 ${iconStyle}`} />
       ) : (
         <Clock8 className={`size-4 ${iconStyle}`} />
       )}
-      {displayTime}
+      <span className="relative top-[0.7px]">{displayTime}</span>
     </div>
   );
 }
