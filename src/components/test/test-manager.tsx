@@ -1,5 +1,6 @@
 'use client';
 
+import { useTimer } from '@/hooks/use-timer';
 import { getQuestion, processAnswer } from '@/lib/actions/test';
 import { getLogger } from '@/lib/logger';
 import { AnswerResult, Question, TestSettings } from '@/lib/types/test';
@@ -8,6 +9,7 @@ import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
 import { ResultPanel } from './result-panel';
+import { Timer } from './timer';
 import { TypedAnswer } from './typed-answer';
 
 const logger = getLogger();
@@ -34,7 +36,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const typedAnswerRef = useRef<HTMLInputElement>(null);
   const questionRef = useRef<HTMLDivElement>(null);
 
-  //
+  // Submits answer for processing and sets result state
   const handleSubmit = async () => {
     if (!currentAnswer.trim()) {
       setError('Please enter an answer');
@@ -57,7 +59,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     });
   };
 
-  //
+  // Sets new question state and resets answer and result states
   const handleNextQuestion = async () => {
     startNextTransition(async () => {
       try {
@@ -71,6 +73,16 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         setError('Failed to load next question. Please try again.');
       }
     });
+  };
+
+  // TO DO - show results component when time expires
+  const handleTimeExpired = () => {
+    logger.info('Time expired!');
+  };
+
+  // TO DO - show results component when question limit reached
+  const handleQuestionLimitReached = () => {
+    logger.info('All questions complete!');
   };
 
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
@@ -91,14 +103,25 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     }
   }, [result, isLoadingNext]);
 
+  const { seconds, reset } = useTimer({
+    timeLimitSecs: settings.timeLimitMins
+      ? settings.timeLimitMins * 60
+      : undefined,
+    onTimeExpired: handleTimeExpired,
+  });
+
   return (
     <div className="grid justify-center gap-12">
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 items-center font-mono">
         <QuestionCounter
           questionLimit={settings.questionLimit}
           currentQuestion={questionCount}
         />
-        <div></div>
+        <Timer
+          seconds={seconds}
+          isCountingDown={settings.timeLimitMins !== null}
+          className="justify-self-end"
+        />
       </div>
       <QuestionPanel
         questionWord={question.question}
