@@ -31,7 +31,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     question: initialQuestion,
     currentAnswer: '',
     result: null,
-    questionCount: 0,
+    currentQuestion: 1,
     score: 0,
     error: null,
   };
@@ -41,7 +41,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     question,
     currentAnswer,
     result,
-    questionCount,
+    currentQuestion,
     score,
     error,
     inProgress,
@@ -83,7 +83,8 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
         const isTestEnding =
           settings.questionLimit !== null &&
-          questionCount + 1 >= settings.questionLimit;
+          // currentQuestion state hasn't updated yet, so need 'equal to or greater than' here
+          currentQuestion + 1 >= settings.questionLimit;
 
         if (isTestEnding) handleTestEnd();
       } catch (error) {
@@ -169,7 +170,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        totalQuestions={questionCount}
+        totalQuestions={currentQuestion}
         onReset={resetTest}
       />
     );
@@ -180,7 +181,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       <div className="grid grid-cols-2 items-center font-mono">
         <QuestionCounter
           questionLimit={settings.questionLimit}
-          currentQuestion={questionCount}
+          currentQuestion={currentQuestion}
         />
         <Timer
           seconds={seconds}
@@ -236,7 +237,7 @@ function testReducer(state: TestState, action: TestAction): TestState {
         ...state,
         result: action.payload,
         score: action.payload.correct ? state.score + 1 : state.score,
-        questionCount: state.questionCount + 1,
+        currentQuestion: state.currentQuestion + 1,
         error: null,
       };
     }

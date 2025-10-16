@@ -10,7 +10,7 @@ export function QuestionCounter({
   currentQuestion,
 }: QuestionCounterProps) {
   const progress = questionLimit
-    ? (currentQuestion / questionLimit) * 100
+    ? (currentQuestion - 1 / questionLimit) * 100
     : null;
 
   return (
