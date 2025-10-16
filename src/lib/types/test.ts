@@ -1,7 +1,20 @@
-export type Direction = 'sourceToTarget' | 'targetToSource';
-export type DirectionSetting = Direction | 'random';
-export type AnswerMode = 'typed' | 'multipleChoice';
-export type AnswerModeSetting = AnswerMode | 'random';
+// Enum-like object for drizzle schema
+export const DirectionSettingEnum = [
+  'sourceToTarget',
+  'targetToSource',
+  'random',
+] as const;
+// Types for test flow
+export type DirectionSetting = (typeof DirectionSettingEnum)[number];
+export type Direction = Exclude<DirectionSetting, 'random'>;
+
+export const AnswerModeSettingEnum = [
+  'typed',
+  'multipleChoice',
+  'random',
+] as const;
+export type AnswerModeSetting = (typeof AnswerModeSettingEnum)[number];
+export type AnswerMode = Exclude<AnswerModeSetting, 'random'>;
 
 export type TestSettings = {
   direction: DirectionSetting;
@@ -43,6 +56,7 @@ export type AnswerResult =
       correctAnswer: string;
     };
 
+// State and Action types for TestManager's reducer
 export type TestState = {
   inProgress: boolean;
   question: Question;
