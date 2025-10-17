@@ -1,9 +1,13 @@
 'use client';
 
 import { getQuestion } from '@/lib/actions/test';
-import { saveSettings } from '@/lib/actions/test-settings';
 import { getLogger } from '@/lib/logger';
-import { Question, TestPhase, TestSettingsInput } from '@/lib/types/test';
+import {
+  Question,
+  TestPhase,
+  TestSettings,
+  TestSettingsInput,
+} from '@/lib/types/test';
 import { useState, useTransition } from 'react';
 import { toast } from 'react-hot-toast';
 import { TestManager } from './test-manager';
@@ -12,7 +16,7 @@ import { TestSettingsForm } from './test-settings-form';
 const logger = getLogger();
 
 interface TestPageManagerProps {
-  initialSettings: TestSettingsInput;
+  initialSettings: TestSettings;
   initialQuestion: Question;
 }
 
@@ -28,13 +32,6 @@ export function TestPageManager({
 
   const handleSettingsSubmit = (settings: TestSettingsInput) => {
     startTransition(async () => {
-      try {
-        await saveSettings(settings);
-      } catch (error) {
-        logger.error('Failed to save settings:', error);
-        toast('Settings only saved temporarily', { icon: '⚙️' });
-      }
-
       try {
         setActiveSettings(settings);
 
@@ -57,7 +54,7 @@ export function TestPageManager({
   if (testPhase === 'settings') {
     return (
       <TestSettingsForm
-        settings={initialSettings}
+        initialSettings={initialSettings}
         onSubmit={handleSettingsSubmit}
         isLoading={isPending}
       />
