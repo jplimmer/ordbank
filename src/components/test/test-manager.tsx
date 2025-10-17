@@ -10,12 +10,12 @@ import {
   TestState,
 } from '@/lib/types/test';
 import { useEffect, useReducer, useRef, useTransition } from 'react';
+import { Timer } from '../ui/timer';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
 import { ResultPanel } from './result-panel';
 import { TestSummary } from './test-summary';
-import { Timer } from './timer';
 import { TypedAnswer } from './typed-answer';
 
 const logger = getLogger();
