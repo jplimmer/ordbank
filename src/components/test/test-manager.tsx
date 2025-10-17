@@ -6,7 +6,7 @@ import { getLogger } from '@/lib/logger';
 import {
   Question,
   TestAction,
-  TestSettings,
+  TestSettingsInput,
   TestState,
 } from '@/lib/types/test';
 import { useEffect, useReducer, useRef, useTransition } from 'react';
@@ -21,7 +21,7 @@ import { TypedAnswer } from './typed-answer';
 const logger = getLogger();
 
 interface TestManagerProps {
-  settings: TestSettings;
+  settings: TestSettingsInput;
   initialQuestion: Question;
 }
 

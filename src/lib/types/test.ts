@@ -19,6 +19,7 @@ export const AnswerModeSettingEnum = [
 // General objects from zod schemas
 export type TestSettings = z.infer<typeof testSettingsSelectSchema>;
 export type UpdateTestSettings = z.infer<typeof testSettingsUpdateSchema>;
+export type TestSettingsInput = Omit<TestSettings, 'id' | 'userId'>;
 
 // Types for test flow
 export type Direction = Exclude<TestSettings['direction'], 'random'>;
