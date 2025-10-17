@@ -10,8 +10,8 @@ import {
 } from '@/lib/types/test';
 import { useState, useTransition } from 'react';
 import { toast } from 'react-hot-toast';
+import { TestSettingsForm } from '../test-settings/test-settings-form';
 import { TestManager } from './test-manager';
-import { TestSettingsForm } from './test-settings-form';
 
 const logger = getLogger();
 

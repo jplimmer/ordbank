@@ -4,12 +4,12 @@ import { ROUTES } from '@/lib/constants/routes';
 import { getLogger } from '@/lib/logger';
 import { FormResult } from '@/lib/types/common';
 import { TestSettings, TestSettingsInput } from '@/lib/types/test';
-import { AnswerModeFieldSet } from '../test-settings/answer-mode-field-set';
-import { DirectionFieldSet } from '../test-settings/direction-field-set';
-import { QuestionLimitFieldSet } from '../test-settings/question-limit-field-set';
-import { TimeLimitFieldSet } from '../test-settings/time-limit-field-set';
 import { Button } from '../ui/button';
 import { FauxDialog } from '../ui/faux-dialog';
+import { AnswerModeFieldSet } from './answer-mode-field-set';
+import { DirectionFieldSet } from './direction-field-set';
+import { QuestionLimitFieldSet } from './question-limit-field-set';
+import { TimeLimitFieldSet } from './time-limit-field-set';
 
 const logger = getLogger();
 
