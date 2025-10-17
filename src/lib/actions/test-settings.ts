@@ -1,3 +1,5 @@
+'use server';
+
 import { updateTestSettings } from '../services/test-settings';
 import { FormResult } from '../types/common';
 import { handleValidationError } from '../utils';
@@ -12,12 +14,7 @@ export const saveSettings = async (
   const userId = 1;
 
   // Untyped obejct from formData for validation
-  const updates = {
-    direction: formData.get('direction'),
-    answerMode: formData.get('answerMode'),
-    questionLimit: formData.get('questionLimit'),
-    timeLimitMins: formData.get('timeLimitMins'),
-  };
+  const updates = Object.fromEntries(formData);
 
   // Parse form data before sending to service (fail fast)
   const parseResult = testSettingsUpdateSchema.safeParse(updates);

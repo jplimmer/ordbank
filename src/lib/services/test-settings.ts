@@ -1,3 +1,5 @@
+'server-only';
+
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { testSettings } from '../db/schema';
@@ -59,6 +61,7 @@ export const updateTestSettings = async (
     }
 
     // Update test settings in database and return updated settings
+    logger.debug('Reached db update');
     const [updatedSettings] = await db
       .update(testSettings)
       .set(parseResult.data)
