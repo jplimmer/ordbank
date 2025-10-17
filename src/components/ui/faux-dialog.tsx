@@ -1,5 +1,7 @@
 import { XIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 export function FauxDialog({
   children,
@@ -8,9 +10,32 @@ export function FauxDialog({
   children: React.ReactNode;
   closeHref: string;
 }) {
+  const router = useRouter();
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') router.push(closeHref);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [router, closeHref]);
+
+  // Handle click outside of content
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (contentRef.current && !contentRef.current.contains(e.target as Node)) {
+      router.push(closeHref);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs">
+    <div
+      onClick={handleOverlayClick}
+      className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+    >
       <div
+        ref={contentRef}
         className="
             fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-full bg-background gap-4 rounded-lg border shadow-lg duration-200 max-w-lg p-6 pt-8 space-y-8"
       >
