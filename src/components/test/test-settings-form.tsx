@@ -1,14 +1,15 @@
 'use client';
 
-import { saveSettings } from '@/lib/actions/test-settings';
+import { ROUTES } from '@/lib/constants/routes';
 import { getLogger } from '@/lib/logger';
 import { FormResult } from '@/lib/types/common';
 import { TestSettings, TestSettingsInput } from '@/lib/types/test';
-import Form from 'next/form';
-import { useActionState } from 'react';
-import { toast } from 'react-hot-toast';
+import { AnswerModeFieldSet } from '../test-settings/answer-mode-field-set';
+import { DirectionFieldSet } from '../test-settings/direction-field-set';
+import { QuestionLimitFieldSet } from '../test-settings/question-limit-field-set';
+import { TimeLimitFieldSet } from '../test-settings/time-limit-field-set';
 import { Button } from '../ui/button';
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import { FauxDialog } from '../ui/faux-dialog';
 
 const logger = getLogger();
 
@@ -29,32 +30,36 @@ export function TestSettingsForm({
     formData: new FormData(),
   };
 
-  const [state, action, isPending] = useActionState(
-    saveSettings.bind(null, initialSettings.id),
-    initialState
-  );
+  // const [state, action, isPending] = useActionState(
+  //   saveSettings.bind(null, initialSettings.id),
+  //   initialState
+  // );
 
   const handleSubmit = async (formData: FormData) => {
-    try {
-      // TO DO - handle field errors (stop submission?)
-      await action(formData);
-    } catch (error) {
-      logger.error('Failed to save settings:', error);
-      toast('Settings only saved temporarily', { icon: '⚙️' });
-    }
-    // TO DO - use formData instead of initial settings
-    onSubmit(initialSettings);
+    // try {
+    //   // TO DO - handle field errors (stop submission?)
+    //   await action(formData);
+    // } catch (error) {
+    //   logger.error('Failed to save settings:', error);
+    //   toast('Settings only saved temporarily', { icon: '⚙️' });
+    // }
+    // // TO DO - use formData instead of initial settings
+    // onSubmit(initialSettings);
   };
+
   return (
-    <div>
-      <Form action={handleSubmit}>
-        <ToggleGroup type="single">
-          <ToggleGroupItem value={'direction'}></ToggleGroupItem>
-        </ToggleGroup>
-        <Button type="submit" disabled={isLoading || isPending}>
+    <FauxDialog closeHref={ROUTES.HOME}>
+      <h1 className="text-center text-2xl font-semibold">Test settings</h1>
+      <form action={handleSubmit} className="grid space-y-8">
+        <DirectionFieldSet initialDirection={initialSettings.direction} />
+        <AnswerModeFieldSet initialAnswerMode={initialSettings.answerMode} />
+        <QuestionLimitFieldSet initialLimit={initialSettings.questionLimit} />
+        <TimeLimitFieldSet initialLimit={initialSettings.timeLimitMins} />
+        <Button type="submit" className="text-lg py-5" disabled={isLoading}>
+          {/* <Button type="submit" className="text-lg py-5" disabled={isLoading || isPending}> */}
           Start test
         </Button>
-      </Form>
-    </div>
+      </form>
+    </FauxDialog>
   );
 }

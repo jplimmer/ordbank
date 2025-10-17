@@ -37,7 +37,7 @@ export function FauxDialog({
       <div
         ref={contentRef}
         className="
-            fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-full bg-background gap-4 rounded-lg border shadow-lg duration-200 max-w-lg p-6 pt-8 space-y-8"
+            fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-full bg-background gap-4 rounded-lg border shadow-lg duration-200 max-w-sm sm:max-w-lg p-6 pt-10 space-y-8"
       >
         <Link
           href={closeHref}

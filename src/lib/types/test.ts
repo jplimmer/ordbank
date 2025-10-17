@@ -7,13 +7,13 @@ import {
 // Enum-like objects for drizzle schema
 export const DirectionSettingEnum = [
   'sourceToTarget',
-  'targetToSource',
   'random',
+  'targetToSource',
 ] as const;
 export const AnswerModeSettingEnum = [
-  'typed',
   'multipleChoice',
   'random',
+  'typed',
 ] as const;
 
 // General objects from zod schemas
