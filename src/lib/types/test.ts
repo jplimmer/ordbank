@@ -58,6 +58,9 @@ export type AnswerResult =
       correctAnswer: string;
     };
 
+// Type for managing which screen to show in the TestPage
+export type TestPhase = 'settings' | 'test';
+
 // State and Action types for TestManager's reducer
 export type TestState = {
   inProgress: boolean;

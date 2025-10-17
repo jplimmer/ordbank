@@ -1,4 +1,4 @@
-import { TestManager } from '@/components/test/test-manager';
+import { TestPageManager } from '@/components/test/test-page-manager';
 import { getQuestion } from '@/lib/actions/test';
 import { getCurrentProfile } from '@/lib/services/auth';
 import { getTestSettings } from '@/lib/services/test-settings';
@@ -28,7 +28,10 @@ export default async function TestPage() {
 
   return (
     <div className="grid justify-center items-center">
-      <TestManager settings={settings} initialQuestion={initialQuestion} />
+      <TestPageManager
+        initialSettings={settings}
+        initialQuestion={initialQuestion}
+      />
     </div>
   );
 }
