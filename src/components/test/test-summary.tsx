@@ -3,13 +3,13 @@ import { Button } from '../ui/button';
 
 interface TestSummaryProps {
   score: number;
-  totalQuestions: number;
+  completedQuestions: number;
   onReset: () => void;
 }
 
 export function TestSummary({
   score,
-  totalQuestions,
+  completedQuestions,
   onReset,
 }: TestSummaryProps) {
   const messages = ['Well done', 'Good work', 'Nice job'];
@@ -25,7 +25,7 @@ export function TestSummary({
       <span className="text-3xl">Test complete</span>
       <div className="flex flex-col gap-4 items-center">
         <span className="text-2xl">
-          Score: {score}/{totalQuestions}
+          Score: {score}/{completedQuestions}
         </span>
         <span className="text-xl">{message}!</span>
       </div>

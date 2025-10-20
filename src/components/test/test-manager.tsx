@@ -169,7 +169,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        totalQuestions={currentQuestion - 1}
+        completedQuestions={currentQuestion - 1}
         onReset={resetTest}
       />
     );
