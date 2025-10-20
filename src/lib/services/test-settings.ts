@@ -1,3 +1,5 @@
+'server-only';
+
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { testSettings } from '../db/schema';

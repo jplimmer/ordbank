@@ -4,18 +4,19 @@ import {
   createUpdateSchema,
 } from 'drizzle-zod';
 import { z } from 'zod';
+import { VALIDATION_LIMITS } from '../constants/validation';
 import { languagePairs } from '../db/schema';
 
 // Constants for validation
-const MAX_NAME_LENGTH = 20;
+const max = VALIDATION_LIMITS.MAX_LANGUAGE_NAME_LENGTH_CH;
 
 // Reusable word field schema
 const languageFieldSchema = z
   .string()
   .trim()
   .min(1, { message: 'Field cannot be empty' })
-  .max(MAX_NAME_LENGTH, {
-    message: `Name cannot be longer than ${MAX_NAME_LENGTH} characters`,
+  .max(max, {
+    message: `Name cannot be longer than ${max} characters`,
   })
   .toLowerCase();
 

@@ -6,22 +6,29 @@ import { getLogger } from '@/lib/logger';
 import {
   Question,
   TestAction,
-  TestSettings,
   TestState,
+  UpdateTestSettings,
 } from '@/lib/types/test';
-import { useEffect, useReducer, useRef, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useTransition,
+} from 'react';
+import { Timer } from '../ui/timer';
+import { ActionButtons } from './action-buttons';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
-import { ResultPanel } from './result-panel';
+import { ResultDisplay } from './result-display';
 import { TestSummary } from './test-summary';
-import { Timer } from './timer';
 import { TypedAnswer } from './typed-answer';
 
 const logger = getLogger();
 
 interface TestManagerProps {
-  settings: TestSettings;
+  settings: UpdateTestSettings;
   initialQuestion: Question;
 }
 
@@ -48,8 +55,8 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   } = testState;
 
   // Transitions for loading
-  const [isSubmitting, startSubmitTransition] = useTransition();
-  const [isLoadingNext, startNextTransition] = useTransition();
+  const [isLoading, startTransition] = useTransition();
+  const isAnswerDisabled = result !== null || isLoading;
 
   // Refs for focus behaviour
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -58,17 +65,18 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Callback function for children to update current answer
   const setAnswer = (value: string) => {
-    if (value) dispatch({ type: 'SET_ANSWER', payload: value });
+    dispatch({ type: 'SET_ANSWER', payload: value });
   };
 
   // Submits answer for processing, updates result, score and question count
   const handleSubmit = async () => {
     if (!currentAnswer.trim()) {
       dispatch({ type: 'SET_ERROR', payload: 'Please enter an answer' });
+      return;
     }
 
     dispatch({ type: 'SET_ERROR', payload: null });
-    startSubmitTransition(async () => {
+    startTransition(async () => {
       try {
         const result = await processAnswer({
           vocabId: question.vocabId,
@@ -99,7 +107,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   // Loads next question and resets currentAnswer and result
   const handleNextQuestion = async () => {
     dispatch({ type: 'SET_ERROR', payload: null });
-    startNextTransition(async () => {
+    startTransition(async () => {
       try {
         const nextQuestion = await getQuestion(
           settings.direction,
@@ -117,24 +125,27 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   };
 
   // Sets test state 'inProgress' to false, with a delay for user to see final result
-  const handleTestEnd = () => {
-    setTimeout(() => {
+  const handleTestEnd = useCallback(() => {
+    startTransition(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       dispatch({ type: 'END_TEST' });
-    }, 1000);
-  };
+    });
+  }, []);
 
   // Resets test to initial state
-  const resetTest = async () => {
-    // Reset timer
-    reset();
-    // Get new initial question and pass to reducer
-    const newQuestion = await getQuestion(
-      settings.direction,
-      settings.answerMode
-    );
-    dispatch({
-      type: 'RESET_TEST',
-      payload: { ...initialTestState, question: newQuestion },
+  const handleReset = () => {
+    startTransition(async () => {
+      // Reset timer
+      reset();
+      // Get new initial question and pass to reducer
+      const newQuestion = await getQuestion(
+        settings.direction,
+        settings.answerMode
+      );
+      dispatch({
+        type: 'RESET_TEST',
+        payload: { ...initialTestState, question: newQuestion },
+      });
     });
   };
 
@@ -151,10 +162,10 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Focuses on NextQuestionButton when result returned
   useEffect(() => {
-    if (result && !isLoadingNext) {
+    if (result && !isLoading) {
       nextButtonRef.current?.focus();
     }
-  }, [result, isLoadingNext]);
+  }, [result, isLoading]);
 
   // Define parameters for Timer component
   const { seconds, reset } = useTimer({
@@ -169,8 +180,9 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        totalQuestions={currentQuestion - 1}
-        onReset={resetTest}
+        completedQuestions={currentQuestion - 1}
+        onReset={handleReset}
+        isLoading={isLoading}
       />
     );
   }
@@ -198,26 +210,37 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           options={question.answers}
           value={currentAnswer}
           onSetAnswer={setAnswer}
-          disabled={result !== null || isSubmitting}
+          disabled={isAnswerDisabled}
         />
       ) : (
         <TypedAnswer
           value={currentAnswer}
           onSetAnswer={setAnswer}
           onSubmit={handleSubmit}
-          disabled={result !== null || isSubmitting}
+          disabled={isAnswerDisabled}
           ref={typedAnswerRef}
         />
       )}
-      {error && <p className="text-destructive">{error}</p>}
-      <ResultPanel
-        result={result}
-        submitFn={handleSubmit}
-        nextQuestionFn={handleNextQuestion}
-        isSubmitting={isSubmitting}
-        isLoadingNext={isLoadingNext}
-        nextButtonRef={nextButtonRef}
-      />
+      <div className="grid gap-4 w-full">
+        {error ? (
+          <p className="text-destructive mt-6">{error}</p>
+        ) : result ? (
+          <ResultDisplay result={result} />
+        ) : (
+          <div className="h-12" />
+        )}
+        <ActionButtons
+          isAnswered={result !== null}
+          onSubmit={handleSubmit}
+          onNext={handleNextQuestion}
+          isLoading={isLoading}
+          onEnd={handleTestEnd}
+          showEndButton={
+            settings.questionLimit !== null || settings.timeLimitMins !== null
+          }
+          nextButtonRef={nextButtonRef}
+        />
+      </div>
     </div>
   );
 }

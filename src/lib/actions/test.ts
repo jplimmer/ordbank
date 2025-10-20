@@ -14,12 +14,12 @@ import {
   AnswerResult,
   Direction,
   Question,
-  TestSettings,
+  TestSettingsInput,
 } from '../types/test';
 
 export const getQuestion = async (
-  direction: TestSettings['direction'],
-  answerMode: TestSettings['answerMode']
+  direction: TestSettingsInput['direction'],
+  answerMode: TestSettingsInput['answerMode']
 ): Promise<Question> => {
   const profileCheck = await getCurrentProfile();
   // TO DO - handle profile error

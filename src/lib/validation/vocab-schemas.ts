@@ -4,18 +4,19 @@ import {
   createUpdateSchema,
 } from 'drizzle-zod';
 import { z } from 'zod';
+import { VALIDATION_LIMITS } from '../constants/validation';
 import { vocabulary } from '../db/schema';
 
 // Constants for validation
-const MAX_WORD_LENGTH = 50;
+const max = VALIDATION_LIMITS.MAX_WORD_LENGTH_CH;
 
 // Reusable word field schema
 const wordFieldSchema = z
   .string()
   .trim()
   .min(1, { message: 'Field cannot be empty' })
-  .max(MAX_WORD_LENGTH, {
-    message: `Word cannot be longer than ${MAX_WORD_LENGTH} characters`,
+  .max(max, {
+    message: `Word cannot be longer than ${max} characters`,
   })
   .toLowerCase();
 

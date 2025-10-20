@@ -1,5 +1,6 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
+  check,
   integer,
   pgTable,
   text,
@@ -7,6 +8,7 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { VALIDATION_LIMITS } from '../constants/validation';
 import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 
 // Tables
@@ -33,6 +35,18 @@ export const languagePairs = pgTable(
       t.sourceLanguage,
       t.targetLanguage
     ),
+    check(
+      'source_name_length_check',
+      sql.raw(
+        `length(source_language) <= ${VALIDATION_LIMITS.MAX_LANGUAGE_NAME_LENGTH_CH}`
+      )
+    ),
+    check(
+      'target_name_length_check',
+      sql.raw(
+        `length(target_language) <= ${VALIDATION_LIMITS.MAX_LANGUAGE_NAME_LENGTH_CH}`
+      )
+    ),
   ]
 );
 
@@ -54,6 +68,14 @@ export const vocabulary = pgTable(
       t.languagePairId,
       t.source
     ),
+    check(
+      'source_word_length_check',
+      sql.raw(`length(source) <= ${VALIDATION_LIMITS.MAX_WORD_LENGTH_CH}`)
+    ),
+    check(
+      'target_word_length_check',
+      sql.raw(`length(target) <= ${VALIDATION_LIMITS.MAX_WORD_LENGTH_CH}`)
+    ),
   ]
 );
 
@@ -74,7 +96,21 @@ export const testSettings = pgTable(
     timeLimitMins: integer('time_limit_mins'),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
-  (t) => [uniqueIndex('test_settings_user_id_unique').on(t.userId)]
+  (t) => [
+    uniqueIndex('test_settings_user_id_unique').on(t.userId),
+    check(
+      'question_limit_check',
+      sql.raw(
+        `question_limit IS NULL OR question_limit <= ${VALIDATION_LIMITS.MAX_QUESTIONS}`
+      )
+    ),
+    check(
+      'time_limit_check',
+      sql.raw(
+        `time_limit_mins IS NULL OR time_limit_mins <= ${VALIDATION_LIMITS.MAX_TIME_MINS}`
+      )
+    ),
+  ]
 );
 
 // Relationships
