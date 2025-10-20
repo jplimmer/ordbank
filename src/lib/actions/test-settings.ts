@@ -1,23 +1,20 @@
 'use server';
 
 import { updateTestSettings } from '../services/test-settings';
-import { FormResult } from '../types/common';
+import { Result } from '../types/common';
+import { UpdateTestSettings } from '../types/test';
 import { handleValidationError } from '../utils';
 import { testSettingsUpdateSchema } from '../validation/test-settings-schemas';
 
 export const saveSettings = async (
   testSettingsId: number,
-  prevState: FormResult<null>,
-  formData: FormData
-): Promise<FormResult<null>> => {
+  settings: UpdateTestSettings
+): Promise<Result<null>> => {
   // TO DO - Authenticate user profile with error-handling
   const userId = 1;
 
-  // Untyped obejct from formData for validation
-  const updates = Object.fromEntries(formData);
-
-  // Parse form data before sending to service (fail fast)
-  const parseResult = testSettingsUpdateSchema.safeParse(updates);
+  // Parse settings before sending to service (fail fast)
+  const parseResult = testSettingsUpdateSchema.safeParse(settings);
   if (!parseResult.success) {
     const validationError = handleValidationError(
       parseResult.error,
@@ -26,8 +23,6 @@ export const saveSettings = async (
     return {
       success: false,
       error: validationError.message,
-      fieldErrors: validationError.fieldErrors,
-      formData,
     };
   }
 
@@ -38,7 +33,7 @@ export const saveSettings = async (
     parseResult.data
   );
   if (!updateResult.success) {
-    return { success: false, error: updateResult.error, formData: formData };
+    return { success: false, error: updateResult.error };
   }
 
   return { success: true, data: null };
