@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  testSettingsInputSchema,
   testSettingsSelectSchema,
   testSettingsUpdateSchema,
 } from '../validation/test-settings-schemas';
@@ -19,7 +20,7 @@ export const AnswerModeSettingEnum = [
 // General objects from zod schemas
 export type TestSettings = z.infer<typeof testSettingsSelectSchema>;
 export type UpdateTestSettings = z.infer<typeof testSettingsUpdateSchema>;
-export type TestSettingsInput = Omit<TestSettings, 'id' | 'userId'>;
+export type TestSettingsInput = z.infer<typeof testSettingsInputSchema>;
 
 // Types for test flow
 export type Direction = Exclude<TestSettings['direction'], 'random'>;
