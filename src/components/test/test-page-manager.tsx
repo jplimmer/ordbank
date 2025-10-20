@@ -36,8 +36,8 @@ export function TestPageManager({
         setActiveSettings(settings);
 
         const question = await getQuestion(
-          activeSettings.direction,
-          activeSettings.answerMode
+          settings.direction,
+          settings.answerMode
         );
         setFirstQuestion(question);
 

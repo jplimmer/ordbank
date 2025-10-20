@@ -28,7 +28,7 @@ export function MultipleChoiceAnswer({
         <ToggleGroupItem
           key={option}
           value={option}
-          className="text-xl font-normal rounded-md border py-8 px-4"
+          className="text-xl font-normal rounded-md border py-2 md:py-4 px-4 h-fit"
         >
           {option}
         </ToggleGroupItem>
