@@ -153,7 +153,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   useEffect(() => {
     if (!result) {
       if (question.answerMode === 'typed') {
-        typedAnswerRef.current?.focus();
+        requestAnimationFrame(() => typedAnswerRef.current?.focus());
       } else {
         questionRef.current?.focus();
       }
