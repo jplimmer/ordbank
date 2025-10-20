@@ -57,12 +57,14 @@ export function TestSettingsForm({
           parseResult.error,
           'Update test settings input'
         );
-        const errorFields = Object.entries(validationError.fieldErrors)
-          .filter(([, value]) => value && value.length > 0)
-          .map(([key]) => key);
+
+        const fieldErrors = Object.entries(validationError.fieldErrors).map(
+          (item) => `${item[0]} (${item[1]})`
+        );
+
         setError(
-          errorFields.length > 0
-            ? `Please correct errors in the following fields: ${errorFields.join(', ')}`
+          fieldErrors.length > 0
+            ? `Please correct errors in the following fields:\n\n${fieldErrors.join('\n ')}`
             : 'There was a problem submitting your settings, please referesh the page and try again'
         );
         return;
@@ -90,7 +92,7 @@ export function TestSettingsForm({
         <AnswerModeFieldSet initialAnswerMode={initialSettings.answerMode} />
         <QuestionLimitFieldSet initialLimit={initialSettings.questionLimit} />
         <TimeLimitFieldSet initialLimit={initialSettings.timeLimitMins} />
-        <FieldError>{error}</FieldError>
+        <FieldError className="whitespace-pre-line">{error}</FieldError>
         <Button
           type="submit"
           className="text-lg py-5"
