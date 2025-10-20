@@ -1,5 +1,6 @@
 'use client';
 
+import { VALIDATION_LIMITS } from '@/lib/constants/validation';
 import { TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
 import {
@@ -35,11 +36,14 @@ export function QuestionLimitFieldSet({
           onCheckedChange={setQuestionLimitSet}
         />
         <Input
-          type="number"
+          className="w-17 text-center"
           name="questionLimit"
+          type="number"
+          min={1}
+          max={VALIDATION_LIMITS.MAX_QUESTION}
           defaultValue={defaultValue}
           disabled={!questionLimitSet}
-          className="w-17 text-center"
+          required
         />
       </div>
     </FieldSet>

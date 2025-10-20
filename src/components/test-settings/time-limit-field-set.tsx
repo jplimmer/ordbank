@@ -1,5 +1,6 @@
 'use client';
 
+import { VALIDATION_LIMITS } from '@/lib/constants/validation';
 import { TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
 import {
@@ -32,11 +33,14 @@ export function TimeLimitFieldSet({
       <div className="flex items-center gap-4">
         <Switch checked={timeLimitSet} onCheckedChange={setTimeLimitSet} />
         <Input
-          type="number"
+          className="w-17 text-center"
           name="timeLimitMins"
+          type="number"
+          min={1}
+          max={VALIDATION_LIMITS.MAX_TIME_MINS}
           defaultValue={defaultValue}
           disabled={!timeLimitSet}
-          className="w-17 text-center"
+          required
         />
       </div>
     </FieldSet>
