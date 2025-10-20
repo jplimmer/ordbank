@@ -17,10 +17,11 @@ import {
   useTransition,
 } from 'react';
 import { Timer } from '../ui/timer';
+import { ActionButtons } from './action-buttons';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
-import { ResultPanel } from './result-panel';
+import { ResultDisplay } from './result-display';
 import { TestSummary } from './test-summary';
 import { TypedAnswer } from './typed-answer';
 
@@ -56,6 +57,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   // Transitions for loading
   const [isSubmitting, startSubmitTransition] = useTransition();
   const [isLoadingNext, startNextTransition] = useTransition();
+  const isAnswerDisabled = result !== null || isSubmitting;
 
   // Refs for focus behaviour
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -71,6 +73,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   const handleSubmit = async () => {
     if (!currentAnswer.trim()) {
       dispatch({ type: 'SET_ERROR', payload: 'Please enter an answer' });
+      return;
     }
 
     dispatch({ type: 'SET_ERROR', payload: null });
@@ -204,26 +207,33 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           options={question.answers}
           value={currentAnswer}
           onSetAnswer={setAnswer}
-          disabled={result !== null || isSubmitting}
+          disabled={isAnswerDisabled}
         />
       ) : (
         <TypedAnswer
           value={currentAnswer}
           onSetAnswer={setAnswer}
           onSubmit={handleSubmit}
-          disabled={result !== null || isSubmitting}
+          disabled={isAnswerDisabled}
           ref={typedAnswerRef}
         />
       )}
       {error && <p className="text-destructive">{error}</p>}
-      <ResultPanel
-        result={result}
-        submitFn={handleSubmit}
-        nextQuestionFn={handleNextQuestion}
-        isSubmitting={isSubmitting}
-        isLoadingNext={isLoadingNext}
-        nextButtonRef={nextButtonRef}
-      />
+      <div className="grid gap-4">
+        {result ? <ResultDisplay result={result} /> : <div className="h-12" />}
+        <ActionButtons
+          isAnswered={result !== null}
+          onSubmit={handleSubmit}
+          onNext={handleNextQuestion}
+          isSubmitting={isSubmitting}
+          isLoadingNext={isLoadingNext}
+          onEnd={handleTestEnd}
+          showEndButton={
+            settings.questionLimit !== null || settings.timeLimitMins !== null
+          }
+          nextButtonRef={nextButtonRef}
+        />
+      </div>
     </div>
   );
 }
