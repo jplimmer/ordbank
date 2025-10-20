@@ -40,7 +40,7 @@ export function QuestionLimitFieldSet({
           name="questionLimit"
           type="number"
           min={1}
-          max={VALIDATION_LIMITS.MAX_QUESTION}
+          max={VALIDATION_LIMITS.MAX_QUESTIONS}
           defaultValue={defaultValue}
           disabled={!questionLimitSet}
           required

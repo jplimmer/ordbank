@@ -101,7 +101,7 @@ export const testSettings = pgTable(
     check(
       'question_limit_check',
       sql.raw(
-        `question_limit IS NULL OR question_limit <= ${VALIDATION_LIMITS.MAX_QUESTION}`
+        `question_limit IS NULL OR question_limit <= ${VALIDATION_LIMITS.MAX_QUESTIONS}`
       )
     ),
     check(
