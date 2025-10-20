@@ -6,8 +6,8 @@ import { getLogger } from '@/lib/logger';
 import {
   Question,
   TestAction,
-  TestSettingsInput,
   TestState,
+  UpdateTestSettings,
 } from '@/lib/types/test';
 import {
   useCallback,
@@ -27,7 +27,7 @@ import { TypedAnswer } from './typed-answer';
 const logger = getLogger();
 
 interface TestManagerProps {
-  settings: TestSettingsInput;
+  settings: UpdateTestSettings;
   initialQuestion: Question;
 }
 

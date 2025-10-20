@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import { Button } from '../ui/button';
 import { FauxDialog } from '../ui/faux-dialog';
 import { FieldError } from '../ui/field';
+import { Spinner } from '../ui/spinner';
 import { AnswerModeFieldSet } from './answer-mode-field-set';
 import { DirectionFieldSet } from './direction-field-set';
 import { QuestionLimitFieldSet } from './question-limit-field-set';
@@ -29,8 +30,9 @@ export function TestSettingsForm({
   onSubmit,
   isLoading,
 }: TestSettingsFormProps) {
-  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const formPending = isLoading || isPending;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // Prevent page reload
@@ -93,12 +95,8 @@ export function TestSettingsForm({
         <QuestionLimitFieldSet initialLimit={initialSettings.questionLimit} />
         <TimeLimitFieldSet initialLimit={initialSettings.timeLimitMins} />
         <FieldError className="whitespace-pre-line">{error}</FieldError>
-        <Button
-          type="submit"
-          className="text-lg py-5"
-          disabled={isLoading || isPending}
-        >
-          Start test
+        <Button type="submit" className="text-lg py-5" disabled={formPending}>
+          {formPending ? <Spinner /> : 'Start test'}
         </Button>
       </form>
     </FauxDialog>
