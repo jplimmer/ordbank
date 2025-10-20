@@ -36,6 +36,7 @@ export function QuestionLimitFieldSet({
         />
         <Input
           type="number"
+          name="questionLimit"
           defaultValue={defaultValue}
           disabled={!questionLimitSet}
           className="w-17 text-center"

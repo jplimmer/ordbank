@@ -33,6 +33,7 @@ export function TimeLimitFieldSet({
         <Switch checked={timeLimitSet} onCheckedChange={setTimeLimitSet} />
         <Input
           type="number"
+          name="timeLimitMins"
           defaultValue={defaultValue}
           disabled={!timeLimitSet}
           className="w-17 text-center"

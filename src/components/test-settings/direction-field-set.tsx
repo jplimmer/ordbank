@@ -57,6 +57,7 @@ export function DirectionFieldSet({
     <FieldSet>
       <FieldLegend>Translation Direction</FieldLegend>
       <RadioGroup
+        name="direction"
         defaultValue={initialDirection}
         orientation="horizontal"
         className="flex gap-2"

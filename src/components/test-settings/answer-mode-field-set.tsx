@@ -38,6 +38,7 @@ export function AnswerModeFieldSet({
     <FieldSet>
       <FieldLegend>Answer type</FieldLegend>
       <RadioGroup
+        name="answerMode"
         defaultValue={initialAnswerMode}
         orientation="horizontal"
         className="flex gap-2"
