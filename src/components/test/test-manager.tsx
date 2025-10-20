@@ -55,9 +55,8 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   } = testState;
 
   // Transitions for loading
-  const [isSubmitting, startSubmitTransition] = useTransition();
-  const [isLoadingNext, startNextTransition] = useTransition();
-  const isAnswerDisabled = result !== null || isSubmitting;
+  const [isLoading, startTransition] = useTransition();
+  const isAnswerDisabled = result !== null || isLoading;
 
   // Refs for focus behaviour
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +76,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     }
 
     dispatch({ type: 'SET_ERROR', payload: null });
-    startSubmitTransition(async () => {
+    startTransition(async () => {
       try {
         const result = await processAnswer({
           vocabId: question.vocabId,
@@ -108,7 +107,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   // Loads next question and resets currentAnswer and result
   const handleNextQuestion = async () => {
     dispatch({ type: 'SET_ERROR', payload: null });
-    startNextTransition(async () => {
+    startTransition(async () => {
       try {
         const nextQuestion = await getQuestion(
           settings.direction,
@@ -127,23 +126,26 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Sets test state 'inProgress' to false, with a delay for user to see final result
   const handleTestEnd = useCallback(() => {
-    setTimeout(() => {
+    startTransition(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       dispatch({ type: 'END_TEST' });
-    }, 1000);
+    });
   }, []);
 
   // Resets test to initial state
-  const resetTest = async () => {
-    // Reset timer
-    reset();
-    // Get new initial question and pass to reducer
-    const newQuestion = await getQuestion(
-      settings.direction,
-      settings.answerMode
-    );
-    dispatch({
-      type: 'RESET_TEST',
-      payload: { ...initialTestState, question: newQuestion },
+  const handleReset = () => {
+    startTransition(async () => {
+      // Reset timer
+      reset();
+      // Get new initial question and pass to reducer
+      const newQuestion = await getQuestion(
+        settings.direction,
+        settings.answerMode
+      );
+      dispatch({
+        type: 'RESET_TEST',
+        payload: { ...initialTestState, question: newQuestion },
+      });
     });
   };
 
@@ -160,10 +162,10 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Focuses on NextQuestionButton when result returned
   useEffect(() => {
-    if (result && !isLoadingNext) {
+    if (result && !isLoading) {
       nextButtonRef.current?.focus();
     }
-  }, [result, isLoadingNext]);
+  }, [result, isLoading]);
 
   // Define parameters for Timer component
   const { seconds, reset } = useTimer({
@@ -179,7 +181,8 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       <TestSummary
         score={score}
         completedQuestions={currentQuestion - 1}
-        onReset={resetTest}
+        onReset={handleReset}
+        isLoading={isLoading}
       />
     );
   }
@@ -225,8 +228,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           isAnswered={result !== null}
           onSubmit={handleSubmit}
           onNext={handleNextQuestion}
-          isSubmitting={isSubmitting}
-          isLoadingNext={isLoadingNext}
+          isLoading={isLoading}
           onEnd={handleTestEnd}
           showEndButton={
             settings.questionLimit !== null || settings.timeLimitMins !== null

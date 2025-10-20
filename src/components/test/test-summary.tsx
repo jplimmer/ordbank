@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Button } from '../ui/button';
+import { Spinner } from '../ui/spinner';
 
 interface TestSummaryProps {
   score: number;
   completedQuestions: number;
   onReset: () => void;
+  isLoading?: boolean;
 }
 
 export function TestSummary({
   score,
   completedQuestions,
   onReset,
+  isLoading = false,
 }: TestSummaryProps) {
   const messages = ['Well done', 'Good work', 'Nice job'];
 
@@ -29,8 +32,12 @@ export function TestSummary({
         </span>
         <span className="text-xl">{message}!</span>
       </div>
-      <Button onClick={onReset} className="text-lg py-5">
-        Test yourself again
+      <Button
+        onClick={onReset}
+        disabled={isLoading}
+        className="text-lg py-5 min-w-[12rem]"
+      >
+        {isLoading ? <Spinner /> : 'Test yourself again'}
       </Button>
     </div>
   );

@@ -6,8 +6,7 @@ interface ActionButtonProps {
   isAnswered: boolean;
   onSubmit: () => void;
   onNext: () => void;
-  isSubmitting: boolean;
-  isLoadingNext: boolean;
+  isLoading: boolean;
   onEnd?: () => void;
   showEndButton?: boolean;
   nextButtonRef?: RefObject<HTMLButtonElement | null>;
@@ -17,8 +16,7 @@ export function ActionButtons({
   isAnswered,
   onSubmit,
   onNext,
-  isSubmitting,
-  isLoadingNext,
+  isLoading,
   onEnd,
   showEndButton = false,
   nextButtonRef,
@@ -30,10 +28,10 @@ export function ActionButtons({
       {!isAnswered ? (
         <Button
           onClick={onSubmit}
-          disabled={isSubmitting}
+          disabled={isLoading}
           className="text-lg py-5"
         >
-          {isSubmitting ? <Spinner /> : 'Submit'}
+          {isLoading ? <Spinner /> : 'Submit'}
         </Button>
       ) : (
         <div className="flex gap-2 w-full">
@@ -41,18 +39,19 @@ export function ActionButtons({
             <Button
               variant="outline"
               onClick={onEnd}
+              disabled={isLoading}
               className={`${buttonStyle}`}
             >
-              End Test
+              End test
             </Button>
           )}
           <Button
             onClick={onNext}
-            disabled={isLoadingNext}
+            disabled={isLoading}
             className={`${buttonStyle} flex-1`}
             ref={nextButtonRef}
           >
-            {isLoadingNext ? <Spinner /> : 'Next question'}
+            {isLoading ? <Spinner /> : 'Next question'}
           </Button>
         </div>
       )}
