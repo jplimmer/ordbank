@@ -221,9 +221,14 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
           ref={typedAnswerRef}
         />
       )}
-      {error && <p className="text-destructive">{error}</p>}
-      <div className="grid gap-4">
-        {result ? <ResultDisplay result={result} /> : <div className="h-12" />}
+      <div className="grid gap-4 w-full">
+        {error ? (
+          <p className="text-destructive mt-6">{error}</p>
+        ) : result ? (
+          <ResultDisplay result={result} />
+        ) : (
+          <div className="h-12" />
+        )}
         <ActionButtons
           isAnswered={result !== null}
           onSubmit={handleSubmit}
