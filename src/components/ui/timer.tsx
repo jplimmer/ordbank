@@ -11,13 +11,12 @@ interface TimerProps {
 
 export function Timer({
   seconds,
-  isCountingDown,
+  isCountingDown = false,
   lowTime = 10,
   className,
   iconStyle,
 }: TimerProps) {
   const displayTime = formatTime(seconds);
-
   const isLowTime = isCountingDown && seconds < lowTime && seconds > 0;
 
   return (

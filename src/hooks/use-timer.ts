@@ -15,6 +15,8 @@ export const useTimer = ({
   const isCountingDown = timeLimitSecs !== undefined;
 
   useEffect(() => {
+    setSeconds(timeLimitSecs ?? 0);
+
     intervalRef.current = setInterval(() => {
       setSeconds((prev) => {
         const next = isCountingDown ? prev - 1 : prev + 1;
@@ -35,7 +37,7 @@ export const useTimer = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isCountingDown, onTimeExpired]);
+  }, [timeLimitSecs, isCountingDown, onTimeExpired]);
 
   const reset = useCallback(() => {
     setSeconds(timeLimitSecs ?? 0);

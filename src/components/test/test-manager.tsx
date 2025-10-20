@@ -9,7 +9,13 @@ import {
   TestSettingsInput,
   TestState,
 } from '@/lib/types/test';
-import { useEffect, useReducer, useRef, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useTransition,
+} from 'react';
 import { Timer } from '../ui/timer';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
@@ -117,11 +123,11 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
   };
 
   // Sets test state 'inProgress' to false, with a delay for user to see final result
-  const handleTestEnd = () => {
+  const handleTestEnd = useCallback(() => {
     setTimeout(() => {
       dispatch({ type: 'END_TEST' });
     }, 1000);
-  };
+  }, []);
 
   // Resets test to initial state
   const resetTest = async () => {
