@@ -3,9 +3,9 @@
 import { saveSettings } from '@/lib/actions/test-settings';
 import { ROUTES } from '@/lib/constants/routes';
 import { getLogger } from '@/lib/logger';
-import { TestSettings, TestSettingsInput } from '@/lib/types/test';
+import { TestSettings, UpdateTestSettings } from '@/lib/types/test';
 import { handleValidationError } from '@/lib/utils';
-import { testSettingsInputSchema } from '@/lib/validation/test-settings-schemas';
+import { testSettingsUpdateSchema } from '@/lib/validation/test-settings-schemas';
 import { useState, useTransition } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../ui/button';
@@ -20,7 +20,7 @@ const logger = getLogger();
 
 interface TestSettingsFormProps {
   initialSettings: TestSettings;
-  onSubmit: (settings: TestSettingsInput) => void;
+  onSubmit: (settings: UpdateTestSettings) => void;
   isLoading: boolean;
 }
 
@@ -51,7 +51,7 @@ export function TestSettingsForm({
       };
 
       // Parse form settings client-side for passing to onSubmit
-      const parseResult = testSettingsInputSchema.safeParse(settings);
+      const parseResult = testSettingsUpdateSchema.safeParse(settings);
       if (!parseResult.success) {
         const validationError = handleValidationError(
           parseResult.error,

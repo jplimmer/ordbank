@@ -6,7 +6,7 @@ import {
   Question,
   TestPhase,
   TestSettings,
-  TestSettingsInput,
+  UpdateTestSettings,
 } from '@/lib/types/test';
 import { useState, useTransition } from 'react';
 import { toast } from 'react-hot-toast';
@@ -26,11 +26,11 @@ export function TestPageManager({
 }: TestPageManagerProps) {
   const [testPhase, setTestPhase] = useState<TestPhase>('settings');
   const [activeSettings, setActiveSettings] =
-    useState<TestSettingsInput>(initialSettings);
+    useState<UpdateTestSettings>(initialSettings);
   const [firstQuestion, setFirstQuestion] = useState<Question>(initialQuestion);
   const [isPending, startTransition] = useTransition();
 
-  const handleSettingsSubmit = (settings: TestSettingsInput) => {
+  const handleSettingsSubmit = (settings: UpdateTestSettings) => {
     startTransition(async () => {
       try {
         setActiveSettings(settings);
