@@ -44,6 +44,7 @@ export function QuestionLimitFieldSet({
           defaultValue={defaultValue}
           disabled={!questionLimitSet}
           required
+          autoComplete="off"
         />
       </div>
     </FieldSet>
