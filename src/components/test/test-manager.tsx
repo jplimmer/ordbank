@@ -65,7 +65,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Callback function for children to update current answer
   const setAnswer = (value: string) => {
-    if (value) dispatch({ type: 'SET_ANSWER', payload: value });
+    dispatch({ type: 'SET_ANSWER', payload: value });
   };
 
   // Submits answer for processing, updates result, score and question count
