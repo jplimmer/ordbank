@@ -10,7 +10,7 @@ import {
   LanguagePair,
   UpdateLanguagePair,
 } from '../types/language-pair';
-import { handleValidationError } from '../utils';
+import { generatePairName, handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,
   languagePairInsertSchema,
@@ -85,10 +85,6 @@ export const getLanguagePairs = async (
     logger.error(errorMsg, { error });
     return { success: false, error: errorMsg };
   }
-};
-
-const generatePairName = (sourceName: string, targetName: string): string => {
-  return `${sourceName.slice(0, 3).toUpperCase()}-${targetName.slice(0, 3).toUpperCase()}`;
 };
 
 export const createLanguagePair = async (
