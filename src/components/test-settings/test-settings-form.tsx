@@ -14,8 +14,8 @@ import { FieldError } from '../ui/field';
 import { Spinner } from '../ui/spinner';
 import { AnswerModeFieldSet } from './answer-mode-field-set';
 import { DirectionFieldSet } from './direction-field-set';
-import { QuestionLimitFieldSet } from './question-limit-field-set';
-import { TimeLimitFieldSet } from './time-limit-field-set';
+import { QuestionLimitField } from './question-limit-field';
+import { TimeLimitField } from './time-limit-field';
 
 const logger = getLogger();
 
@@ -92,8 +92,8 @@ export function TestSettingsForm({
       <form onSubmit={handleSubmit} className="grid space-y-8">
         <DirectionFieldSet initialDirection={initialSettings.direction} />
         <AnswerModeFieldSet initialAnswerMode={initialSettings.answerMode} />
-        <QuestionLimitFieldSet initialLimit={initialSettings.questionLimit} />
-        <TimeLimitFieldSet initialLimit={initialSettings.timeLimitMins} />
+        <QuestionLimitField initialLimit={initialSettings.questionLimit} />
+        <TimeLimitField initialLimit={initialSettings.timeLimitMins} />
         <FieldError className="whitespace-pre-line">{error}</FieldError>
         <Button type="submit" className="text-lg py-5" disabled={formPending}>
           {formPending ? <Spinner /> : 'Start test'}

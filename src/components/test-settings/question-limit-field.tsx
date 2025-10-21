@@ -3,47 +3,48 @@
 import { VALIDATION_LIMITS } from '@/lib/constants/validation';
 import { TestSettings } from '@/lib/types/test';
 import { useState } from 'react';
-import {
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-  FieldSet,
-} from '../ui/field';
+import { Field, FieldContent, FieldDescription, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
 
-export function TimeLimitFieldSet({
+export function QuestionLimitField({
   initialLimit,
 }: {
-  initialLimit: TestSettings['timeLimitMins'];
+  initialLimit: TestSettings['questionLimit'];
 }) {
   const defaultValue = initialLimit ? initialLimit : undefined;
-  const [timeLimitSet, setTimeLimitSet] = useState(!!defaultValue);
+  const [questionLimitSet, setQuestionLimitSet] = useState(!!defaultValue);
 
   return (
-    <FieldSet className="flex-row items-start justify-between">
+    <Field
+      orientation="horizontal"
+      className="flex-row items-start justify-between"
+    >
       <FieldContent>
         <FieldLabel className="font-medium text-base">
-          Time limit (mins)
+          Number of questions
         </FieldLabel>
         <FieldDescription className="text-pretty">
-          If turned off, the test duration is unlimited.
+          If turned off, the number of questions is unlimited.
         </FieldDescription>
       </FieldContent>
       <div className="flex items-center gap-4">
-        <Switch checked={timeLimitSet} onCheckedChange={setTimeLimitSet} />
+        <Switch
+          checked={questionLimitSet}
+          onCheckedChange={setQuestionLimitSet}
+        />
         <Input
           className="w-17 text-center"
-          name="timeLimitMins"
+          name="questionLimit"
           type="number"
           min={1}
-          max={VALIDATION_LIMITS.MAX_TIME_MINS}
+          max={VALIDATION_LIMITS.MAX_QUESTIONS}
           defaultValue={defaultValue}
-          disabled={!timeLimitSet}
+          disabled={!questionLimitSet}
           required
           autoComplete="off"
         />
       </div>
-    </FieldSet>
+    </Field>
   );
 }
