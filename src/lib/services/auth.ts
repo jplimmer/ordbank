@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
 import { Result } from '../types/common';
-import { getActiveLanguagePair } from './active-language-pair';
+import { fetchActiveLanguagePair } from './active-language-pair';
 
 export interface UserProfile {
   userId: number;
@@ -19,9 +19,9 @@ export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
   }
 
   // Get user's last active languagePair (including ownership verification)
-  const activeLanguage = await getActiveLanguagePair(userId);
+  const activeLanguage = await fetchActiveLanguagePair(userId);
   if (!activeLanguage.success) {
-    return { success: false, error: activeLanguage.error };
+    return { success: false, error: activeLanguage.error.message };
   }
 
   return {

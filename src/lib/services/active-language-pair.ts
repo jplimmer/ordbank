@@ -1,130 +1,103 @@
 'server-only';
 
 import { eq } from 'drizzle-orm';
-import { cookies } from 'next/headers';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/common';
+import { ServiceResult } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
-import { assertLanguagePairOwnership, UserProfile } from './auth';
 import { getLanguagePair } from './language-pairs';
 
 const logger = getLogger();
 
-const activePairCookieName = 'activeLanguagePairId';
-
-const getCookiesActiveLanguagePair = async (): Promise<number | undefined> => {
-  const cookieStore = await cookies();
-  const cookieString = cookieStore.get(activePairCookieName)?.value;
-  const parsedString = Number(cookieString);
-  const langPairId = Number.isFinite(parsedString) ? parsedString : undefined;
-  logger.debug(`Fetched cookie ${activePairCookieName}:`, langPairId);
-  return langPairId;
-};
-
-const setCookiesActiveLanguagePair = async (
-  languagePairId: number
-): Promise<Result<number>> => {
+export const fetchActiveLanguagePair = async (
+  userId: number
+): Promise<ServiceResult<LanguagePair>> => {
   try {
-    const cookieStore = await cookies();
-    cookieStore.set(activePairCookieName, languagePairId.toString());
+    // Fetch user's activeLanguagePairId from database
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { activeLanguagePairId: true },
+    });
 
-    logger.info(
-      'Set cookies for active language pair:',
-      cookieStore.get(activePairCookieName)
+    if (!user || !user.activeLanguagePairId) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'No active language pair found in database for user',
+        },
+      };
+    }
+
+    // Get language pair details
+    const languagePairResult = await getLanguagePair(
+      userId,
+      user.activeLanguagePairId
     );
-    return { success: true, data: languagePairId };
+
+    if (!languagePairResult.success) {
+      return { success: false, error: languagePairResult.error };
+    }
+
+    return { success: true, data: languagePairResult.data };
   } catch (error) {
-    const errorMsg = `Failed to set active language pair in cookies: ${error instanceof Error ? error.message : String(error)}`;
-    logger.warn(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = 'Failed to fetch active language pair from database';
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-const getDbActiveLanguagePair = async (
-  userId: number
-): Promise<number | null | undefined> => {
-  const result = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    columns: { activeLanguagePairId: true },
-  });
-
-  logger.debug(
-    'Fetched database activeLanguagePairId:',
-    result?.activeLanguagePairId
-  );
-  return result?.activeLanguagePairId;
-};
-
-const setDbActiveLanguagePair = async (
-  userProfile: UserProfile
-): Promise<Result<number>> => {
+export const updateActiveLanguagePair = async (
+  userId: number,
+  newActiveId: number
+): Promise<ServiceResult<LanguagePair>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
+    // Fetch language pair from database - includes ownership check and
+    // parsing, result returned
+    const languagePairResult = await getLanguagePair(userId, newActiveId);
+    if (!languagePairResult.success) {
+      return { success: false, error: languagePairResult.error };
+    }
 
     // Update active language pair for the user in database
     const [updatedUser] = await db
       .update(users)
-      .set({ activeLanguagePairId: userProfile.languagePairId })
-      .where(eq(users.id, userProfile.userId))
+      .set({ activeLanguagePairId: newActiveId })
+      .where(eq(users.id, userId))
       .returning();
 
     if (updatedUser.activeLanguagePairId === null) {
-      return { success: false, error: 'Returned value is still null' };
+      return {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: 'activeUserId is still null',
+        },
+      };
     }
 
-    logger.info(
+    logger.debug(
       `Updated active language pair to ${updatedUser.activeLanguagePairId} for user ${updatedUser.id} in database`
     );
-    return { success: true, data: updatedUser.activeLanguagePairId };
+    return { success: true, data: languagePairResult.data };
   } catch (error) {
-    const errorMsg = `Failed to set active language pair in database: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
-  }
-};
-
-export const getActiveLanguagePair = async (
-  userId: number
-): Promise<Result<LanguagePair>> => {
-  let activeLanguagePairId: number | null | undefined;
-
-  // Get active language pair id from cookies
-  activeLanguagePairId = await getCookiesActiveLanguagePair();
-
-  // If doesn't exist in cookies, get from database
-  if (!activeLanguagePairId) {
-    activeLanguagePairId = await getDbActiveLanguagePair(userId);
-  }
-
-  if (!activeLanguagePairId)
-    return { success: false, error: 'No active language pair id found' };
-
-  return await getLanguagePair({
-    userId,
-    languagePairId: activeLanguagePairId,
-  });
-};
-
-export const setActiveLanguagePair = async (
-  userProfile: UserProfile
-): Promise<Result<LanguagePair>> => {
-  // Set cookies
-  const cookiesResult = await setCookiesActiveLanguagePair(
-    userProfile.languagePairId
-  );
-
-  // Update database
-  const dbResult = await setDbActiveLanguagePair(userProfile);
-
-  if (!cookiesResult.success && !dbResult.success) {
+    const errorMsg = 'Failed to set active language pair in database';
+    logger.error(errorMsg, error);
     return {
       success: false,
-      error: 'Both cookies and database updates failed',
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
     };
   }
-
-  return await getLanguagePair(userProfile);
 };
