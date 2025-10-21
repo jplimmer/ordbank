@@ -7,11 +7,16 @@ import {
 import { FormResult } from '@/lib/types/common';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { generatePairName, getFormValue } from '@/lib/utils';
-import Form from 'next/form';
 import { useActionState, useState } from 'react';
 import { Button } from '../ui/button';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '../ui/field';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 
 type LanguagePairFormProps =
   | { mode: 'create' }
@@ -61,11 +66,12 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
 
   return (
     <div>
-      <Form action={formAction} className="grid space-y-4">
-        <div className="grid gap-2">
-          <Label htmlFor="source-language" className="capitalize">
-            Source
-          </Label>
+      <form action={formAction} className="grid space-y-6">
+        <Field>
+          <FieldContent>
+            <FieldLabel htmlFor="source-language">Source language</FieldLabel>
+            <FieldDescription>The language you are learning</FieldDescription>
+          </FieldContent>
           <Input
             id="source-language"
             name="source-language"
@@ -76,16 +82,15 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
             autoFocus
           />
           {!state.success && state.fieldErrors?.source && (
-            <p className="text-destructive text-sm">
-              {state.fieldErrors.source.join('. ')}
-            </p>
+            <FieldError>{state.fieldErrors.source.join('. ')}</FieldError>
           )}
-        </div>
+        </Field>
 
-        <div className="grid gap-2">
-          <Label htmlFor="target-language" className="capitalize">
-            Target
-          </Label>
+        <Field>
+          <FieldContent>
+            <FieldLabel htmlFor="target-language">Target language</FieldLabel>
+            <FieldDescription>The language you already know</FieldDescription>
+          </FieldContent>
           <Input
             id="target-language"
             name="target-language"
@@ -95,14 +100,12 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
             autoComplete="off"
           />
           {!state.success && state.fieldErrors?.target && (
-            <p className="text-destructive text-sm">
-              {state.fieldErrors.target.join('. ')}
-            </p>
+            <FieldError>{state.fieldErrors.target.join('. ')}</FieldError>
           )}
-        </div>
+        </Field>
 
-        <div className="grid gap-2">
-          <Label htmlFor="pair-name">Pair name</Label>
+        <Field>
+          <FieldLabel htmlFor="pair-name">Pair name</FieldLabel>
           <Input
             id="pair-name"
             name="pair-name"
@@ -110,9 +113,9 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
             value={pairName}
             className="pointer-events-none cursor-not-allowed opacity-50"
           />
-        </div>
+        </Field>
 
-        {!state.success && !state.fieldErrors && (
+        {!state.success && state.error && !state.fieldErrors && (
           <p className="text-destructive text-sm">{state.error}</p>
         )}
 
@@ -129,7 +132,7 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
               ? 'Submitting...'
               : 'Submit'}
         </Button>
-      </Form>
+      </form>
     </div>
   );
 }
