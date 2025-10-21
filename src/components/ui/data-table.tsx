@@ -32,6 +32,7 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  getRowClassName?: (row: TData) => string;
   filter?: boolean;
   filterPlaceholder?: string;
 }
@@ -39,6 +40,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  getRowClassName,
   filter = true,
   filterPlaceholder,
 }: DataTableProps<TData, TValue>) {
@@ -111,6 +113,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className={getRowClassName?.(row.original) ?? ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

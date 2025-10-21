@@ -5,11 +5,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { SortableColumnHeader } from '../ui/sortable-column-header';
 import { ActionsMenu } from './actions-menu';
 
-// export const useLanguagesColumns = (): ColumnDef<LanguagePair>[] => {
-//   const { sourceLanguage, targetLanguage } =
-//     useLanguagePairContext().activePair;
-// }
-
 export const languagesColumns: ColumnDef<LanguagePair>[] = [
   {
     accessorKey: 'sourceLanguage',
