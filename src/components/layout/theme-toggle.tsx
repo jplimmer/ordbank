@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const iconStyle = 'size-8';
+  const iconStyle = 'size-5';
 
   useEffect(() => {
     setMounted(true);

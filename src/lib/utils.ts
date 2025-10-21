@@ -66,3 +66,11 @@ export const formatTime = (totalSeconds: number): string => {
 
   return minsString;
 };
+
+// Returns a 'pair name' with the first three letters of each string separated by a hyphen
+export const generatePairName = (
+  sourceName: string,
+  targetName: string
+): string => {
+  return `${sourceName.slice(0, 3).toUpperCase()}-${targetName.slice(0, 3).toUpperCase()}`;
+};

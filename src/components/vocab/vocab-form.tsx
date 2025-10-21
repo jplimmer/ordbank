@@ -5,11 +5,10 @@ import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
 import { FormResult } from '@/lib/types/common';
 import { VocabItem } from '@/lib/types/vocab';
 import { getFormValue } from '@/lib/utils';
-import Form from 'next/form';
 import { useActionState } from 'react';
 import { Button } from '../ui/button';
+import { Field, FieldError, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 
 type VocabFormProps =
   | { mode: 'create' }
@@ -53,11 +52,11 @@ export function VocabForm(props: VocabFormProps) {
 
   return (
     <div>
-      <Form action={formAction} className="grid space-y-4">
-        <div className="grid gap-2">
-          <Label htmlFor="source" className="capitalize">
+      <form action={formAction} className="grid space-y-6">
+        <Field>
+          <FieldLabel htmlFor="source" className="capitalize">
             {sourceLanguage}
-          </Label>
+          </FieldLabel>
           <Input
             id="source"
             name="source"
@@ -67,16 +66,14 @@ export function VocabForm(props: VocabFormProps) {
             autoFocus
           />
           {!state.success && state.fieldErrors?.source && (
-            <p className="text-destructive text-sm">
-              {state.fieldErrors.source.join('. ')}
-            </p>
+            <FieldError>{state.fieldErrors.source.join('. ')}</FieldError>
           )}
-        </div>
+        </Field>
 
-        <div className="grid gap-2">
-          <Label htmlFor="target" className="capitalize">
+        <Field>
+          <FieldLabel htmlFor="target" className="capitalize">
             {targetLanguage}
-          </Label>
+          </FieldLabel>
           <Input
             id="target"
             name="target"
@@ -85,20 +82,18 @@ export function VocabForm(props: VocabFormProps) {
             autoComplete="off"
           />
           {!state.success && state.fieldErrors?.target && (
-            <p className="text-destructive text-sm">
-              {state.fieldErrors.target.join('. ')}
-            </p>
+            <FieldError>{state.fieldErrors.target.join('. ')}</FieldError>
           )}
-        </div>
+        </Field>
 
-        {!state.success && !state.fieldErrors && (
+        {!state.success && state.error && !state.fieldErrors && (
           <p className="text-destructive text-sm">{state.error}</p>
         )}
 
         <Button
           type="submit"
           disabled={isPending}
-          className="w-fit justify-self-end"
+          className="min-w-[150px] justify-self-end"
         >
           {editMode
             ? isPending
@@ -108,7 +103,7 @@ export function VocabForm(props: VocabFormProps) {
               ? 'Submitting...'
               : 'Submit'}
         </Button>
-      </Form>
+      </form>
     </div>
   );
 }

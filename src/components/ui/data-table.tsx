@@ -15,10 +15,16 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Search,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './button';
-import { Input } from './input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from './input-group';
 import { Label } from './label';
 import {
   Table,
@@ -32,6 +38,7 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  getRowClassName?: (row: TData) => string;
   filter?: boolean;
   filterPlaceholder?: string;
 }
@@ -39,6 +46,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  getRowClassName,
   filter = true,
   filterPlaceholder,
 }: DataTableProps<TData, TValue>) {
@@ -68,13 +76,23 @@ export function DataTable<TData, TValue>({
           <Label htmlFor="table-filter" className="sr-only">
             Table filter input
           </Label>
-          <Input
-            id="table-filter"
-            placeholder={filterPlaceholder ?? 'Search...'}
-            value={globalFilter}
-            onChange={(e) => table.setGlobalFilter(e.target.value)}
-            className="text-sm placeholder:italic"
-          />
+          <InputGroup>
+            <InputGroupInput
+              id="table-filter"
+              placeholder={filterPlaceholder ?? 'Search...'}
+              value={globalFilter}
+              onChange={(e) => table.setGlobalFilter(e.target.value)}
+              className="text-sm placeholder:italic"
+            />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              <InputGroupText className="font-normal">
+                {table.getFilteredRowModel().rows.length} results
+              </InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
       )}
 
@@ -111,6 +129,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className={getRowClassName?.(row.original) ?? ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

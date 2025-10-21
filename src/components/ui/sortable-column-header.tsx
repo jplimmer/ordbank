@@ -20,7 +20,7 @@ export function SortableColumnHeader<T>({
       className={`has-[svg]:px-0 ${className}`}
     >
       {header}
-      <ArrowUpDown className="h-4 w-4 ml-2" />
+      <ArrowUpDown className="h-4 w-4" />
     </Button>
   );
 }

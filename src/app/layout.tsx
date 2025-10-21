@@ -1,7 +1,7 @@
 import { NavBar, ThemeToggle } from '@/components/layout';
 import { LanguagePairProvider } from '@/contexts/language-pair';
 import { ThemeProvider } from '@/contexts/theme-provider';
-import { getActiveLanguagePair } from '@/lib/services/active-language-pair';
+import { getActiveLanguagePair } from '@/lib/actions/active-language-pair';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
@@ -30,10 +30,7 @@ export default async function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
-  // TO DO - integrate authentication with LanguagePairContext
-  const userId = 1;
-
-  const langPairResult = await getActiveLanguagePair(userId);
+  const langPairResult = await getActiveLanguagePair();
   // TO DO - redirect to account to set active language pair if none found
   if (!langPairResult.success) {
     notFound();

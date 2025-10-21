@@ -180,7 +180,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        completedQuestions={currentQuestion - 1}
+        totalQuestions={settings.questionLimit ?? currentQuestion - 1}
         onReset={handleReset}
         isLoading={isLoading}
       />

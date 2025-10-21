@@ -1,7 +1,7 @@
 'use client';
 
-import { deleteVocabAction } from '@/lib/actions/vocab';
-import { VocabItem } from '@/lib/types/vocab';
+import { deleteLanguagePairAction } from '@/lib/actions/language-pairs';
+import { LanguagePair } from '@/lib/types/language-pair';
 import { toast } from 'react-hot-toast';
 import {
   AlertDialogAction,
@@ -13,17 +13,17 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 
-export function DeleteVocabAlertContent({
-  vocabItem,
+export function DeleteLanguageAlertContent({
+  languagePair,
 }: {
-  vocabItem: VocabItem;
+  languagePair: LanguagePair;
 }) {
   const handleDelete = async () => {
-    const deleteResult = await deleteVocabAction(vocabItem.id);
+    const deleteResult = await deleteLanguagePairAction(languagePair.id);
     if (deleteResult.success) {
-      toast.success(`'${vocabItem.source}' deleted!`);
+      toast.success(`'${languagePair.pairName}' deleted!`);
     } else {
-      toast.error('Word could not be deleted, please try again.');
+      toast.error('Language pair could not be deleted, please try again.');
     }
   };
 
@@ -31,16 +31,17 @@ export function DeleteVocabAlertContent({
     <AlertDialogContent>
       <AlertDialogHeader>
         <AlertDialogTitle>
-          Are you sure you want to delete this word?
+          Are you sure you want to delete this language pair?
         </AlertDialogTitle>
         <AlertDialogDescription>
-          This action cannot be undone.
+          All words for this pair will be permanently deleted - this action
+          cannot be undone.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={handleDelete}>
-          Delete word
+        <AlertDialogAction onClick={handleDelete} className="bg-red-800">
+          Delete language pair
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

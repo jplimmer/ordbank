@@ -46,6 +46,16 @@ class SimpleLogger implements Logger {
 
     const isProduction = process.env.NODE_ENV === 'production';
 
+    if (this.environment === 'server' && process.env.SERVER_LOG_LEVEL) {
+      const envLevel = process.env.SERVER_LOG_LEVEL as LogLevel;
+      if (envLevel in SimpleLogger.levels) return envLevel;
+    }
+
+    if (this.environment === 'client' && process.env.NEXT_PUBLIC_LOG_LEVEL) {
+      const envLevel = process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel;
+      if (envLevel in SimpleLogger.levels) return envLevel;
+    }
+
     if (this.environment === 'server') {
       return isProduction ? 'warn' : 'debug';
     } else {
@@ -115,13 +125,11 @@ class SimpleLogger implements Logger {
   }
 }
 
-// Create single shared instance of logger
-// const level = 'debug';
-// const logger = new SimpleLogger(level as LogLevel);
-
 // Create separate logger instances for server and client
-const serverLogger = new SimpleLogger('debug');
-const clientLogger = new SimpleLogger('debug');
+const level = 'debug';
+
+const serverLogger = new SimpleLogger(level);
+const clientLogger = new SimpleLogger(level);
 
 /**
  * Returns the shared instance of the logger depending on environment.

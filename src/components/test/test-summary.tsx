@@ -4,14 +4,14 @@ import { Spinner } from '../ui/spinner';
 
 interface TestSummaryProps {
   score: number;
-  completedQuestions: number;
+  totalQuestions: number;
   onReset: () => void;
   isLoading?: boolean;
 }
 
 export function TestSummary({
   score,
-  completedQuestions,
+  totalQuestions,
   onReset,
   isLoading = false,
 }: TestSummaryProps) {
@@ -28,7 +28,7 @@ export function TestSummary({
       <span className="text-3xl">Test complete</span>
       <div className="flex flex-col gap-4 items-center">
         <span className="text-2xl">
-          Score: {score}/{completedQuestions}
+          Score: {score}/{totalQuestions}
         </span>
         <span className="text-xl">{message}!</span>
       </div>

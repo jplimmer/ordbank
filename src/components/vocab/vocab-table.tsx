@@ -1,16 +1,23 @@
 'use client';
 
+import { useLanguagePairContext } from '@/contexts/language-pair';
 import { VocabItem } from '@/lib/types/vocab';
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { DataTable } from '../ui/data-table';
-import { useVocabColumns } from './vocab-columns';
+import { getVocabColumns } from './vocab-columns';
 
 interface VocabTableProps {
   dataPromise: Promise<VocabItem[]>;
 }
 
 export function VocabTable({ dataPromise }: VocabTableProps) {
-  const columns = useVocabColumns();
+  const { sourceLanguage, targetLanguage } =
+    useLanguagePairContext().activePair;
+
+  const columns = useMemo(
+    () => getVocabColumns(sourceLanguage, targetLanguage),
+    [sourceLanguage, targetLanguage]
+  );
   const data = use(dataPromise);
 
   return (

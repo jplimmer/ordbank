@@ -5,7 +5,7 @@ import { getVocab } from '@/lib/services/vocab';
 import { VocabItem } from '@/lib/types/vocab';
 import { Suspense } from 'react';
 
-export default async function VocabPage() {
+export default function VocabPage() {
   // Get vocab for given user profile
   const getUserVocab = async (): Promise<VocabItem[]> => {
     // Authenticate user profile
@@ -24,7 +24,7 @@ export default async function VocabPage() {
   };
 
   return (
-    <main className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
+    <div className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
       <h1 className="text-center text-2xl font-semibold">Vocabulary</h1>
       <div className="space-y-4">
         <Suspense fallback={<Spinner />}>
@@ -32,6 +32,6 @@ export default async function VocabPage() {
           <AddVocabDialog className="w-full" />
         </Suspense>
       </div>
-    </main>
+    </div>
   );
 }
