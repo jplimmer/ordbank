@@ -33,8 +33,8 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
     const formData = new FormData();
 
     if (languagePair) {
-      formData.set('source', languagePair.sourceLanguage);
-      formData.set('target', languagePair.targetLanguage);
+      formData.set('source-language', languagePair.sourceLanguage);
+      formData.set('target-language', languagePair.targetLanguage);
     }
 
     return formData;
@@ -57,10 +57,10 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
 
   // States for computing pair name
   const [sourceName, setSourceName] = useState(
-    getFormValue(formData, 'source')
+    getFormValue(formData, 'source-language')
   );
   const [targetName, setTargetName] = useState(
-    getFormValue(formData, 'target')
+    getFormValue(formData, 'target-language')
   );
   const pairName = generatePairName(sourceName, targetName);
 
@@ -81,8 +81,10 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
             autoComplete="off"
             autoFocus
           />
-          {!state.success && state.fieldErrors?.source && (
-            <FieldError>{state.fieldErrors.source.join('. ')}</FieldError>
+          {!state.success && state.fieldErrors?.sourceLanguage && (
+            <FieldError>
+              {state.fieldErrors.sourceLanguage.join('. ')}
+            </FieldError>
           )}
         </Field>
 
@@ -99,8 +101,10 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
             required
             autoComplete="off"
           />
-          {!state.success && state.fieldErrors?.target && (
-            <FieldError>{state.fieldErrors.target.join('. ')}</FieldError>
+          {!state.success && state.fieldErrors?.targetLanguage && (
+            <FieldError>
+              {state.fieldErrors.targetLanguage.join('. ')}
+            </FieldError>
           )}
         </Field>
 
