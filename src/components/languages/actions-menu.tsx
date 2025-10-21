@@ -16,7 +16,7 @@ import { DeleteLanguageAlertContent } from './delete-language-alert-content';
 import { UpdateLanguageDialogContent } from './update-language-dialog-content';
 
 export function ActionsMenu({ languagePair }: { languagePair: LanguagePair }) {
-  const setActive = useLanguagePairContext().setActive;
+  const { activePair, setActive } = useLanguagePairContext();
 
   return (
     <AlertDialog>
@@ -29,7 +29,10 @@ export function ActionsMenu({ languagePair }: { languagePair: LanguagePair }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[5.5rem]">
-            <DropdownMenuItem onSelect={() => setActive(languagePair)}>
+            <DropdownMenuItem
+              onSelect={() => setActive(languagePair)}
+              disabled={languagePair.id === activePair.id}
+            >
               Set active
             </DropdownMenuItem>
             <DialogTrigger asChild>
