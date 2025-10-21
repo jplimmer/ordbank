@@ -32,7 +32,9 @@ export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
   },
   {
     accessorKey: 'vocabCount',
-    header: 'Word Count',
+    header: ({ column }) => (
+      <SortableColumnHeader column={column} header="Words" />
+    ),
     meta: {
       align: 'end',
     },
