@@ -39,7 +39,9 @@ export function DeleteVocabAlertContent({
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={handleDelete}>Confirm</AlertDialogAction>
+        <AlertDialogAction onClick={handleDelete}>
+          Delete word
+        </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   );

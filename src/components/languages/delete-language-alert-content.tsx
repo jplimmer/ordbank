@@ -40,7 +40,9 @@ export function DeleteLanguageAlertContent({
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={handleDelete}>Confirm</AlertDialogAction>
+        <AlertDialogAction onClick={handleDelete} className="bg-red-800">
+          Delete language pair
+        </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   );
