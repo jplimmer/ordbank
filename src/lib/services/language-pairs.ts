@@ -4,7 +4,7 @@ import { eq, inArray, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/common';
+import { Result, ServiceResult } from '../types/common';
 import {
   InsertLanguagePair,
   LanguagePair,
@@ -22,40 +22,64 @@ import { assertLanguagePairOwnership, UserProfile } from './auth';
 const logger = getLogger();
 
 export const getLanguagePair = async (
-  userProfile: UserProfile
-): Promise<Result<LanguagePair>> => {
+  userId: number,
+  languagePairId: number
+): Promise<ServiceResult<LanguagePair>> => {
   try {
-    // Verify the language pair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
-
     // Fetch language pair data from database
     const langPair = await db.query.languagePairs.findFirst({
-      where: eq(languagePairs.id, userProfile.languagePairId),
+      where: eq(languagePairs.id, languagePairId),
     });
 
     if (!langPair) {
-      return { success: false, error: 'Language pair not found' };
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Language pair not found in database',
+        },
+      };
     }
 
     // Validate database response
     const parseResult = languagePairSelectSchema.safeParse(langPair);
-
     if (!parseResult.success) {
       const validationError = handleValidationError(
         parseResult.error,
         'Get single language pair'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+        },
+      };
     }
 
-    logger.info(
-      `Fetched data for active language pair (${parseResult.data.pairName})`
-    );
+    // Verify the language pair belongs to the user
+    if (parseResult.data.userId !== userId) {
+      return {
+        success: false,
+        error: {
+          code: 'UNAUTHORISED',
+          message: 'You do not have access to this language pair',
+        },
+      };
+    }
+
     return { success: true, data: parseResult.data };
   } catch (error) {
-    const errorMsg = `Failed to get LanguagePair: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to get language pair ${languagePairId} from database`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
