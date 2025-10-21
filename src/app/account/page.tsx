@@ -1,14 +1,17 @@
 import { AddLanguagePairDialog } from '@/components/languages/add-language-pair-dialog';
+import { LanguagePairTableEntry } from '@/components/languages/languages-columns';
 import { LanguagesTable } from '@/components/languages/languages-table';
 import { Spinner } from '@/components/ui/spinner';
 import { getCurrentProfile } from '@/lib/services/auth';
-import { getLanguagePairs } from '@/lib/services/language-pairs';
-import { LanguagePair } from '@/lib/types/language-pair';
+import {
+  getLanguagePairs,
+  getVocabCountByLanguagePairs,
+} from '@/lib/services/language-pairs';
 import { Suspense } from 'react';
 
 export default function AccountPage() {
   // Get language pairs for given user profile
-  const getUserLanguagePairs = async (): Promise<LanguagePair[]> => {
+  const getUserLanguagePairs = async (): Promise<LanguagePairTableEntry[]> => {
     // Authenticate user profile
     const profileCheck = await getCurrentProfile();
     if (!profileCheck.success) {
@@ -21,15 +24,24 @@ export default function AccountPage() {
       // TO DO - handle errors
       return [];
     }
-    return result.data;
+
+    const langPairIds = result.data.map((langPair) => langPair.id);
+    const vocabCounts = await getVocabCountByLanguagePairs(langPairIds);
+    const tableData: LanguagePairTableEntry[] = result.data.map((langPair) => ({
+      ...langPair,
+      vocabCount:
+        vocabCounts.find((c) => c.langPairId === langPair.id)?.count ?? 0,
+    }));
+
+    return tableData;
   };
 
   return (
     <div className="content-grid grid-rows-[auto_1fr] space-y-10 justify-items-center items-start">
       <h1 className="text-center text-2xl font-semibold">Languages</h1>
-      <div className="space-y-8">
+      <div className="grid justify-items-center space-y-8">
         <Suspense fallback={<Spinner />}>
-          <AddLanguagePairDialog className="w-full" />
+          <AddLanguagePairDialog />
           <LanguagesTable dataPromise={getUserLanguagePairs()} />
         </Suspense>
       </div>

@@ -1,8 +1,8 @@
 'server-only';
 
-import { eq } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { languagePairs } from '../db/schema';
+import { languagePairs, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
 import { Result } from '../types/common';
 import {
@@ -186,4 +186,31 @@ export const deleteLanguagePair = async (
     logger.error(errorMsg, { error });
     return { success: false, error: errorMsg };
   }
+};
+
+export const getVocabCountByLanguagePairs = async (
+  languagePairIds: number[]
+): Promise<
+  {
+    langPairId: number;
+    count: number;
+  }[]
+> => {
+  if (languagePairIds.length === 0) return [];
+
+  const results = await db
+    .select({
+      langPair: vocabulary.languagePairId,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(vocabulary)
+    .where(inArray(vocabulary.languagePairId, languagePairIds))
+    .groupBy(vocabulary.languagePairId);
+
+  // Fill in zeros for original id list if no vocab entries found
+  const resultMap = new Map(results.map((r) => [r.langPair, r.count]));
+  return languagePairIds.map((langPairId) => ({
+    langPairId,
+    count: resultMap.get(langPairId) ?? 0,
+  }));
 };

@@ -5,7 +5,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import { SortableColumnHeader } from '../ui/sortable-column-header';
 import { ActionsMenu } from './actions-menu';
 
-export const languagesColumns: ColumnDef<LanguagePair>[] = [
+export type LanguagePairTableEntry = LanguagePair & {
+  vocabCount: number;
+};
+
+export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
   {
     accessorKey: 'sourceLanguage',
     header: ({ column }) => (
@@ -27,6 +31,15 @@ export const languagesColumns: ColumnDef<LanguagePair>[] = [
     },
   },
   {
+    accessorKey: 'vocabCount',
+    header: 'Word Count',
+    meta: {
+      align: 'end',
+    },
+    size: 110,
+    minSize: 110,
+  },
+  {
     id: 'actions',
     header: 'Actions',
     cell: ({ row }) => {
@@ -37,5 +50,7 @@ export const languagesColumns: ColumnDef<LanguagePair>[] = [
     meta: {
       align: 'end',
     },
+    size: 80,
+    minSize: 80,
   },
 ];

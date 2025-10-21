@@ -1,13 +1,12 @@
 'use client';
 
 import { useLanguagePairContext } from '@/contexts/language-pair';
-import { LanguagePair } from '@/lib/types/language-pair';
 import { use } from 'react';
 import { DataTable } from '../ui/data-table';
-import { languagesColumns } from './languages-columns';
+import { LanguagePairTableEntry, languagesColumns } from './languages-columns';
 
 interface LanguagesTableProps {
-  dataPromise: Promise<LanguagePair[]>;
+  dataPromise: Promise<LanguagePairTableEntry[]>;
 }
 
 export function LanguagesTable({ dataPromise }: LanguagesTableProps) {
