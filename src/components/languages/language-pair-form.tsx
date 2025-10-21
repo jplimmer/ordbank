@@ -63,12 +63,12 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
     <div>
       <Form action={formAction} className="grid space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="source" className="capitalize">
+          <Label htmlFor="source-language" className="capitalize">
             Source
           </Label>
           <Input
-            id="source"
-            name="source"
+            id="source-language"
+            name="source-language"
             value={sourceName}
             onChange={(e) => setSourceName(e.target.value)}
             required
@@ -83,12 +83,12 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="target" className="capitalize">
+          <Label htmlFor="target-language" className="capitalize">
             Target
           </Label>
           <Input
-            id="target"
-            name="target"
+            id="target-language"
+            name="target-language"
             value={targetName}
             onChange={(e) => setTargetName(e.target.value)}
             required

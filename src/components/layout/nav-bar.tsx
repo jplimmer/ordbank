@@ -27,7 +27,7 @@ export function NavBar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem>
+              <DropdownMenuItem className="text-lg">
                 <Link
                   href={ROUTES.ACCOUNT}
                   aria-label="Account"
@@ -36,7 +36,7 @@ export function NavBar() {
                   Languages
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Log out</DropdownMenuItem>
+              <DropdownMenuItem className="text-lg">Log out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </li>

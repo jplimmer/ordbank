@@ -23,7 +23,10 @@ export const createLanguagePairAction = async (
   const userId = 1;
 
   // Untyped object from formData for validation
-  const newLanguagePair = Object.fromEntries(formData);
+  const newLanguagePair = {
+    sourceLanguage: formData.get('source-language'),
+    targetLanguage: formData.get('target-language'),
+  };
 
   // Parse form data before sending to service (fail fast)
   const parseResult = languagePairInsertSchema.safeParse(newLanguagePair);
@@ -60,7 +63,10 @@ export const updateLanguagePairAction = async (
   const userId = 1;
 
   // Untyped object from formData for validation
-  const updates = Object.fromEntries(formData);
+  const updates = {
+    sourceLanguage: formData.get('source-language'),
+    targetLanguage: formData.get('target-language'),
+  };
 
   // Parse form data before sending to service (fail fast)
   const parseResult = languagePairUpdateSchema.safeParse(updates);
