@@ -22,7 +22,6 @@ export function VocabTable({ dataPromise }: VocabTableProps) {
 
   return (
     <DataTable
-      key={`${sourceLanguage}-${targetLanguage}`}
       columns={columns}
       data={data}
       filterPlaceholder="Find a word..."

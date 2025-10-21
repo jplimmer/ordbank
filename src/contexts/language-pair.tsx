@@ -1,11 +1,21 @@
 'use client';
 
+import { setActiveLanguagePair } from '@/lib/actions/active-language-pair';
 import { LanguagePair } from '@/lib/types/language-pair';
-import { createContext, use, useMemo, useState } from 'react';
+import {
+  createContext,
+  use,
+  useCallback,
+  useState,
+  useTransition,
+} from 'react';
+import { toast } from 'react-hot-toast';
 
 type LanguagePairContextType = {
   activePair: LanguagePair;
-  switchPair: (newPair: LanguagePair) => void;
+  setActive: (newPair: LanguagePair) => void;
+  isLoading: boolean;
+  error: string | null;
 };
 
 const LanguagePairContext = createContext<LanguagePairContextType | undefined>(
@@ -20,18 +30,32 @@ export function LanguagePairProvider({
   initialPair: LanguagePair;
 }) {
   const [activePair, setActivePair] = useState<LanguagePair>(initialPair);
+  const [isLoading, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const switchPair = (newPair: LanguagePair) => {
-    setActivePair(newPair);
+  const setActive = useCallback((newPair: LanguagePair) => {
+    setError(null);
+
+    startTransition(async () => {
+      const result = await setActiveLanguagePair(newPair.id);
+      if (result.success) {
+        // Update state with server response
+        setActivePair(result.data);
+      } else {
+        setError(result.error || 'Failed to update language pair');
+        toast.error(
+          `Could not switch to ${newPair.pairName}, please try again`
+        );
+      }
+    });
+  }, []);
+
+  const value: LanguagePairContextType = {
+    activePair,
+    setActive,
+    isLoading,
+    error,
   };
-
-  const value: LanguagePairContextType = useMemo(
-    () => ({
-      activePair,
-      switchPair,
-    }),
-    [activePair]
-  );
 
   return <LanguagePairContext value={value}>{children}</LanguagePairContext>;
 }

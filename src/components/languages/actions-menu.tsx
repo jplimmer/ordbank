@@ -1,7 +1,8 @@
-import { setActiveLanguagePair } from '@/lib/actions/active-language-pair';
+'use client';
+
+import { useLanguagePairContext } from '@/contexts/language-pair';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { MoreHorizontal } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import { AlertDialog, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { Dialog, DialogTrigger } from '../ui/dialog';
@@ -15,18 +16,7 @@ import { DeleteLanguageAlertContent } from './delete-language-alert-content';
 import { UpdateLanguageDialogContent } from './update-language-dialog-content';
 
 export function ActionsMenu({ languagePair }: { languagePair: LanguagePair }) {
-  const handleSetActive = async () => {
-    console.log('handleSetActive', languagePair);
-    const setResult = await setActiveLanguagePair(languagePair.id);
-    console.log(setResult);
-    if (setResult.success) {
-      toast.success(`Switched to ${languagePair.pairName}`);
-    } else {
-      toast.error(
-        `Could not switch to ${languagePair.pairName}, please try again.`
-      );
-    }
-  };
+  const setActive = useLanguagePairContext().setActive;
 
   return (
     <AlertDialog>
@@ -39,7 +29,7 @@ export function ActionsMenu({ languagePair }: { languagePair: LanguagePair }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[5.5rem]">
-            <DropdownMenuItem onSelect={handleSetActive}>
+            <DropdownMenuItem onSelect={() => setActive(languagePair)}>
               Set active
             </DropdownMenuItem>
             <DialogTrigger asChild>

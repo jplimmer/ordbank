@@ -19,7 +19,9 @@ export function LanguagesTable({ dataPromise }: LanguagesTableProps) {
       data={data}
       getRowClassName={(languagePair) => {
         const isActive = languagePair.id === activePair.id;
-        return isActive ? 'bg-blue-50 border-l-4 border-l-blue-300' : '';
+        return isActive
+          ? 'bg-indigo-100 border-l-4 border-l-indigo-300 dark:bg-indigo-900'
+          : '';
       }}
       filter={false}
     />
