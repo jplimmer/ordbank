@@ -5,11 +5,13 @@ export function ResultDisplay({ result }: { result: AnswerResult }) {
     <>
       {result.correct ? (
         <div>
-          <p className="font-semibold text-green-600 mt-6">Correct!</p>
+          <p className="text-xl font-semibold text-green-600 mt-6">Correct!</p>
         </div>
       ) : (
         <div>
-          <span className="font-semibold text-destructive">Incorrect!</span>
+          <span className="text-xl font-semibold text-destructive">
+            Incorrect!
+          </span>
           <p className="text-destructive">
             Correct answer: {result.correctAnswer}
           </p>
