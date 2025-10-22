@@ -50,7 +50,7 @@ export function LanguageToggle({
         <SelectTrigger>
           <SelectValue placeholder="Languages" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align="start">
           {languagePairs.map((lp) => (
             <SelectItem key={lp.id} value={lp.id.toString()}>
               {lp.pairName}
