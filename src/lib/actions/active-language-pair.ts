@@ -9,6 +9,7 @@ import {
   updateActiveLanguagePair,
 } from '../services/active-language-pair';
 import { getLanguagePair } from '../services/language-pairs';
+import { getCurrentUser } from '../services/user';
 import { ActionResult, ServiceErrorCode, ServiceResult } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 
@@ -19,9 +20,9 @@ const activePairCookieName = 'activeLanguagePairId';
 export const setActiveLanguagePair = async (
   languagePairId: number
 ): Promise<ActionResult<LanguagePair>> => {
-  // TO DO - Authenticate user profile with error-handling
-  const userId = 1;
-  if (!userId) {
+  // Authenticate user profile
+  const user = await getCurrentUser();
+  if (!user) {
     return {
       success: false,
       error: 'You must be logged in to perform this action',
@@ -29,7 +30,7 @@ export const setActiveLanguagePair = async (
   }
 
   // Call service to update database
-  const result = await updateActiveLanguagePair(userId, languagePairId);
+  const result = await updateActiveLanguagePair(user.id, languagePairId);
   if (!result.success) {
     const errorMessages: Record<ServiceErrorCode, string> = {
       NOT_FOUND: 'Language pair not found',
@@ -57,20 +58,23 @@ export const setActiveLanguagePair = async (
 export const getActiveLanguagePair = async (): Promise<
   ActionResult<LanguagePair>
 > => {
-  // TO DO - Authenticate user profile with error-handling
-  const userId = 1;
-  if (!userId) {
-    return { success: false, error: 'Not authenticated' };
+  // Authenticate user profile
+  const user = await getCurrentUser();
+  if (!user) {
+    return {
+      success: false,
+      error: 'Not authenticated',
+    };
   }
 
   // Try getting from cookies
-  const cookieResult = await getActiveLanguagePairFromCookie(userId);
+  const cookieResult = await getActiveLanguagePairFromCookie(user.id);
   if (cookieResult.success) {
     return { success: true, data: cookieResult.data };
   }
 
   // If no valid cookie, try database
-  const result = await fetchActiveLanguagePair(userId);
+  const result = await fetchActiveLanguagePair(user.id);
 
   if (!result.success) {
     return { success: false, error: 'Failed to load active language pair' };
