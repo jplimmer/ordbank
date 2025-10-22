@@ -1,3 +1,4 @@
+export { AccountMenu } from './account-menu';
 export { Header } from './header';
 export { LanguageSelect as LanguageToggle } from './language-select';
 export { Modal } from './modal';

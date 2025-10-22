@@ -1,16 +1,18 @@
 import { getLanguagePairs } from '@/lib/services/language-pairs';
+import { getCurrentUser } from '@/lib/services/user';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { LanguageSelect } from './language-select';
 import { ThemeToggle } from './theme-toggle';
 
 export async function Header() {
-  // TO DO - Authenticate user profile with error-handling
-  const userId = 1;
   let languagePairs: LanguagePair[] = [];
   let error: string | null = null;
 
-  if (userId) {
-    const result = await getLanguagePairs(userId);
+  // Authenticate user profile
+  const user = await getCurrentUser();
+
+  if (user) {
+    const result = await getLanguagePairs(user.id);
     if (result.success) {
       languagePairs = result.data;
     } else {
