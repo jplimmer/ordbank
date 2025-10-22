@@ -14,6 +14,7 @@ import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 // Tables
 export const users = pgTable('users', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  clerkId: varchar('clerk_id', { length: 255 }).notNull().unique(),
   username: varchar('username', { length: 255 }).notNull(),
   activeLanguagePairId: integer('active_language_pair_id'),
 });
