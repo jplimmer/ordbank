@@ -19,6 +19,11 @@ export const users = pgTable(
     clerkId: varchar('clerk_id', { length: 255 }).notNull(),
     username: varchar('username', { length: 255 }).notNull(),
     activeLanguagePairId: integer('active_language_pair_id'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
   },
   (t) => [uniqueIndex('users_clerk_id_unique').on(t.clerkId)]
 );
@@ -33,6 +38,7 @@ export const languagePairs = pgTable(
     sourceLanguage: text('source_language').notNull(),
     targetLanguage: text('target_language').notNull(),
     pairName: text('pair_name').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (t) => [
     uniqueIndex('language_pairs_user_source_target_unique').on(
@@ -99,7 +105,7 @@ export const testSettings = pgTable(
       .default('random'),
     questionLimit: integer('question_limit').default(10),
     timeLimitMins: integer('time_limit_mins'),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    updatedAt: timestamp('updated_at').$onUpdate(() => new Date()),
   },
   (t) => [
     uniqueIndex('test_settings_user_id_unique').on(t.userId),
