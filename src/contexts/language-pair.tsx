@@ -12,7 +12,7 @@ import {
 import { toast } from 'react-hot-toast';
 
 type LanguagePairContextType = {
-  activePair: LanguagePair;
+  activePair: LanguagePair | null;
   setActive: (newPair: LanguagePair) => void;
   isLoading: boolean;
   error: string | null;
@@ -27,9 +27,11 @@ export function LanguagePairProvider({
   initialPair,
 }: {
   children: React.ReactNode;
-  initialPair: LanguagePair;
+  initialPair?: LanguagePair | null;
 }) {
-  const [activePair, setActivePair] = useState<LanguagePair>(initialPair);
+  const [activePair, setActivePair] = useState<LanguagePair | null>(
+    initialPair ?? null
+  );
   const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 

@@ -2,10 +2,10 @@ import { Header, NavBar } from '@/components/layout';
 import { LanguagePairProvider } from '@/contexts/language-pair';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { getActiveLanguagePair } from '@/lib/actions/active-language-pair';
+import { LanguagePair } from '@/lib/types/language-pair';
 import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { notFound } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
@@ -31,10 +31,12 @@ export default async function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
+  let initialPair: LanguagePair | null;
   const langPairResult = await getActiveLanguagePair();
-  // TO DO - redirect to account to set active language pair if none found
-  if (!langPairResult.success) {
-    notFound();
+  if (langPairResult.success) {
+    initialPair = langPairResult.data;
+  } else {
+    initialPair = null;
   }
 
   return (
@@ -52,7 +54,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange={false}
           >
-            <LanguagePairProvider initialPair={langPairResult.data}>
+            <LanguagePairProvider initialPair={initialPair}>
               <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">
                 <Header />
                 <main className="full-width content-grid">{children}</main>
