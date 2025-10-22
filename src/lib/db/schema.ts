@@ -12,12 +12,16 @@ import { VALIDATION_LIMITS } from '../constants/validation';
 import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 
 // Tables
-export const users = pgTable('users', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  clerkId: varchar('clerk_id', { length: 255 }).notNull().unique(),
-  username: varchar('username', { length: 255 }).notNull(),
-  activeLanguagePairId: integer('active_language_pair_id'),
-});
+export const users = pgTable(
+  'users',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    clerkId: varchar('clerk_id', { length: 255 }).notNull(),
+    username: varchar('username', { length: 255 }).notNull(),
+    activeLanguagePairId: integer('active_language_pair_id'),
+  },
+  (t) => [uniqueIndex('users_clerk_id_unique').on(t.clerkId)]
+);
 
 export const languagePairs = pgTable(
   'language_pairs',
