@@ -15,7 +15,7 @@ export function TestSummary({
   onReset,
   isLoading = false,
 }: TestSummaryProps) {
-  const messages = ['Well done', 'Good work', 'Nice job'];
+  const messages = ['Well done', 'Great work', 'Nice job', 'Good effort'];
 
   // Select message at random once when component mounts
   const [message] = useState(() => {

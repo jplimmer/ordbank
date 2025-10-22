@@ -38,17 +38,19 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  getRowClassName?: (row: TData) => string;
+  empty?: React.ReactNode | string;
   filter?: boolean;
   filterPlaceholder?: string;
+  getRowClassName?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  getRowClassName,
+  empty = 'No results',
   filter = true,
   filterPlaceholder,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState([]);
@@ -153,7 +155,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results
+                  {empty}
                 </TableCell>
               </TableRow>
             )}

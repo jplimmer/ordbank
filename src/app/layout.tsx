@@ -1,4 +1,4 @@
-import { NavBar, ThemeToggle } from '@/components/layout';
+import { Header, NavBar } from '@/components/layout';
 import { LanguagePairProvider } from '@/contexts/language-pair';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { getActiveLanguagePair } from '@/lib/actions/active-language-pair';
@@ -52,9 +52,7 @@ export default async function RootLayout({
         >
           <LanguagePairProvider initialPair={langPairResult.data}>
             <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">
-              <header className="full-width content-grid justify-items-end pt-4">
-                <ThemeToggle />
-              </header>
+              <Header />
               <main className="full-width content-grid">{children}</main>
               <footer>
                 <NavBar />

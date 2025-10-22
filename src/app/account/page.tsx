@@ -19,12 +19,14 @@ export default function AccountPage() {
       return [];
     }
 
+    // Get language pairs for user
     const result = await getLanguagePairs(profileCheck.data.userId);
     if (!result.success) {
       // TO DO - handle errors
       return [];
     }
 
+    // Get vocab counts for each language pair and map onto original array
     const langPairIds = result.data.map((langPair) => langPair.id);
     const vocabCounts = await getVocabCountByLanguagePairs(langPairIds);
     const tableData: LanguagePairTableEntry[] = result.data.map((langPair) => ({

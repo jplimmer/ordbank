@@ -11,7 +11,7 @@ import {
 import { VocabForm } from './vocab-form';
 
 export function AddVocabDialog({
-  variant = 'outline',
+  variant = 'default',
   className,
 }: {
   variant?: ButtonVariants['variant'];
