@@ -11,7 +11,6 @@ export async function Header() {
 
   if (userId) {
     const result = await getLanguagePairs(userId);
-    console.log(result);
     if (result.success) {
       languagePairs = result.data;
     } else {
