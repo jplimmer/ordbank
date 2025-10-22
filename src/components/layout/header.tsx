@@ -1,6 +1,6 @@
 import { getLanguagePairs } from '@/lib/services/language-pairs';
 import { LanguagePair } from '@/lib/types/language-pair';
-import { LanguageToggle } from './language-toggle';
+import { LanguageSelect } from './language-select';
 import { ThemeToggle } from './theme-toggle';
 
 export async function Header() {
@@ -21,7 +21,7 @@ export async function Header() {
   return (
     <header className="full-width content-grid pt-4">
       <div className="flex justify-between">
-        <LanguageToggle languagePairs={languagePairs} error={error} />
+        <LanguageSelect languagePairs={languagePairs} error={error} />
         <ThemeToggle />
       </div>
     </header>

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '../ui/select';
 
-export function LanguageToggle({
+export function LanguageSelect({
   languagePairs,
   error,
 }: {
