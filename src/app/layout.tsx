@@ -2,6 +2,7 @@ import { Header, NavBar } from '@/components/layout';
 import { LanguagePairProvider } from '@/contexts/language-pair';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { getActiveLanguagePair } from '@/lib/actions/active-language-pair';
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
@@ -44,24 +45,26 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange={false}
-        >
-          <LanguagePairProvider initialPair={langPairResult.data}>
-            <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">
-              <Header />
-              <main className="full-width content-grid">{children}</main>
-              <footer>
-                <NavBar />
-              </footer>
-            </div>
-          </LanguagePairProvider>
-          {modal}
-          <Toaster />
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange={false}
+          >
+            <LanguagePairProvider initialPair={langPairResult.data}>
+              <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">
+                <Header />
+                <main className="full-width content-grid">{children}</main>
+                <footer>
+                  <NavBar />
+                </footer>
+              </div>
+            </LanguagePairProvider>
+            {modal}
+            <Toaster />
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
