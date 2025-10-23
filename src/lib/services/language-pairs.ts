@@ -51,8 +51,9 @@ export const getLanguagePair = async (
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: 'DATABASE_ERROR',
           message: validationError.message,
+          details: validationError,
         },
       };
     }
@@ -85,7 +86,7 @@ export const getLanguagePair = async (
 
 export const getUserLanguagePairs = async (
   userId: number
-): Promise<Result<LanguagePair[]>> => {
+): Promise<ServiceResult<LanguagePair[]>> => {
   // Fetch language pairs data from database
   try {
     const langPairs = await db.query.languagePairs.findMany({
@@ -100,14 +101,28 @@ export const getUserLanguagePairs = async (
         parseResult.error,
         "Get user's language pairs"
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
     }
 
     return { success: true, data: parseResult.data };
   } catch (error) {
-    const errorMsg = `Failed to get language pairs: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to get language pairs for user id ${userId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 

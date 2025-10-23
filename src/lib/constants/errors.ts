@@ -8,3 +8,4 @@ export const ServiceErrorCode = {
 export const AUTH_ERROR = 'Authentication required - please sign in.';
 export const PERMISSION_ERROR =
   'You do not have permission to perform this action.';
+export const DATABASE_ERROR = 'Something went wrong. Please try again.';
