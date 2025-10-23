@@ -27,19 +27,11 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
   // Create user in database if missing (first login)
   if (!dbUser) {
-    // Query currentUser to retrieve username
-    const clerkUser = await currentUser();
-    if (!clerkUser || !clerkUser.username) {
-      logger.error('No currentUser authenticated');
-      return null;
+    const result = await createUser({ clerkId: clerkUserId });
+    if (!result.success) {
+      logger.error('User could not be created, redirecting to landing page...');
+      redirect(ROUTES.HOME);
     }
-
-    const newUser: InsertUser = {
-      clerkId: clerkUserId,
-      username: clerkUser.username,
-    };
-    const result = await createUser(newUser);
-    if (!result.success) return null;
 
     return result.data;
   }

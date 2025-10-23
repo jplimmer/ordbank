@@ -17,7 +17,6 @@ export const users = pgTable(
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     clerkId: varchar('clerk_id', { length: 255 }).notNull(),
-    username: varchar('username', { length: 255 }).notNull(),
     activeLanguagePairId: integer('active_language_pair_id'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
