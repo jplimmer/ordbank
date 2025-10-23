@@ -20,7 +20,7 @@ export function RequireLanguagePair({
   if (!activePair) {
     return (
       <div className="full-width content-grid justify-items-center items-center w-full h-full">
-        <Item variant="outline" className="flex w-full max-w-md bg-white ">
+        <Item variant="outline" className="flex w-full max-w-md ">
           <ItemMedia variant="icon">
             <ShieldAlert />
           </ItemMedia>
