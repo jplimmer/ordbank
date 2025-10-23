@@ -12,7 +12,7 @@ export function NavBar() {
   const isHome = pathname === ROUTES.HOME;
 
   return (
-    <nav className="pb-4">
+    <nav className="py-4">
       <ul className="flex justify-around">
         <li>
           <AccountMenu />

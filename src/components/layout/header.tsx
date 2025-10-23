@@ -21,7 +21,7 @@ export async function Header() {
   }
 
   return (
-    <header className="full-width content-grid pt-4">
+    <header className="full-width content-grid py-4">
       <div className="flex justify-between">
         <LanguageSelect languagePairs={languagePairs} error={error} />
         <ThemeToggle />

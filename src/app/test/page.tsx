@@ -1,3 +1,4 @@
+import { RequireLanguagePair } from '@/components/guards/require-language-pair';
 import { TestPageManager } from '@/components/test/test-page-manager';
 import { getQuestion } from '@/lib/actions/test';
 import { getCurrentProfile } from '@/lib/services/auth';
@@ -27,11 +28,13 @@ export default async function TestPage() {
   );
 
   return (
-    <div className="grid justify-center items-center">
-      <TestPageManager
-        initialSettings={settings}
-        initialQuestion={initialQuestion}
-      />
+    <div className="full-width content-grid justify-items-center items-center">
+      <RequireLanguagePair>
+        <TestPageManager
+          initialSettings={settings}
+          initialQuestion={initialQuestion}
+        />
+      </RequireLanguagePair>
     </div>
   );
 }

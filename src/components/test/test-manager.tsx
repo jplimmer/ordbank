@@ -33,6 +33,7 @@ interface TestManagerProps {
 }
 
 export function TestManager({ settings, initialQuestion }: TestManagerProps) {
+  // Initial state for reducer
   const initialTestState: TestState = {
     inProgress: true,
     question: initialQuestion,
