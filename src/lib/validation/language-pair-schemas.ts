@@ -21,7 +21,9 @@ const languageFieldSchema = z
   .toLowerCase();
 
 // Validation schema for fetching lanugage pairs
-export const languagePairSelectSchema = createSelectSchema(languagePairs);
+export const languagePairSelectSchema = createSelectSchema(languagePairs).omit({
+  createdAt: true,
+});
 export const languagePairArraySelectSchema = z.array(languagePairSelectSchema);
 
 // Validation schema for adding new language pair - user cannot define userId or
@@ -29,11 +31,11 @@ export const languagePairArraySelectSchema = z.array(languagePairSelectSchema);
 export const languagePairInsertSchema = createInsertSchema(languagePairs, {
   sourceLanguage: languageFieldSchema,
   targetLanguage: languageFieldSchema,
-}).omit({ userId: true, pairName: true });
+}).omit({ userId: true, pairName: true, createdAt: true });
 
 // Validation schema for updating existing language pair - user cannot update userId or
 // name (should be handled by data service)
 export const languagePairUpdateSchema = createUpdateSchema(languagePairs, {
   sourceLanguage: languageFieldSchema.optional(),
   targetLanguage: languageFieldSchema.optional(),
-}).omit({ userId: true, pairName: true });
+}).omit({ userId: true, pairName: true, createdAt: true });
