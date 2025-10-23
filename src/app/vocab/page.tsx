@@ -7,7 +7,6 @@ import { VocabItem } from '@/lib/types/vocab';
 import { Suspense } from 'react';
 
 export default function VocabPage() {
-  // Get vocab for given user profile
   const getUserVocab = async (): Promise<VocabItem[]> => {
     // Authenticate user profile
     const profileCheck = await getCurrentProfile();
@@ -25,7 +24,7 @@ export default function VocabPage() {
   };
 
   return (
-    <div className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
+    <div className="grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
       <h1 className="text-center text-2xl font-semibold">Vocabulary</h1>
       <div className="space-y-4">
         <RequireLanguagePair>
