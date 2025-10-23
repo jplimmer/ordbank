@@ -1,7 +1,9 @@
 'use server';
 
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
+import { ROUTES } from '../constants/routes';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { getLogger } from '../logger';
@@ -16,7 +18,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
   // Authenticate user with Clerk
   const { userId: clerkUserId } = await auth();
   if (!clerkUserId) {
-    logger.error('No userId authenticated');
     return null;
   }
 
@@ -29,14 +30,23 @@ export const getCurrentUser = async (): Promise<User | null> => {
   if (!dbUser) {
     const result = await createUser({ clerkId: clerkUserId });
     if (!result.success) {
-      logger.error('User could not be created, redirecting to landing page...');
-      redirect(ROUTES.HOME);
+      logger.error('User could not be created');
+      return null;
     }
 
     return result.data;
   }
 
   return dbUser;
+};
+
+export const getCurrentUserOrRedirect = async (): Promise<User> => {
+  const user = await getCurrentUser();
+  if (!user) {
+    logger.info('No current user detected, redirecting to landing page...');
+    redirect(ROUTES.HOME);
+  }
+  return user;
 };
 
 const createUser = async (
