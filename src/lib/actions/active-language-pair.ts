@@ -49,7 +49,7 @@ export const setActiveLanguagePair = async (
   await updateCookie(languagePairId);
 
   // Revalidate paths
-  revalidatePath(ROUTES.ACCOUNT);
+  revalidatePath(ROUTES.LANGUAGES);
 
   // Return success status
   return { success: true, data: result.data };

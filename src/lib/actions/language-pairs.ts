@@ -50,7 +50,7 @@ export const createLanguagePairAction = async (
   }
 
   // Revalidate route and return created item
-  revalidatePath(ROUTES.ACCOUNT);
+  revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: createResult.data };
 };
 
@@ -96,7 +96,7 @@ export const updateLanguagePairAction = async (
   }
 
   // Revalidate route and return updated item
-  revalidatePath(ROUTES.ACCOUNT);
+  revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: updateResult.data };
 };
 
@@ -111,6 +111,6 @@ export const deleteLanguagePairAction = async (
   if (!deleteResult.success) return deleteResult;
 
   // Revalidate route and return deleted item;
-  revalidatePath(ROUTES.ACCOUNT);
+  revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: deleteResult.data };
 };

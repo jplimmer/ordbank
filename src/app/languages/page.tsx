@@ -2,25 +2,26 @@ import { AddLanguagePairDialog } from '@/components/languages/add-language-pair-
 import { LanguagePairTableEntry } from '@/components/languages/languages-columns';
 import { LanguagesTable } from '@/components/languages/languages-table';
 import { Spinner } from '@/components/ui/spinner';
-import { getCurrentProfile } from '@/lib/services/auth';
 import {
   getLanguagePairs,
   getVocabCountByLanguagePairs,
 } from '@/lib/services/language-pairs';
+import { getCurrentUser } from '@/lib/services/user';
 import { Suspense } from 'react';
 
 export default function AccountPage() {
   // Get language pairs for given user profile
   const getUserLanguagePairs = async (): Promise<LanguagePairTableEntry[]> => {
     // Authenticate user profile
-    const profileCheck = await getCurrentProfile();
-    if (!profileCheck.success) {
+    const user = await getCurrentUser();
+
+    if (!user) {
       // TO DO - redirect to login?
       return [];
     }
 
     // Get language pairs for user
-    const result = await getLanguagePairs(profileCheck.data.userId);
+    const result = await getLanguagePairs(user.id);
     if (!result.success) {
       // TO DO - handle errors
       return [];

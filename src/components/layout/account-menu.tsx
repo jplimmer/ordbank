@@ -44,7 +44,7 @@ export function AccountMenu() {
         <DropdownMenuSeparator className="m-0" />
         <DropdownMenuItem className={dropdownMenuItemClass}>
           <Link
-            href={ROUTES.ACCOUNT}
+            href={ROUTES.LANGUAGES}
             aria-label="Account"
             className="h-fit w-full flex items-center gap-8"
           >
