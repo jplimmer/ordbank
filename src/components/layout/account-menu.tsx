@@ -24,7 +24,11 @@ export function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="py-2 h-fit cursor-pointer">
+        <Button
+          disabled={!user}
+          variant="ghost"
+          className="py-2 h-fit cursor-pointer"
+        >
           <UserRound className="size-8" />
         </Button>
       </DropdownMenuTrigger>
