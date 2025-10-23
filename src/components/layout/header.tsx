@@ -1,4 +1,4 @@
-import { getLanguagePairs } from '@/lib/services/language-pairs';
+import { getUserLanguagePairs } from '@/lib/services/language-pairs';
 import { getCurrentUser } from '@/lib/services/user';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { LanguageSelect } from './language-select';
@@ -12,7 +12,7 @@ export async function Header() {
   const user = await getCurrentUser();
 
   if (user) {
-    const result = await getLanguagePairs(user.id);
+    const result = await getUserLanguagePairs(user.id);
     if (result.success) {
       languagePairs = result.data;
     } else {

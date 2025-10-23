@@ -5,8 +5,8 @@ import { cookies } from 'next/headers';
 import { ROUTES } from '../constants/routes';
 import { getLogger } from '../logger';
 import {
-  fetchActiveLanguagePair,
-  updateActiveLanguagePair,
+  fetchActiveLanguagePairFromDb,
+  updateActiveLanguagePairInDb,
 } from '../services/active-language-pair';
 import { getLanguagePair } from '../services/language-pairs';
 import { getCurrentUser } from '../services/user';
@@ -30,7 +30,7 @@ export const setActiveLanguagePair = async (
   }
 
   // Call service to update database
-  const result = await updateActiveLanguagePair(user.id, languagePairId);
+  const result = await updateActiveLanguagePairInDb(user.id, languagePairId);
   if (!result.success) {
     const errorMessages: Record<ServiceErrorCode, string> = {
       NOT_FOUND: 'Language pair not found',
@@ -74,7 +74,7 @@ export const getActiveLanguagePair = async (): Promise<
   }
 
   // If no valid cookie, try database
-  const result = await fetchActiveLanguagePair(user.id);
+  const result = await fetchActiveLanguagePairFromDb(user.id);
 
   if (!result.success) {
     return { success: false, error: 'Failed to load active language pair' };

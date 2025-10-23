@@ -83,7 +83,7 @@ export const getLanguagePair = async (
   }
 };
 
-export const getLanguagePairs = async (
+export const getUserLanguagePairs = async (
   userId: number
 ): Promise<Result<LanguagePair[]>> => {
   // Fetch language pairs data from database

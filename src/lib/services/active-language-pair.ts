@@ -10,7 +10,7 @@ import { getLanguagePair } from './language-pairs';
 
 const logger = getLogger();
 
-export const fetchActiveLanguagePair = async (
+export const fetchActiveLanguagePairFromDb = async (
   userId: number
 ): Promise<ServiceResult<LanguagePair>> => {
   try {
@@ -55,7 +55,7 @@ export const fetchActiveLanguagePair = async (
   }
 };
 
-export const updateActiveLanguagePair = async (
+export const updateActiveLanguagePairInDb = async (
   userId: number,
   newActiveId: number
 ): Promise<ServiceResult<LanguagePair>> => {
