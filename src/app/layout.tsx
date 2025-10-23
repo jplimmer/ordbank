@@ -52,7 +52,7 @@ export default async function RootLayout({
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange={false}
+            disableTransitionOnChange={true}
           >
             <LanguagePairProvider initialPair={initialPair}>
               <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">

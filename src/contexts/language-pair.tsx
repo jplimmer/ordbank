@@ -62,6 +62,7 @@ export function LanguagePairProvider({
   return <LanguagePairContext value={value}>{children}</LanguagePairContext>;
 }
 
+// Base hook (nullable activePair)
 export function useLanguagePairContext() {
   const context = use(LanguagePairContext);
   if (!context) {
@@ -71,3 +72,14 @@ export function useLanguagePairContext() {
   }
   return context;
 }
+
+// Non-null activePair hook
+export const useActivePair = (): LanguagePair => {
+  const { activePair } = useLanguagePairContext();
+  if (!activePair) {
+    throw new Error(
+      'LanguagePair context is null. Ensure a parent component handles the null case.'
+    );
+  }
+  return activePair;
+};
