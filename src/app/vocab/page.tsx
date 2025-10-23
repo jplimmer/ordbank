@@ -1,3 +1,4 @@
+import { RequireLanguagePair } from '@/components/guards/require-language-pair';
 import { Spinner } from '@/components/ui/spinner';
 import { AddVocabDialog, VocabTable } from '@/components/vocab';
 import { getCurrentProfile } from '@/lib/services/auth';
@@ -27,10 +28,12 @@ export default function VocabPage() {
     <div className="content-grid grid-rows-[auto_1fr] space-y-6 justify-items-center items-start">
       <h1 className="text-center text-2xl font-semibold">Vocabulary</h1>
       <div className="space-y-4">
-        <Suspense fallback={<Spinner />}>
-          <VocabTable dataPromise={getUserVocab()} />
-          <AddVocabDialog className="w-full" />
-        </Suspense>
+        <RequireLanguagePair>
+          <Suspense fallback={<Spinner />}>
+            <VocabTable dataPromise={getUserVocab()} />
+            <AddVocabDialog className="w-full" />
+          </Suspense>
+        </RequireLanguagePair>
       </div>
     </div>
   );

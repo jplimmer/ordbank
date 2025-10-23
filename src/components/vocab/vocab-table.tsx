@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguagePairContext } from '@/contexts/language-pair';
+import { useActivePair } from '@/contexts/language-pair';
 import { VocabItem } from '@/lib/types/vocab';
 import { NotebookPen } from 'lucide-react';
 import { use, useMemo } from 'react';
@@ -19,8 +19,7 @@ interface VocabTableProps {
 }
 
 export function VocabTable({ dataPromise }: VocabTableProps) {
-  const { sourceLanguage, targetLanguage } =
-    useLanguagePairContext().activePair;
+  const { sourceLanguage, targetLanguage } = useActivePair();
 
   const columns = useMemo(
     () => getVocabColumns(sourceLanguage, targetLanguage),
