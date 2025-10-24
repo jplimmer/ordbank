@@ -1,8 +1,9 @@
-import { relations, sql } from 'drizzle-orm';
+import { eq, getTableColumns, relations, sql } from 'drizzle-orm';
 import {
   check,
   integer,
   pgTable,
+  pgView,
   text,
   timestamp,
   uniqueIndex,
@@ -156,3 +157,16 @@ export const testSettingsRelations = relations(testSettings, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// Views
+export const userVocabulary = pgView('user_vocabulary').as((qb) => {
+  return qb
+    .select({
+      ...getTableColumns(vocabulary),
+      userId: languagePairs.userId,
+      sourceLanguage: languagePairs.sourceLanguage,
+      targetLanguage: languagePairs.targetLanguage,
+    })
+    .from(vocabulary)
+    .innerJoin(languagePairs, eq(vocabulary.languagePairId, languagePairs.id));
+});
