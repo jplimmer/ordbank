@@ -1,7 +1,7 @@
 'use server';
 
 import { PERMISSION_ERROR } from '../constants/errors';
-import { updateTestSettings } from '../services/test-settings';
+import { updateTestSettingsInDB } from '../services/test-settings';
 import { getCurrentUserOrRedirect } from '../services/user';
 import { ActionResult, ServiceErrorCode } from '../types/common';
 import { UpdateTestSettings } from '../types/test';
@@ -36,7 +36,7 @@ export const saveSettings = async (
   }
 
   // Update item in database
-  const updateResult = await updateTestSettings(
+  const updateResult = await updateTestSettingsInDB(
     user.id,
     testSettingsId,
     parseResult.data

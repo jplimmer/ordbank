@@ -53,7 +53,7 @@ export const getVocab = async (
 
     return { success: true, data: parseResult.data };
   } catch (error) {
-    const errorMsg = `Failed to get vocabulary for language pair ${languagePairId} for user ${userId}`;
+    const errorMsg = `Failed to get vocabulary for language pair ${languagePairId} and user ${userId}`;
     logger.error(errorMsg, error);
     return {
       success: false,

@@ -57,7 +57,7 @@ export const getTestSettings = async (
   }
 };
 
-export const updateTestSettings = async (
+export const updateTestSettingsInDB = async (
   userId: number,
   testSettingsId: number,
   updates: UpdateTestSettings
