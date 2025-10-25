@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
 import { getCurrentUserOrRedirect } from '../services/auth';
@@ -12,10 +12,7 @@ import {
 import { ActionResult, FormResult, ServiceErrorCode } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 import { handleValidationError } from '../utils';
-import {
-  languagePairInsertSchema,
-  languagePairUpdateSchema,
-} from '../validation/language-pair-schemas';
+import { languagePairInsertSchema } from '../validation/language-pair-schemas';
 
 const errorMessages: Record<ServiceErrorCode, string> = {
   NOT_FOUND: 'Language pair not found',
@@ -65,7 +62,8 @@ export const createLanguagePair = async (
     };
   }
 
-  // Revalidate route and return created item
+  // Revalidate tag and route, return created item
+  revalidateTag('language-pairs');
   revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: createResult.data };
 };
@@ -85,7 +83,7 @@ export const updateLanguagePair = async (
   };
 
   // Parse form data before sending to service (fail fast)
-  const parseResult = languagePairUpdateSchema.safeParse(updates);
+  const parseResult = languagePairInsertSchema.safeParse(updates);
   if (!parseResult.success) {
     const validationError = handleValidationError(
       parseResult.error,
@@ -116,7 +114,8 @@ export const updateLanguagePair = async (
     };
   }
 
-  // Revalidate route and return updated item
+  // Revalidate tag and route, return created item
+  revalidateTag('language-pairs');
   revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: updateResult.data };
 };
@@ -138,7 +137,8 @@ export const deleteLanguagePair = async (
     };
   }
 
-  // Revalidate route and return deleted item;
+  // Revalidate tag and route, return created item
+  revalidateTag('language-pairs');
   revalidatePath(ROUTES.LANGUAGES);
   return { success: true, data: deleteResult.data };
 };

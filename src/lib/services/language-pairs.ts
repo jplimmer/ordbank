@@ -1,21 +1,17 @@
 'server-only';
 
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
 import { ServiceResult } from '../types/common';
-import {
-  InsertLanguagePair,
-  LanguagePair,
-  UpdateLanguagePair,
-} from '../types/language-pair';
+import { InsertLanguagePair, LanguagePair } from '../types/language-pair';
 import { generatePairName, handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,
   languagePairInsertSchema,
   languagePairSelectSchema,
-  languagePairUpdateSchema,
 } from '../validation/language-pair-schemas';
 
 const logger = getLogger();
@@ -83,46 +79,48 @@ export const getLanguagePair = async (
   }
 };
 
-export const getUserLanguagePairs = async (
-  userId: number
-): Promise<ServiceResult<LanguagePair[]>> => {
-  try {
-    const langPairs = await db.query.languagePairs.findMany({
-      where: eq(languagePairs.userId, userId),
-    });
+export const getUserLanguagePairs = unstable_cache(
+  async (userId: number): Promise<ServiceResult<LanguagePair[]>> => {
+    try {
+      const langPairs = await db.query.languagePairs.findMany({
+        where: eq(languagePairs.userId, userId),
+      });
 
-    // Validate database response
-    const parseResult = languagePairArraySelectSchema.safeParse(langPairs);
+      // Validate database response
+      const parseResult = languagePairArraySelectSchema.safeParse(langPairs);
 
-    if (!parseResult.success) {
-      const validationError = handleValidationError(
-        parseResult.error,
-        "Get user's language pairs"
-      );
+      if (!parseResult.success) {
+        const validationError = handleValidationError(
+          parseResult.error,
+          "Get user's language pairs"
+        );
+        return {
+          success: false,
+          error: {
+            code: 'DATABASE_ERROR',
+            message: validationError.message,
+            details: validationError,
+          },
+        };
+      }
+
+      return { success: true, data: parseResult.data };
+    } catch (error) {
+      const errorMsg = `Failed to get language pairs for user id ${userId}`;
+      logger.error(errorMsg, error);
       return {
         success: false,
         error: {
           code: 'DATABASE_ERROR',
-          message: validationError.message,
-          details: validationError,
+          message: errorMsg,
+          details: error,
         },
       };
     }
-
-    return { success: true, data: parseResult.data };
-  } catch (error) {
-    const errorMsg = `Failed to get language pairs for user id ${userId}`;
-    logger.error(errorMsg, error);
-    return {
-      success: false,
-      error: {
-        code: 'DATABASE_ERROR',
-        message: errorMsg,
-        details: error,
-      },
-    };
-  }
-};
+  },
+  ['language-pairs'],
+  { tags: ['language-pairs'] }
+);
 
 export const createLanguagePairInDb = async (
   userId: number,
@@ -184,11 +182,11 @@ export const createLanguagePairInDb = async (
 export const updateLanguagePairInDb = async (
   userId: number,
   languagePairId: number,
-  updates: UpdateLanguagePair
+  updates: InsertLanguagePair
 ): Promise<ServiceResult<LanguagePair>> => {
   try {
     // Validate language pair updates
-    const parseResult = languagePairUpdateSchema.safeParse(updates);
+    const parseResult = languagePairInsertSchema.safeParse(updates);
 
     if (!parseResult.success) {
       const validationError = handleValidationError(
@@ -205,10 +203,19 @@ export const updateLanguagePairInDb = async (
       };
     }
 
+    // Generate new pair name
+    const newPair = {
+      ...parseResult.data,
+      pairName: generatePairName(
+        parseResult.data.sourceLanguage,
+        parseResult.data.targetLanguage
+      ),
+    };
+
     // Update item in database with matching user id
     const [updatedPair] = await db
       .update(languagePairs)
-      .set(parseResult.data)
+      .set(newPair)
       .where(
         and(
           eq(languagePairs.id, languagePairId),
