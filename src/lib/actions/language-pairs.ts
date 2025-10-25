@@ -1,13 +1,15 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
 import {
-  createLanguagePair,
-  deleteLanguagePair,
-  updateLanguagePair,
+  createLanguagePairInDb,
+  deleteLanguagePairInDb,
+  updateLanguagePairInDb,
 } from '../services/language-pairs';
-import { FormResult, Result } from '../types/common';
+import { getCurrentUserOrRedirect } from '../services/user';
+import { ActionResult, FormResult, ServiceErrorCode } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 import { handleValidationError } from '../utils';
 import {
@@ -15,12 +17,19 @@ import {
   languagePairUpdateSchema,
 } from '../validation/language-pair-schemas';
 
-export const createLanguagePairAction = async (
+const errorMessages: Record<ServiceErrorCode, string> = {
+  NOT_FOUND: 'Language pair not found',
+  UNAUTHORISED: PERMISSION_ERROR,
+  VALIDATION_ERROR: 'Invalid language pair',
+  DATABASE_ERROR: 'Something went wrong. Please try again.',
+};
+
+export const createLanguagePair = async (
   prevState: FormResult<LanguagePair>,
   formData: FormData
 ): Promise<FormResult<LanguagePair>> => {
-  // TO DO - authenticate user profile
-  const userId = 1;
+  // Authenticate user profile
+  const user = await getCurrentUserOrRedirect();
 
   // Untyped object from formData for validation
   const newLanguagePair = {
@@ -44,9 +53,16 @@ export const createLanguagePairAction = async (
   }
 
   // Add language pair to database
-  const createResult = await createLanguagePair(userId, parseResult.data);
+  const createResult = await createLanguagePairInDb(user.id, parseResult.data);
   if (!createResult.success) {
-    return { success: false, error: createResult.error, formData: formData };
+    return {
+      success: false,
+      error:
+        errorMessages[
+          createResult.error.code || 'An unexpected error occurred'
+        ],
+      formData: formData,
+    };
   }
 
   // Revalidate route and return created item
@@ -54,13 +70,13 @@ export const createLanguagePairAction = async (
   return { success: true, data: createResult.data };
 };
 
-export const updateLanguagePairAction = async (
+export const updateLanguagePair = async (
   languagePairId: number,
   prevState: FormResult<LanguagePair>,
   formData: FormData
 ): Promise<FormResult<LanguagePair>> => {
-  // TO DO - authenticate user profile
-  const userId = 1;
+  // Authenticate user profile
+  const user = await getCurrentUserOrRedirect();
 
   // Untyped object from formData for validation
   const updates = {
@@ -84,15 +100,20 @@ export const updateLanguagePairAction = async (
   }
 
   // Update item in database
-  const updateResult = await updateLanguagePair(
-    {
-      userId: userId,
-      languagePairId: languagePairId,
-    },
+  const updateResult = await updateLanguagePairInDb(
+    user.id,
+    languagePairId,
     parseResult.data
   );
   if (!updateResult.success) {
-    return { success: false, error: updateResult.error, formData: formData };
+    return {
+      success: false,
+      error:
+        errorMessages[
+          updateResult.error.code || 'An unexpected error occurred'
+        ],
+      formData: formData,
+    };
   }
 
   // Revalidate route and return updated item
@@ -100,15 +121,22 @@ export const updateLanguagePairAction = async (
   return { success: true, data: updateResult.data };
 };
 
-export const deleteLanguagePairAction = async (
+export const deleteLanguagePair = async (
   languagePairId: number
-): Promise<Result<LanguagePair>> => {
-  // TO DO - authenticate user profile
-  const userId = 1;
+): Promise<ActionResult<LanguagePair>> => {
+  // Authenticate user profile
+  const user = await getCurrentUserOrRedirect();
 
   // Delete language pair from database
-  const deleteResult = await deleteLanguagePair(userId, languagePairId);
-  if (!deleteResult.success) return deleteResult;
+  const deleteResult = await deleteLanguagePairInDb(user.id, languagePairId);
+  if (!deleteResult.success) {
+    return {
+      success: false,
+      error:
+        errorMessages[deleteResult.error.code] ||
+        'An unexpected error occurred',
+    };
+  }
 
   // Revalidate route and return deleted item;
   revalidatePath(ROUTES.LANGUAGES);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useActivePair } from '@/contexts/language-pair';
-import { createVocabAction, updateVocabAction } from '@/lib/actions/vocab';
+import { createVocabItem, updateVocabItem } from '@/lib/actions/vocab';
 import { FormResult } from '@/lib/types/common';
 import { VocabItem } from '@/lib/types/vocab';
 import { getFormValue } from '@/lib/utils';
@@ -41,8 +41,8 @@ export function VocabForm(props: VocabFormProps) {
   };
 
   const action = editMode
-    ? updateVocabAction.bind(null, props.initialData.id)
-    : createVocabAction;
+    ? updateVocabItem.bind(null, props.initialData.id)
+    : createVocabItem;
 
   const [state, formAction, isPending] = useActionState(action, initialState);
 

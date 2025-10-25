@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteLanguagePairAction } from '@/lib/actions/language-pairs';
+import { deleteLanguagePair } from '@/lib/actions/language-pairs';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { toast } from 'react-hot-toast';
 import {
@@ -19,7 +19,7 @@ export function DeleteLanguageAlertContent({
   languagePair: LanguagePair;
 }) {
   const handleDelete = async () => {
-    const deleteResult = await deleteLanguagePairAction(languagePair.id);
+    const deleteResult = await deleteLanguagePair(languagePair.id);
     if (deleteResult.success) {
       toast.success(`'${languagePair.pairName}' deleted!`);
     } else {

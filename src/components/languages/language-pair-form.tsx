@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  createLanguagePairAction,
-  updateLanguagePairAction,
+  createLanguagePair,
+  updateLanguagePair,
 } from '@/lib/actions/language-pairs';
 import { FormResult } from '@/lib/types/common';
 import { LanguagePair } from '@/lib/types/language-pair';
@@ -47,8 +47,8 @@ export function LanguagePairForm(props: LanguagePairFormProps) {
   };
 
   const action = editMode
-    ? updateLanguagePairAction.bind(null, props.initialData.id)
-    : createLanguagePairAction;
+    ? updateLanguagePair.bind(null, props.initialData.id)
+    : createLanguagePair;
 
   const [state, formAction, isPending] = useActionState(action, initialState);
 
