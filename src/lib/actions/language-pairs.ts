@@ -3,12 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
+import { getCurrentUserOrRedirect } from '../services/auth';
 import {
   createLanguagePairInDb,
   deleteLanguagePairInDb,
   updateLanguagePairInDb,
 } from '../services/language-pairs';
-import { getCurrentUserOrRedirect } from '../services/user';
 import { ActionResult, FormResult, ServiceErrorCode } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 import { handleValidationError } from '../utils';

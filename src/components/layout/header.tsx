@@ -1,5 +1,5 @@
+import { getCurrentUser } from '@/lib/services/auth';
 import { getUserLanguagePairs } from '@/lib/services/language-pairs';
-import { getCurrentUser } from '@/lib/services/user';
 import { LanguagePair } from '@/lib/types/language-pair';
 import { LanguageSelect } from './language-select';
 import { ThemeToggle } from './theme-toggle';
@@ -16,7 +16,7 @@ export async function Header() {
     if (result.success) {
       languagePairs = result.data;
     } else {
-      error = result.error;
+      error = 'No language pairs found';
     }
   }
 

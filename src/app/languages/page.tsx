@@ -3,11 +3,11 @@ import { LanguagePairTableEntry } from '@/components/languages/languages-columns
 import { LanguagesTable } from '@/components/languages/languages-table';
 import { Spinner } from '@/components/ui/spinner';
 import { DATABASE_ERROR } from '@/lib/constants/errors';
+import { getCurrentUserOrRedirect } from '@/lib/services/auth';
 import {
   getUserLanguagePairs,
   getVocabCountByLanguagePairs,
 } from '@/lib/services/language-pairs';
-import { getCurrentUserOrRedirect } from '@/lib/services/user';
 import { Suspense } from 'react';
 import { toast } from 'react-hot-toast';
 

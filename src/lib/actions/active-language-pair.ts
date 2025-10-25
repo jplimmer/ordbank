@@ -9,8 +9,8 @@ import {
   fetchActiveLanguagePairFromDb,
   updateActiveLanguagePairInDb,
 } from '../services/active-language-pair';
+import { getCurrentUser } from '../services/auth';
 import { getLanguagePair } from '../services/language-pairs';
-import { getCurrentUser } from '../services/user';
 import { ActionResult, ServiceErrorCode } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 

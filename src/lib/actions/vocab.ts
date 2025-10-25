@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
-import { getCurrentUserOrRedirect } from '../services/user';
+import { getCurrentUserOrRedirect } from '../services/auth';
 import {
   createVocabItemInDb,
   deleteVocabItemInDb,

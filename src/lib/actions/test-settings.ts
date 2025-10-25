@@ -1,8 +1,8 @@
 'use server';
 
 import { PERMISSION_ERROR } from '../constants/errors';
+import { getCurrentUserOrRedirect } from '../services/auth';
 import { updateTestSettingsInDB } from '../services/test-settings';
-import { getCurrentUserOrRedirect } from '../services/user';
 import { ActionResult, ServiceErrorCode } from '../types/common';
 import { UpdateTestSettings } from '../types/test';
 import { handleValidationError } from '../utils';
