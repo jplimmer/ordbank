@@ -1,17 +1,26 @@
 'use server';
 
+import { PERMISSION_ERROR } from '../constants/errors';
 import { updateTestSettings } from '../services/test-settings';
-import { Result } from '../types/common';
+import { getCurrentUserOrRedirect } from '../services/user';
+import { ActionResult, ServiceErrorCode } from '../types/common';
 import { UpdateTestSettings } from '../types/test';
 import { handleValidationError } from '../utils';
 import { testSettingsUpdateSchema } from '../validation/test-settings-schemas';
 
+const errorMessages: Record<ServiceErrorCode, string> = {
+  NOT_FOUND: 'Word not found in your vocabulary list',
+  UNAUTHORISED: PERMISSION_ERROR,
+  VALIDATION_ERROR: 'Invalid word pair',
+  DATABASE_ERROR: 'Something went wrong. Please try again.',
+};
+
 export const saveSettings = async (
   testSettingsId: number,
   settings: UpdateTestSettings
-): Promise<Result<null>> => {
-  // TO DO - Authenticate user profile with error-handling
-  const userId = 1;
+): Promise<ActionResult<null>> => {
+  // Authenticate user profile
+  const user = await getCurrentUserOrRedirect();
 
   // Parse settings before sending to service (fail fast)
   const parseResult = testSettingsUpdateSchema.safeParse(settings);
@@ -28,12 +37,17 @@ export const saveSettings = async (
 
   // Update item in database
   const updateResult = await updateTestSettings(
-    userId,
+    user.id,
     testSettingsId,
     parseResult.data
   );
   if (!updateResult.success) {
-    return { success: false, error: updateResult.error };
+    return {
+      success: false,
+      error:
+        errorMessages[updateResult.error.code] ||
+        'An unexpected error occurred',
+    };
   }
 
   return { success: true, data: null };
