@@ -5,9 +5,9 @@ import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
 import { getCurrentUserOrRedirect } from '../services/user';
 import {
-  createVocabItem,
-  deleteVocabItem,
-  updateVocabItem,
+  createVocabItemInDb,
+  deleteVocabItemInDb,
+  updateVocabItemInDb,
 } from '../services/vocab';
 import { ActionResult, FormResult, ServiceErrorCode } from '../types/common';
 import { VocabItem } from '../types/vocab';
@@ -24,7 +24,7 @@ const errorMessages: Record<ServiceErrorCode, string> = {
   DATABASE_ERROR: 'Something went wrong. Please try again.',
 };
 
-export const createVocabAction = async (
+export const createVocabItem = async (
   prevState: FormResult<VocabItem>,
   formData: FormData
 ): Promise<FormResult<VocabItem>> => {
@@ -54,7 +54,7 @@ export const createVocabAction = async (
   }
 
   // Add vocab item to database
-  const createResult = await createVocabItem(user.id, parseResult.data);
+  const createResult = await createVocabItemInDb(user.id, parseResult.data);
   if (!createResult.success) {
     return {
       success: false,
@@ -70,7 +70,7 @@ export const createVocabAction = async (
   return { success: true, data: createResult.data };
 };
 
-export const updateVocabAction = async (
+export const updateVocabItem = async (
   vocabId: number,
   prevState: FormResult<VocabItem>,
   formData: FormData
@@ -100,7 +100,7 @@ export const updateVocabAction = async (
   }
 
   // Update item in database
-  const updateResult = await updateVocabItem(
+  const updateResult = await updateVocabItemInDb(
     user.id,
     vocabId,
     parseResult.data
@@ -120,14 +120,14 @@ export const updateVocabAction = async (
   return { success: true, data: updateResult.data };
 };
 
-export const deleteVocabAction = async (
+export const deleteVocabItem = async (
   vocabId: number
 ): Promise<ActionResult<VocabItem>> => {
   // Authenticate user profile
   const user = await getCurrentUserOrRedirect();
 
   // Delete vocab item from database
-  const deleteResult = await deleteVocabItem(user.id, vocabId);
+  const deleteResult = await deleteVocabItemInDb(user.id, vocabId);
   if (!deleteResult.success) {
     return {
       success: false,

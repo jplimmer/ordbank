@@ -66,7 +66,7 @@ export const getVocab = async (
   }
 };
 
-export const createVocabItem = async (
+export const createVocabItemInDb = async (
   userId: number,
   newVocabItem: InsertVocabItem
 ): Promise<ServiceResult<VocabItem>> => {
@@ -122,7 +122,7 @@ export const createVocabItem = async (
   }
 };
 
-export const updateVocabItem = async (
+export const updateVocabItemInDb = async (
   userId: number,
   vocabItemId: number,
   updates: UpdateVocabItem
@@ -184,7 +184,7 @@ export const updateVocabItem = async (
   }
 };
 
-export const deleteVocabItem = async (
+export const deleteVocabItemInDb = async (
   userId: number,
   vocabItemId: number
 ): Promise<ServiceResult<VocabItem>> => {
