@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast';
 
 type LanguagePairContextType = {
   activePair: LanguagePair | null;
-  setActive: (newPair: LanguagePair) => void;
+  setActive: (newPair: LanguagePair | null) => void;
   isLoading: boolean;
   error: string | null;
 };
@@ -35,18 +35,18 @@ export function LanguagePairProvider({
   const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const setActive = useCallback((newPair: LanguagePair) => {
+  const setActive = useCallback((newPair: LanguagePair | null) => {
     setError(null);
 
     startTransition(async () => {
-      const result = await setActiveLanguagePair(newPair.id);
+      const result = await setActiveLanguagePair(newPair?.id ?? null);
       if (result.success) {
         // Update state with server response
         setActivePair(result.data);
       } else {
         setError(result.error || 'Failed to update language pair');
         toast.error(
-          `Could not switch to ${newPair.pairName}, please try again`
+          `Could not switch to ${newPair?.pairName ?? 'null'}, please try again`
         );
       }
     });
