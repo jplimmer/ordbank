@@ -13,7 +13,7 @@ import {
 
 export function NoLanguagePairFallback() {
   return (
-    <div className="grid justify-items-center items-center w-full h-full">
+    <div className="grid justify-items-center items-start w-full h-full">
       <Item variant="outline" className="flex-col sm:flex-row">
         <ItemMedia
           variant="icon"

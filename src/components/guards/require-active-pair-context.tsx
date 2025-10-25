@@ -3,7 +3,7 @@
 import { useLanguagePairContext } from '@/contexts/language-pair';
 import { NoLanguagePairFallback } from '../fallbacks/no-language-pair-fallback';
 
-export function RequireLanguagePair({
+export function RequireActivePairContext({
   children,
 }: {
   children: React.ReactNode;

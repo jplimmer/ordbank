@@ -31,7 +31,7 @@ export const getVocab = async (
           eq(userVocabulary.languagePairId, languagePairId)
         )
       )
-      .orderBy(vocabulary.source);
+      .orderBy(userVocabulary.source);
 
     // Validate database response
     const parseResult = vocabSelectSchema.safeParse(vocab);
