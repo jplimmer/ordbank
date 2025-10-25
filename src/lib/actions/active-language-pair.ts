@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
 import { getLogger } from '../logger';
 import {
@@ -10,16 +11,22 @@ import {
 } from '../services/active-language-pair';
 import { getLanguagePair } from '../services/language-pairs';
 import { getCurrentUser } from '../services/user';
-import { ActionResult, ServiceErrorCode, ServiceResult } from '../types/common';
+import { ActionResult, ServiceErrorCode } from '../types/common';
 import { LanguagePair } from '../types/language-pair';
 
 const logger = getLogger();
 
 const activePairCookieName = 'activeLanguagePairId';
+const errorMessages: Record<ServiceErrorCode, string> = {
+  NOT_FOUND: 'Language pair not found',
+  UNAUTHORISED: PERMISSION_ERROR,
+  VALIDATION_ERROR: 'Invalid language pair',
+  DATABASE_ERROR: 'Something went wrong. Please try again.',
+};
 
 export const setActiveLanguagePair = async (
-  languagePairId: number
-): Promise<ActionResult<LanguagePair>> => {
+  languagePairId: number | null
+): Promise<ActionResult<LanguagePair | null>> => {
   // Authenticate user profile
   const user = await getCurrentUser();
   if (!user) {
@@ -87,16 +94,21 @@ export const getActiveLanguagePair = async (): Promise<
   return { success: true, data: result.data };
 };
 
-const updateCookie = async (languagePairId: number) => {
+const updateCookie = async (languagePairId: number | null) => {
   try {
     const cookieStore = await cookies();
-    cookieStore.set(activePairCookieName, languagePairId.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-    });
-    logger.debug(`Set cookies for active language pair: ${languagePairId}`);
+    if (languagePairId !== null) {
+      cookieStore.set(activePairCookieName, languagePairId.toString(), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      });
+      logger.debug(`Set cookie for active language pair: ${languagePairId}`);
+    } else {
+      cookieStore.delete(activePairCookieName);
+      logger.debug(`Deleted cookie for active lanugage pair`);
+    }
   } catch (error) {
     logger.warn('Failed to set cookie:', error);
   }
@@ -104,7 +116,7 @@ const updateCookie = async (languagePairId: number) => {
 
 const getActiveLanguagePairFromCookie = async (
   userId: number
-): Promise<ServiceResult<LanguagePair>> => {
+): Promise<ActionResult<LanguagePair>> => {
   try {
     const cookieStore = await cookies();
     const cookieValue = cookieStore.get(activePairCookieName)?.value;
@@ -112,10 +124,7 @@ const getActiveLanguagePairFromCookie = async (
     if (!cookieValue) {
       return {
         success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: 'No cookie value found',
-        },
+        error: 'No cookie value found',
       };
     }
 
@@ -125,7 +134,8 @@ const getActiveLanguagePairFromCookie = async (
     if (!result.success) {
       return {
         success: false,
-        error: result.error,
+        error:
+          errorMessages[result.error.code] || 'An unexpected error occurred',
       };
     }
 
@@ -134,10 +144,7 @@ const getActiveLanguagePairFromCookie = async (
     logger.warn('Failed to read cookie:', error);
     return {
       success: false,
-      error: {
-        code: 'NOT_FOUND',
-        message: 'Failed to read cookie',
-      },
+      error: 'Failed to read cookie',
     };
   }
 };

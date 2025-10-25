@@ -57,14 +57,21 @@ export const fetchActiveLanguagePairFromDb = async (
 
 export const updateActiveLanguagePairInDb = async (
   userId: number,
-  newActiveId: number
-): Promise<ServiceResult<LanguagePair>> => {
+  newActiveId: number | null
+): Promise<ServiceResult<LanguagePair | null>> => {
   try {
+    let newLangPair: LanguagePair | null;
+
     // Fetch language pair from database - includes ownership check and
     // parsing, result returned
-    const languagePairResult = await getLanguagePair(userId, newActiveId);
-    if (!languagePairResult.success) {
-      return { success: false, error: languagePairResult.error };
+    if (newActiveId !== null) {
+      const languagePairResult = await getLanguagePair(userId, newActiveId);
+      if (!languagePairResult.success) {
+        return { success: false, error: languagePairResult.error };
+      }
+      newLangPair = languagePairResult.data;
+    } else {
+      newLangPair = null;
     }
 
     // Update active language pair for the user in database
@@ -74,20 +81,10 @@ export const updateActiveLanguagePairInDb = async (
       .where(eq(users.id, userId))
       .returning();
 
-    if (updatedUser.activeLanguagePairId === null) {
-      return {
-        success: false,
-        error: {
-          code: 'DATABASE_ERROR',
-          message: 'activeUserId is still null',
-        },
-      };
-    }
-
     logger.debug(
       `Updated active language pair to ${updatedUser.activeLanguagePairId} for user ${updatedUser.id} in database`
     );
-    return { success: true, data: languagePairResult.data };
+    return { success: true, data: newLangPair };
   } catch (error) {
     const errorMsg = 'Failed to set active language pair in database';
     logger.error(errorMsg, error);
