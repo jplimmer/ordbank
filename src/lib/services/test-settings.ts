@@ -57,6 +57,30 @@ export const getTestSettings = async (
   }
 };
 
+export const createUserTestSettingsInDb = async (
+  userId: number
+): Promise<ServiceResult<TestSettings>> => {
+  try {
+    const [newSettings] = await db
+      .insert(testSettings)
+      .values({ userId: userId })
+      .returning();
+
+    return { success: true, data: newSettings };
+  } catch (error) {
+    const errorMsg = `Failed to create test settings for user ${userId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
+  }
+};
+
 export const updateTestSettingsInDB = async (
   userId: number,
   testSettingsId: number,

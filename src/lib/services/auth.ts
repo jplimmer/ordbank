@@ -11,6 +11,7 @@ import { ServiceResult } from '../types/common';
 import { InsertUser, UpdateUser, User } from '../types/user';
 import { handleValidationError } from '../utils';
 import { userInsertSchema, userUpdateScema } from '../validation/user-schemas';
+import { createUserTestSettingsInDb } from './test-settings';
 
 const logger = getLogger();
 
@@ -28,13 +29,21 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
   // Create user in database if missing (first login)
   if (!dbUser) {
-    const result = await createUser({ clerkId: clerkUserId });
-    if (!result.success) {
+    const createResult = await createUser({ clerkId: clerkUserId });
+    if (!createResult.success) {
       logger.error('User could not be created');
       return null;
     }
+    // Add default test settings for new user
+    const settingsResult = await createUserTestSettingsInDb(
+      createResult.data.id
+    );
+    if (!settingsResult.success) {
+      logger.error('Test settings could not be created');
+      return null;
+    }
 
-    return result.data;
+    return createResult.data;
   }
 
   return dbUser;
