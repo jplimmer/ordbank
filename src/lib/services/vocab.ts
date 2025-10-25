@@ -1,8 +1,8 @@
 'server-only';
 
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
-import { userVocabulary, vocabulary } from '../db/schema';
+import { languagePairs, userVocabulary, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
 import { ServiceResult } from '../types/common';
 import { InsertVocabItem, UpdateVocabItem, VocabItem } from '../types/vocab';
@@ -32,6 +32,17 @@ export const getVocab = async (
         )
       )
       .orderBy(userVocabulary.source);
+
+    if (vocab.length === 0) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message:
+            'No vocabulary found for this user + language pair combination',
+        },
+      };
+    }
 
     // Validate database response
     const parseResult = vocabSelectSchema.safeParse(vocab);
@@ -146,14 +157,20 @@ export const updateVocabItemInDb = async (
       };
     }
 
-    // Update item in database with matching user id
+    // Update item in database, matching user id with a subquery
     const [updatedItem] = await db
       .update(vocabulary)
       .set(parseResult.data)
       .where(
         and(
-          eq(userVocabulary.id, vocabItemId),
-          eq(userVocabulary.userId, userId)
+          eq(vocabulary.id, vocabItemId),
+          inArray(
+            vocabulary.languagePairId,
+            db
+              .select({ id: languagePairs.id })
+              .from(languagePairs)
+              .where(eq(languagePairs.userId, userId))
+          )
         )
       )
       .returning();
@@ -189,13 +206,19 @@ export const deleteVocabItemInDb = async (
   vocabItemId: number
 ): Promise<ServiceResult<VocabItem>> => {
   try {
-    // Delete item from database with matching user id
+    // Delete item from database, matching user id with a subquery
     const [deletedItem] = await db
       .delete(vocabulary)
       .where(
         and(
-          eq(userVocabulary.id, vocabItemId),
-          eq(userVocabulary.userId, userId)
+          eq(vocabulary.id, vocabItemId),
+          inArray(
+            vocabulary.languagePairId,
+            db
+              .select({ id: languagePairs.id })
+              .from(languagePairs)
+              .where(eq(languagePairs.userId, userId))
+          )
         )
       )
       .returning();
