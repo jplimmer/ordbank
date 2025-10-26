@@ -1,5 +1,6 @@
 'use client';
 
+import { useActivePair } from '@/contexts/language-pair';
 import { useTimer } from '@/hooks/use-timer';
 import { getQuestion, processAnswer } from '@/lib/actions/test';
 import { getLogger } from '@/lib/logger';
@@ -33,6 +34,8 @@ interface TestManagerProps {
 }
 
 export function TestManager({ settings, initialQuestion }: TestManagerProps) {
+  const activePair = useActivePair();
+
   // Initial state for reducer
   const initialTestState: TestState = {
     inProgress: true,
@@ -110,11 +113,18 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
     dispatch({ type: 'SET_ERROR', payload: null });
     startTransition(async () => {
       try {
-        const nextQuestion = await getQuestion(
+        const nextQuestionResult = await getQuestion(
+          activePair.id,
           settings.direction,
           settings.answerMode
         );
-        dispatch({ type: 'LOAD_NEXT_QUESTION', payload: nextQuestion });
+        if (!nextQuestionResult.success) {
+          throw new Error('Could not fetch next question');
+        }
+        dispatch({
+          type: 'LOAD_NEXT_QUESTION',
+          payload: nextQuestionResult.data,
+        });
       } catch (error) {
         logger.error('Error loading question', error);
         dispatch({
@@ -139,13 +149,17 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
       // Reset timer
       reset();
       // Get new initial question and pass to reducer
-      const newQuestion = await getQuestion(
+      const newQuestionResult = await getQuestion(
+        activePair.id,
         settings.direction,
         settings.answerMode
       );
+      if (!newQuestionResult.success) {
+        throw new Error('Could not fetch new question');
+      }
       dispatch({
         type: 'RESET_TEST',
-        payload: { ...initialTestState, question: newQuestion },
+        payload: { ...initialTestState, question: newQuestionResult.data },
       });
     });
   };

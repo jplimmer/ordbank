@@ -24,6 +24,16 @@ export const getTestSettings = async (
       columns: { updatedAt: false },
     });
 
+    if (!settings) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'No test settings found for user',
+        },
+      };
+    }
+
     // Validate database response
     const parseResult = testSettingsSelectSchema.safeParse(settings);
 
