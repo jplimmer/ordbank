@@ -16,6 +16,10 @@ export const AnswerModeSettingEnum = [
   'typed',
 ] as const;
 
+// Types based off enum-like objects
+export type DirectionSetting = (typeof DirectionSettingEnum)[number];
+export type AnswerModeSetting = (typeof AnswerModeSettingEnum)[number];
+
 // General objects from zod schemas
 export type TestSettings = z.infer<typeof testSettingsSelectSchema>;
 export type UpdateTestSettings = z.infer<typeof testSettingsUpdateSchema>;

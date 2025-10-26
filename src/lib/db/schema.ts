@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { TEST_SETTINGS_DEFAULTS } from '../constants/test-settings';
 import { VALIDATION_LIMITS } from '../constants/validation';
 import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 
@@ -99,12 +100,16 @@ export const testSettings = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     direction: text('direction', { enum: DirectionSettingEnum })
       .notNull()
-      .default('random'),
+      .default(TEST_SETTINGS_DEFAULTS.direction),
     answerMode: text('answer_mode', { enum: AnswerModeSettingEnum })
       .notNull()
-      .default('random'),
-    questionLimit: integer('question_limit').default(10),
-    timeLimitMins: integer('time_limit_mins'),
+      .default(TEST_SETTINGS_DEFAULTS.answerMode),
+    questionLimit: integer('question_limit').default(
+      TEST_SETTINGS_DEFAULTS.questionLimit
+    ),
+    timeLimitMins: integer('time_limit_mins').default(
+      TEST_SETTINGS_DEFAULTS.timeLimitMins
+    ),
     updatedAt: timestamp('updated_at').$onUpdate(() => new Date()),
   },
   (t) => [
