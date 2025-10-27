@@ -1,4 +1,4 @@
-import { useLanguagePairContext } from '@/contexts/language-pair';
+import { useActivePair } from '@/contexts/language-pair';
 import { DirectionSettingEnum, TestSettings } from '@/lib/types/test';
 import { MoveRight } from 'lucide-react';
 import {
@@ -16,12 +16,12 @@ export function DirectionFieldSet({
 }: {
   initialDirection: TestSettings['direction'];
 }) {
-  const langPair = useLanguagePairContext().activePair;
+  const languagePair = useActivePair();
 
   const createDirectionFieldTitle = (
     direction: TestSettings['direction']
   ): React.ReactNode => {
-    const [source, target] = langPair.pairName.split('-');
+    const [source, target] = languagePair.pairName.split('-');
     const icon = <MoveRight className="size-4" />;
 
     const content = (() => {

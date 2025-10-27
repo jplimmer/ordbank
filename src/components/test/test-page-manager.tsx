@@ -1,5 +1,6 @@
 'use client';
 
+import { useActivePair } from '@/contexts/language-pair';
 import { getQuestion } from '@/lib/actions/test';
 import { getLogger } from '@/lib/logger';
 import {
@@ -29,17 +30,22 @@ export function TestPageManager({
     useState<UpdateTestSettings>(initialSettings);
   const [firstQuestion, setFirstQuestion] = useState<Question>(initialQuestion);
   const [isPending, startTransition] = useTransition();
+  const activePair = useActivePair();
 
   const handleSettingsSubmit = (settings: UpdateTestSettings) => {
     startTransition(async () => {
       try {
         setActiveSettings(settings);
 
-        const question = await getQuestion(
+        const questionResult = await getQuestion(
+          activePair.id,
           settings.direction,
           settings.answerMode
         );
-        setFirstQuestion(question);
+        if (!questionResult.success) {
+          throw new Error('Could not fetch question');
+        }
+        setFirstQuestion(questionResult.data);
 
         setTestPhase('test');
       } catch (error) {

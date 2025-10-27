@@ -31,7 +31,7 @@ export function ActionsMenu({ languagePair }: { languagePair: LanguagePair }) {
           <DropdownMenuContent align="end" className="min-w-[5.5rem]">
             <DropdownMenuItem
               onSelect={() => setActive(languagePair)}
-              disabled={languagePair.id === activePair.id}
+              disabled={languagePair.id === activePair?.id}
             >
               Set active
             </DropdownMenuItem>

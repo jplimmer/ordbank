@@ -1,4 +1,4 @@
-import { useLanguagePairContext } from '@/contexts/language-pair';
+import { useActivePair } from '@/contexts/language-pair';
 import { Direction } from '@/lib/types/test';
 import { RefObject } from 'react';
 
@@ -13,8 +13,7 @@ export function QuestionPanel({
   direction,
   ref,
 }: QuestionPanelProps) {
-  const { sourceLanguage, targetLanguage } =
-    useLanguagePairContext().activePair;
+  const languagePair = useActivePair();
 
   return (
     <div
@@ -24,12 +23,12 @@ export function QuestionPanel({
     >
       {direction === 'sourceToTarget' ? (
         <SourceQuestion
-          targetLanguage={targetLanguage}
+          targetLanguage={languagePair.targetLanguage}
           questionWord={questionWord}
         />
       ) : (
         <TargetQuestion
-          sourceLanguage={sourceLanguage}
+          sourceLanguage={languagePair.sourceLanguage}
           questionWord={questionWord}
         />
       )}

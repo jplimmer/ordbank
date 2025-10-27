@@ -12,8 +12,8 @@ import {
 import { toast } from 'react-hot-toast';
 
 type LanguagePairContextType = {
-  activePair: LanguagePair;
-  setActive: (newPair: LanguagePair) => void;
+  activePair: LanguagePair | null;
+  setActive: (newPair: LanguagePair | null) => void;
   isLoading: boolean;
   error: string | null;
 };
@@ -27,24 +27,26 @@ export function LanguagePairProvider({
   initialPair,
 }: {
   children: React.ReactNode;
-  initialPair: LanguagePair;
+  initialPair?: LanguagePair | null;
 }) {
-  const [activePair, setActivePair] = useState<LanguagePair>(initialPair);
+  const [activePair, setActivePair] = useState<LanguagePair | null>(
+    initialPair ?? null
+  );
   const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const setActive = useCallback((newPair: LanguagePair) => {
+  const setActive = useCallback((newPair: LanguagePair | null) => {
     setError(null);
 
     startTransition(async () => {
-      const result = await setActiveLanguagePair(newPair.id);
+      const result = await setActiveLanguagePair(newPair?.id ?? null);
       if (result.success) {
         // Update state with server response
         setActivePair(result.data);
       } else {
         setError(result.error || 'Failed to update language pair');
         toast.error(
-          `Could not switch to ${newPair.pairName}, please try again`
+          `Could not switch to ${newPair?.pairName ?? 'null'}, please try again`
         );
       }
     });
@@ -60,6 +62,7 @@ export function LanguagePairProvider({
   return <LanguagePairContext value={value}>{children}</LanguagePairContext>;
 }
 
+// Base hook (nullable activePair)
 export function useLanguagePairContext() {
   const context = use(LanguagePairContext);
   if (!context) {
@@ -69,3 +72,14 @@ export function useLanguagePairContext() {
   }
   return context;
 }
+
+// Non-null activePair hook
+export const useActivePair = (): LanguagePair => {
+  const { activePair } = useLanguagePairContext();
+  if (!activePair) {
+    throw new Error(
+      'LanguagePair context is null. Ensure a parent component handles the null case.'
+    );
+  }
+  return activePair;
+};

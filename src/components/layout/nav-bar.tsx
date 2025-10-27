@@ -1,44 +1,21 @@
 'use client';
 
 import { ROUTES } from '@/lib/constants/routes';
-import { BookType, Home, Info, UserRound } from 'lucide-react';
+import { BookType, Home, Info } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+import { AccountMenu } from './account-menu';
 
 export function NavBar() {
   const pathname = usePathname();
   const isHome = pathname === ROUTES.HOME;
 
   return (
-    <nav className="pb-4">
+    <nav className="py-4">
       <ul className="flex justify-around">
         <li>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="py-2 h-fit cursor-pointer">
-                <UserRound className="size-8" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem className="text-lg">
-                <Link
-                  href={ROUTES.ACCOUNT}
-                  aria-label="Account"
-                  className="h-fit"
-                >
-                  Languages
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-lg">Log out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AccountMenu />
         </li>
         <li>
           <Button variant="ghost" className="py-2" asChild>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useLanguagePairContext } from '@/contexts/language-pair';
+import { useActivePair } from '@/contexts/language-pair';
+import { ServiceResult } from '@/lib/types/common';
 import { VocabItem } from '@/lib/types/vocab';
 import { NotebookPen } from 'lucide-react';
 import { use, useMemo } from 'react';
@@ -15,18 +16,26 @@ import {
 import { getVocabColumns } from './vocab-columns';
 
 interface VocabTableProps {
-  dataPromise: Promise<VocabItem[]>;
+  dataPromise: Promise<ServiceResult<VocabItem[]>>;
 }
 
 export function VocabTable({ dataPromise }: VocabTableProps) {
-  const { sourceLanguage, targetLanguage } =
-    useLanguagePairContext().activePair;
+  const { sourceLanguage, targetLanguage } = useActivePair();
 
   const columns = useMemo(
     () => getVocabColumns(sourceLanguage, targetLanguage),
     [sourceLanguage, targetLanguage]
   );
-  const data = use(dataPromise);
+
+  let data: VocabItem[] = [];
+  const result = use(dataPromise);
+
+  if (result.success) {
+    data = result.data;
+  } else {
+    // Potential to handle different errors here
+    data = [];
+  }
 
   return (
     <DataTable

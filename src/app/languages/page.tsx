@@ -2,27 +2,32 @@ import { AddLanguagePairDialog } from '@/components/languages/add-language-pair-
 import { LanguagePairTableEntry } from '@/components/languages/languages-columns';
 import { LanguagesTable } from '@/components/languages/languages-table';
 import { Spinner } from '@/components/ui/spinner';
-import { getCurrentProfile } from '@/lib/services/auth';
+import { DATABASE_ERROR } from '@/lib/constants/errors';
+import { getCurrentUserOrRedirect } from '@/lib/services/auth';
 import {
-  getLanguagePairs,
+  getUserLanguagePairs,
   getVocabCountByLanguagePairs,
 } from '@/lib/services/language-pairs';
 import { Suspense } from 'react';
+import { toast } from 'react-hot-toast';
 
-export default function AccountPage() {
+export default function LanguagesPage() {
   // Get language pairs for given user profile
-  const getUserLanguagePairs = async (): Promise<LanguagePairTableEntry[]> => {
+  const getLanguagePairs = async (): Promise<LanguagePairTableEntry[]> => {
     // Authenticate user profile
-    const profileCheck = await getCurrentProfile();
-    if (!profileCheck.success) {
-      // TO DO - redirect to login?
+    const user = await getCurrentUserOrRedirect();
+
+    // Get language pairs for user
+    const result = await getUserLanguagePairs(user.id);
+
+    // Handle errors
+    if (!result.success) {
+      toast.error(DATABASE_ERROR);
       return [];
     }
 
-    // Get language pairs for user
-    const result = await getLanguagePairs(profileCheck.data.userId);
-    if (!result.success) {
-      // TO DO - handle errors
+    // Early return if user has no language pairs in database
+    if (result.data.length === 0) {
       return [];
     }
 
@@ -44,7 +49,7 @@ export default function AccountPage() {
       <div className="grid justify-items-center space-y-8">
         <Suspense fallback={<Spinner />}>
           <AddLanguagePairDialog />
-          <LanguagesTable dataPromise={getUserLanguagePairs()} />
+          <LanguagesTable dataPromise={getLanguagePairs()} />
         </Suspense>
       </div>
     </div>

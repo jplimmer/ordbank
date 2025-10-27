@@ -1,84 +1,147 @@
 'use server';
 
+import { auth } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
+import { ROUTES } from '../constants/routes';
 import { db } from '../db';
-import { languagePairs, vocabulary } from '../db/schema';
-import { Result } from '../types/common';
-import { fetchActiveLanguagePair } from './active-language-pair';
+import { languagePairs, users } from '../db/schema';
+import { getLogger } from '../logger';
+import { ServiceResult } from '../types/common';
+import { InsertUser, UpdateUser, User } from '../types/user';
+import { handleValidationError } from '../utils';
+import { userInsertSchema, userUpdateScema } from '../validation/user-schemas';
+import { createUserTestSettingsInDb } from './test-settings';
 
-export interface UserProfile {
-  userId: number;
-  languagePairId: number;
-}
+const logger = getLogger();
 
-export const getCurrentProfile = async (): Promise<Result<UserProfile>> => {
-  // TO DO - authenticate user
-  const userId = 1;
-  if (!userId) {
-    return { success: false, error: 'User not authenticated' };
+export const getCurrentUser = async (): Promise<User | null> => {
+  // Authenticate user with Clerk
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) {
+    return null;
   }
 
-  // Get user's last active languagePair (including ownership verification)
-  const activeLanguage = await fetchActiveLanguagePair(userId);
-  if (!activeLanguage.success) {
-    return { success: false, error: activeLanguage.error.message };
+  // Find user in database using clerk_id
+  const dbUser = await db.query.users.findFirst({
+    where: eq(users.clerkId, clerkUserId),
+  });
+
+  // Create user in database if missing (first login)
+  if (!dbUser) {
+    const createResult = await createUser({ clerkId: clerkUserId });
+    if (!createResult.success) {
+      logger.error('User could not be created');
+      return null;
+    }
+    // Add default test settings for new user
+    const settingsResult = await createUserTestSettingsInDb(
+      createResult.data.id
+    );
+    if (!settingsResult.success) {
+      logger.error('Test settings could not be created');
+      return null;
+    }
+
+    return createResult.data;
   }
 
-  return {
-    success: true,
-    data: { userId, languagePairId: activeLanguage.data.id },
-  };
+  return dbUser;
+};
+
+export const getCurrentUserOrRedirect = async (): Promise<User> => {
+  const user = await getCurrentUser();
+  if (!user) {
+    logger.info('No current user detected, redirecting to landing page...');
+    redirect(ROUTES.HOME);
+  }
+  return user;
+};
+
+const createUser = async (
+  newUser: InsertUser
+): Promise<ServiceResult<User>> => {
+  try {
+    // Validate newUser data
+    const parseResult = userInsertSchema.safeParse(newUser);
+
+    if (!parseResult.success) {
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Create user'
+      );
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+        },
+      };
+    }
+
+    // Add to database and return new user
+    const [user] = await db.insert(users).values(parseResult.data).returning();
+    logger.info(`Created new user with id ${user.id}`);
+    return { success: true, data: user };
+  } catch (error) {
+    const errorMsg = 'Failed to create new user';
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: { code: 'DATABASE_ERROR', message: errorMsg, details: error },
+    };
+  }
+};
+
+const updateUser = async (
+  userId: number,
+  updates: UpdateUser
+): Promise<ServiceResult<User>> => {
+  try {
+    // Validate updates
+    const parseResult = userUpdateScema.safeParse(updates);
+
+    if (!parseResult.success) {
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Update user'
+      );
+      return {
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: validationError.message },
+      };
+    }
+
+    // Update user in database and return updated user
+    const [updatedUser] = await db
+      .update(users)
+      .set(parseResult.data)
+      .where(eq(users.id, userId))
+      .returning();
+
+    logger.info(`Updated user ${updatedUser.id} in database`);
+    return { success: true, data: updatedUser };
+  } catch (error) {
+    const errorMsg = 'Failed to update user';
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: { code: 'DATABASE_ERROR', message: errorMsg, details: error },
+    };
+  }
 };
 
 export const languagePairBelongsToUser = async (
-  userProfile: UserProfile
+  userId: number,
+  languagePairId: number
 ): Promise<boolean> => {
   const result = await db.query.languagePairs.findFirst({
     where: and(
-      eq(languagePairs.id, userProfile.languagePairId),
-      eq(languagePairs.userId, userProfile.userId)
+      eq(languagePairs.id, languagePairId),
+      eq(languagePairs.userId, userId)
     ),
     columns: { id: true },
   });
 
   return result !== undefined;
-};
-
-export const assertLanguagePairOwnership = async (userProfile: UserProfile) => {
-  const belongs = await languagePairBelongsToUser(userProfile);
-  if (!belongs) {
-    throw new Error(
-      'Unauthorised: Language pair does not belong to the current user.'
-    );
-  }
-};
-
-export const vocabItemBelongsToLanguagePair = async (
-  languagePairId: number,
-  vocabItemId: number
-): Promise<boolean> => {
-  const result = await db.query.vocabulary.findFirst({
-    where: and(
-      eq(vocabulary.id, vocabItemId),
-      eq(vocabulary.languagePairId, languagePairId)
-    ),
-    columns: { id: true },
-  });
-
-  return result !== undefined;
-};
-
-export const assertVocabItemOwnership = async (
-  languagePairId: number,
-  vocabItemId: number
-) => {
-  const belongs = await vocabItemBelongsToLanguagePair(
-    languagePairId,
-    vocabItemId
-  );
-  if (!belongs) {
-    throw new Error(
-      'Error: Vocab item does not belong to the specified lanugage pair.'
-    );
-  }
 };

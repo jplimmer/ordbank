@@ -1,23 +1,18 @@
 'server-only';
 
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 import { db } from '../db';
 import { languagePairs, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result, ServiceResult } from '../types/common';
-import {
-  InsertLanguagePair,
-  LanguagePair,
-  UpdateLanguagePair,
-} from '../types/language-pair';
+import { ServiceResult } from '../types/common';
+import { InsertLanguagePair, LanguagePair } from '../types/language-pair';
 import { generatePairName, handleValidationError } from '../utils';
 import {
   languagePairArraySelectSchema,
   languagePairInsertSchema,
   languagePairSelectSchema,
-  languagePairUpdateSchema,
 } from '../validation/language-pair-schemas';
-import { assertLanguagePairOwnership, UserProfile } from './auth';
 
 const logger = getLogger();
 
@@ -51,8 +46,9 @@ export const getLanguagePair = async (
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: 'DATABASE_ERROR',
           message: validationError.message,
+          details: validationError,
         },
       };
     }
@@ -83,38 +79,53 @@ export const getLanguagePair = async (
   }
 };
 
-export const getLanguagePairs = async (
-  userId: number
-): Promise<Result<LanguagePair[]>> => {
-  // Fetch language pairs data from database
-  try {
-    const langPairs = await db.query.languagePairs.findMany({
-      where: eq(languagePairs.userId, userId),
-    });
+export const getUserLanguagePairs = unstable_cache(
+  async (userId: number): Promise<ServiceResult<LanguagePair[]>> => {
+    try {
+      const langPairs = await db.query.languagePairs.findMany({
+        where: eq(languagePairs.userId, userId),
+      });
 
-    // Validate database response
-    const parseResult = languagePairArraySelectSchema.safeParse(langPairs);
+      // Validate database response
+      const parseResult = languagePairArraySelectSchema.safeParse(langPairs);
 
-    if (!parseResult.success) {
-      const validationError = handleValidationError(
-        parseResult.error,
-        "Get user's language pairs"
-      );
-      return { success: false, error: validationError.message };
+      if (!parseResult.success) {
+        const validationError = handleValidationError(
+          parseResult.error,
+          "Get user's language pairs"
+        );
+        return {
+          success: false,
+          error: {
+            code: 'DATABASE_ERROR',
+            message: validationError.message,
+            details: validationError,
+          },
+        };
+      }
+
+      return { success: true, data: parseResult.data };
+    } catch (error) {
+      const errorMsg = `Failed to get language pairs for user id ${userId}`;
+      logger.error(errorMsg, error);
+      return {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: errorMsg,
+          details: error,
+        },
+      };
     }
+  },
+  ['language-pairs'],
+  { tags: ['language-pairs'] }
+);
 
-    return { success: true, data: parseResult.data };
-  } catch (error) {
-    const errorMsg = `Failed to get language pairs: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
-  }
-};
-
-export const createLanguagePair = async (
+export const createLanguagePairInDb = async (
   userId: number,
   newLanguagePair: InsertLanguagePair
-): Promise<Result<LanguagePair>> => {
+): Promise<ServiceResult<LanguagePair>> => {
   try {
     // Validate user input
     const parseResult = languagePairInsertSchema.safeParse(newLanguagePair);
@@ -124,7 +135,14 @@ export const createLanguagePair = async (
         parseResult.error,
         'Add language pair'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
     }
 
     const { sourceLanguage, targetLanguage } = parseResult.data;
@@ -148,67 +166,129 @@ export const createLanguagePair = async (
     );
     return { success: true, data: newPair };
   } catch (error) {
-    const errorMsg = `Failed to create language pair: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = 'Failed to create langauge pair';
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-export const updateLanguagePair = async (
-  userProfile: UserProfile,
-  updates: UpdateLanguagePair
-): Promise<Result<LanguagePair>> => {
+export const updateLanguagePairInDb = async (
+  userId: number,
+  languagePairId: number,
+  updates: InsertLanguagePair
+): Promise<ServiceResult<LanguagePair>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
-
     // Validate language pair updates
-    const parseResult = languagePairUpdateSchema.safeParse(updates);
+    const parseResult = languagePairInsertSchema.safeParse(updates);
 
     if (!parseResult.success) {
       const validationError = handleValidationError(
         parseResult.error,
         'Update language pair'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
     }
 
-    // Update item in database and return updated item
-    const [updatedItem] = await db
+    // Generate new pair name
+    const newPair = {
+      ...parseResult.data,
+      pairName: generatePairName(
+        parseResult.data.sourceLanguage,
+        parseResult.data.targetLanguage
+      ),
+    };
+
+    // Update item in database with matching user id
+    const [updatedPair] = await db
       .update(languagePairs)
-      .set(parseResult.data)
-      .where(eq(languagePairs.id, userProfile.languagePairId))
+      .set(newPair)
+      .where(
+        and(
+          eq(languagePairs.id, languagePairId),
+          eq(languagePairs.userId, userId)
+        )
+      )
       .returning();
 
-    logger.info(`Updated language pair ${updatedItem.id} in database`);
-    return { success: true, data: updatedItem };
+    if (!updatedPair) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Language pair not found or user not authorised',
+        },
+      };
+    }
+
+    logger.info(`Updated language pair ${updatedPair.id} in database`);
+    return { success: true, data: updatedPair };
   } catch (error) {
-    const errorMsg = `Failed to update language pair: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to update language pair ${languagePairId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-export const deleteLanguagePair = async (
+export const deleteLanguagePairInDb = async (
   userId: number,
   languagePairId: number
-): Promise<Result<LanguagePair>> => {
+): Promise<ServiceResult<LanguagePair>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership({ userId, languagePairId });
-
-    // Delete language pair from database and return deleted pair
+    // Delete language pair from database with matching user id
     const [deletedPair] = await db
       .delete(languagePairs)
-      .where(eq(languagePairs.id, languagePairId))
+      .where(
+        and(
+          eq(languagePairs.id, languagePairId),
+          eq(languagePairs.userId, userId)
+        )
+      )
       .returning();
+
+    if (!deletedPair) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Language pair not found or user not authorised',
+        },
+      };
+    }
 
     logger.info(`Deleted language pair ${deletedPair.id} from database`);
     return { success: true, data: deletedPair };
   } catch (error) {
-    const errorMsg = `Failed to delete language pair: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to delete language pair ${languagePairId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 

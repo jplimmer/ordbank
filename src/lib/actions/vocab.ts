@@ -1,14 +1,15 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { PERMISSION_ERROR } from '../constants/errors';
 import { ROUTES } from '../constants/routes';
-import { getCurrentProfile } from '../services/auth';
+import { getCurrentUserOrRedirect } from '../services/auth';
 import {
-  createVocabItem,
-  deleteVocabItem,
-  updateVocabItem,
+  createVocabItemInDb,
+  deleteVocabItemInDb,
+  updateVocabItemInDb,
 } from '../services/vocab';
-import { FormResult, Result } from '../types/common';
+import { ActionResult, FormResult, ServiceErrorCode } from '../types/common';
 import { VocabItem } from '../types/vocab';
 import { handleValidationError } from '../utils';
 import {
@@ -16,19 +17,23 @@ import {
   vocabUpdateSchema,
 } from '../validation/vocab-schemas';
 
-export const createVocabAction = async (
+const errorMessages: Record<ServiceErrorCode, string> = {
+  NOT_FOUND: 'Word not found in your vocabulary list',
+  UNAUTHORISED: PERMISSION_ERROR,
+  VALIDATION_ERROR: 'Invalid word pair',
+  DATABASE_ERROR: 'Something went wrong. Please try again.',
+};
+
+export const createVocabItem = async (
   prevState: FormResult<VocabItem>,
   formData: FormData
 ): Promise<FormResult<VocabItem>> => {
   // Authenticate user profile
-  const profileCheck = await getCurrentProfile();
-  if (!profileCheck.success) {
-    return { success: false, error: profileCheck.error, formData: formData };
-  }
+  const user = await getCurrentUserOrRedirect();
 
   // Untyped object from formData for validation
   const newVocabItem = {
-    languagePairId: profileCheck.data.languagePairId,
+    languagePairId: user.activeLanguagePairId,
     source: formData.get('source'),
     target: formData.get('target'),
   };
@@ -49,12 +54,15 @@ export const createVocabAction = async (
   }
 
   // Add vocab item to database
-  const createResult = await createVocabItem(
-    profileCheck.data.userId,
-    parseResult.data
-  );
+  const createResult = await createVocabItemInDb(user.id, parseResult.data);
   if (!createResult.success) {
-    return { success: false, error: createResult.error, formData: formData };
+    return {
+      success: false,
+      error:
+        errorMessages[createResult.error.code] ||
+        'An unexpected error occurred',
+      formData: formData,
+    };
   }
 
   // Revalidate route and return created item
@@ -62,16 +70,13 @@ export const createVocabAction = async (
   return { success: true, data: createResult.data };
 };
 
-export const updateVocabAction = async (
+export const updateVocabItem = async (
   vocabId: number,
   prevState: FormResult<VocabItem>,
   formData: FormData
 ): Promise<FormResult<VocabItem>> => {
   // Authenticate user profile
-  const profileCheck = await getCurrentProfile();
-  if (!profileCheck.success) {
-    return { success: false, error: profileCheck.error, formData: formData };
-  }
+  const user = await getCurrentUserOrRedirect();
 
   // Untyped object from formData for validation
   const updates = {
@@ -95,13 +100,19 @@ export const updateVocabAction = async (
   }
 
   // Update item in database
-  const updateResult = await updateVocabItem(
-    profileCheck.data,
+  const updateResult = await updateVocabItemInDb(
+    user.id,
     vocabId,
     parseResult.data
   );
   if (!updateResult.success) {
-    return { success: false, error: updateResult.error, formData: formData };
+    return {
+      success: false,
+      error:
+        errorMessages[updateResult.error.code] ||
+        'An unexpected error occurred',
+      formData: formData,
+    };
   }
 
   // Revalidate route and return updated item
@@ -109,18 +120,22 @@ export const updateVocabAction = async (
   return { success: true, data: updateResult.data };
 };
 
-export const deleteVocabAction = async (
+export const deleteVocabItem = async (
   vocabId: number
-): Promise<Result<VocabItem>> => {
+): Promise<ActionResult<VocabItem>> => {
   // Authenticate user profile
-  const profileCheck = await getCurrentProfile();
-  if (!profileCheck.success) {
-    return profileCheck;
-  }
+  const user = await getCurrentUserOrRedirect();
 
   // Delete vocab item from database
-  const deleteResult = await deleteVocabItem(profileCheck.data, vocabId);
-  if (!deleteResult.success) return deleteResult;
+  const deleteResult = await deleteVocabItemInDb(user.id, vocabId);
+  if (!deleteResult.success) {
+    return {
+      success: false,
+      error:
+        errorMessages[deleteResult.error.code] ||
+        'An unexpected error occurred',
+    };
+  }
 
   // Revalidate route and return deleted item
   revalidatePath(ROUTES.VOCAB);

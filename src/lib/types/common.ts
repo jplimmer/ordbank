@@ -1,11 +1,6 @@
-// Error types
-const ServiceErrorCode = {
-  NOT_FOUND: 'NOT_FOUND',
-  UNAUTHORISED: 'UNAUTHORISED',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  DATABASE_ERROR: 'DATABASE_ERROR',
-} as const;
+import { ServiceErrorCode } from '../constants/errors';
 
+// Error types
 export type ServiceErrorCode =
   (typeof ServiceErrorCode)[keyof typeof ServiceErrorCode];
 
@@ -16,7 +11,7 @@ export type ServiceError = {
 };
 
 // Result types
-export type Result<T, E = string> =
+export type Result<T, E> =
   | { success: true; data: T }
   | { success: false; error: E };
 

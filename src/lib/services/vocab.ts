@@ -1,10 +1,10 @@
 'server-only';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
-import { vocabulary } from '../db/schema';
+import { languagePairs, userVocabulary, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/common';
+import { ServiceResult } from '../types/common';
 import { InsertVocabItem, UpdateVocabItem, VocabItem } from '../types/vocab';
 import { handleValidationError } from '../utils';
 import {
@@ -12,27 +12,37 @@ import {
   vocabSelectSchema,
   vocabUpdateSchema,
 } from '../validation/vocab-schemas';
-import {
-  assertLanguagePairOwnership,
-  assertVocabItemOwnership,
-  UserProfile,
-} from './auth';
+import { languagePairBelongsToUser } from './auth';
 
 const logger = getLogger();
 
 export const getVocab = async (
-  userProfile: UserProfile
-): Promise<Result<VocabItem[]>> => {
+  userId: number,
+  languagePairId: number
+): Promise<ServiceResult<VocabItem[]>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
-
-    // Fetch vocabulary data from db
+    // Fetch vocabulary data from db for matching user and language pair ids
     const vocab = await db
       .select()
-      .from(vocabulary)
-      .where(eq(vocabulary.languagePairId, userProfile.languagePairId))
-      .orderBy(vocabulary.source);
+      .from(userVocabulary)
+      .where(
+        and(
+          eq(userVocabulary.userId, userId),
+          eq(userVocabulary.languagePairId, languagePairId)
+        )
+      )
+      .orderBy(userVocabulary.source);
+
+    if (vocab.length === 0) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message:
+            'No vocabulary found for this user + language pair combination',
+        },
+      };
+    }
 
     // Validate database response
     const parseResult = vocabSelectSchema.safeParse(vocab);
@@ -42,28 +52,36 @@ export const getVocab = async (
         parseResult.error,
         'Get vocab'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
     }
 
     return { success: true, data: parseResult.data };
   } catch (error) {
-    const errorMsg = `Failed to get vocabulary: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to get vocabulary for language pair ${languagePairId} and user ${userId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-export const createVocabItem = async (
+export const createVocabItemInDb = async (
   userId: number,
   newVocabItem: InsertVocabItem
-): Promise<Result<VocabItem>> => {
+): Promise<ServiceResult<VocabItem>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership({
-      userId,
-      languagePairId: newVocabItem.languagePairId,
-    });
-
     // Validate new vocab item
     const parseResult = vocabInsertSchema.safeParse(newVocabItem);
 
@@ -72,7 +90,25 @@ export const createVocabItem = async (
         parseResult.error,
         'Add vocab item'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
+    }
+
+    // Verify the languagePair belongs to the user
+    if (!languagePairBelongsToUser(userId, newVocabItem.languagePairId)) {
+      return {
+        success: false,
+        error: {
+          code: 'UNAUTHORISED',
+          message: 'User not authorised for this language pair',
+        },
+      };
     }
 
     // Add to database and return new item
@@ -84,24 +120,25 @@ export const createVocabItem = async (
     logger.info(`Added '${newItem.source}' to database with id ${newItem.id}`);
     return { success: true, data: newItem };
   } catch (error) {
-    const errorMsg = `Failed to create vocab item: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = 'Failed to create vocab item';
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-export const updateVocabItem = async (
-  userProfile: UserProfile,
+export const updateVocabItemInDb = async (
+  userId: number,
   vocabItemId: number,
   updates: UpdateVocabItem
-): Promise<Result<VocabItem>> => {
+): Promise<ServiceResult<VocabItem>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
-
-    // Verify the vocabItem belongs to the languagePair
-    await assertVocabItemOwnership(userProfile.languagePairId, vocabItemId);
-
     // Validate vocab item updates
     const parseResult = vocabUpdateSchema.safeParse(updates);
 
@@ -110,47 +147,104 @@ export const updateVocabItem = async (
         parseResult.error,
         'Update vocab item'
       );
-      return { success: false, error: validationError.message };
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
     }
 
-    // Update item in database and return updated item
+    // Update item in database, matching user id with a subquery
     const [updatedItem] = await db
       .update(vocabulary)
       .set(parseResult.data)
-      .where(eq(vocabulary.id, vocabItemId))
+      .where(
+        and(
+          eq(vocabulary.id, vocabItemId),
+          inArray(
+            vocabulary.languagePairId,
+            db
+              .select({ id: languagePairs.id })
+              .from(languagePairs)
+              .where(eq(languagePairs.userId, userId))
+          )
+        )
+      )
       .returning();
+
+    if (!updatedItem) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Vocabulary item not found or user not authorised',
+        },
+      };
+    }
 
     logger.info(`Updated vocab item ${updatedItem.id} in database`);
     return { success: true, data: updatedItem };
   } catch (error) {
-    const errorMsg = `Failed to update vocab item: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to update vocab item ${vocabItemId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
 
-export const deleteVocabItem = async (
-  userProfile: UserProfile,
-  vocabId: number
-): Promise<Result<VocabItem>> => {
+export const deleteVocabItemInDb = async (
+  userId: number,
+  vocabItemId: number
+): Promise<ServiceResult<VocabItem>> => {
   try {
-    // Verify the languagePair belongs to the user
-    await assertLanguagePairOwnership(userProfile);
-
-    // Verify the vocabItem belongs to the languagePair
-    await assertVocabItemOwnership(userProfile.languagePairId, vocabId);
-
-    // Delete item from database and return deleted item
+    // Delete item from database, matching user id with a subquery
     const [deletedItem] = await db
       .delete(vocabulary)
-      .where(eq(vocabulary.id, vocabId))
+      .where(
+        and(
+          eq(vocabulary.id, vocabItemId),
+          inArray(
+            vocabulary.languagePairId,
+            db
+              .select({ id: languagePairs.id })
+              .from(languagePairs)
+              .where(eq(languagePairs.userId, userId))
+          )
+        )
+      )
       .returning();
+
+    if (!deletedItem) {
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Vocabulary item not found or user not authorised',
+        },
+      };
+    }
 
     logger.info(`Deleted vocab item ${deletedItem.id} from database`);
     return { success: true, data: deletedItem };
   } catch (error) {
-    const errorMsg = `Failed to delete vocab item: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to delete vocab item ${vocabItemId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };

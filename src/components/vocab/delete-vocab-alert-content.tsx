@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteVocabAction } from '@/lib/actions/vocab';
+import { deleteVocabItem } from '@/lib/actions/vocab';
 import { VocabItem } from '@/lib/types/vocab';
 import { toast } from 'react-hot-toast';
 import {
@@ -19,7 +19,7 @@ export function DeleteVocabAlertContent({
   vocabItem: VocabItem;
 }) {
   const handleDelete = async () => {
-    const deleteResult = await deleteVocabAction(vocabItem.id);
+    const deleteResult = await deleteVocabItem(vocabItem.id);
     if (deleteResult.success) {
       toast.success(`'${vocabItem.source}' deleted!`);
     } else {

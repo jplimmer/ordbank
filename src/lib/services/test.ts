@@ -1,39 +1,82 @@
 'server only';
 
-import { and, eq, ne, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { vocabulary } from '../db/schema';
+import { languagePairs, userVocabulary, vocabulary } from '../db/schema';
 import { getLogger } from '../logger';
-import { Result } from '../types/common';
+import { ServiceResult } from '../types/common';
 import { Answer, AnswerResult, Direction } from '../types/test';
 import { VocabItem } from '../types/vocab';
-import { shuffle } from '../utils';
-import {
-  assertLanguagePairOwnership,
-  assertVocabItemOwnership,
-  UserProfile,
-} from './auth';
+import { handleValidationError, shuffle } from '../utils';
+import { vocabItemSelectSchema } from '../validation/vocab-schemas';
 
 const logger = getLogger();
 
 export const selectVocabItem = async (
-  userProfile: UserProfile
-): Promise<VocabItem> => {
-  // Verify requested language pair belongs to user
-  await assertLanguagePairOwnership(userProfile);
+  userId: number,
+  languagePairId: number
+): Promise<ServiceResult<VocabItem>> => {
+  try {
+    // Get vocab item from database - random selection weighted by accuracy
+    const [vocabItem] = await db
+      .select()
+      .from(userVocabulary)
+      .where(
+        and(
+          eq(userVocabulary.userId, userId),
+          eq(userVocabulary.languagePairId, languagePairId)
+        )
+      )
+      .orderBy(
+        sql`(1 - COALESCE(${userVocabulary.correctAttempts}::float / 
+          NULLIF(${userVocabulary.totalAttempts}, 0), 0.5)) * ${sql.raw('random()')} DESC`
+      )
+      .limit(1);
 
-  // Get vocab item from database - random selection weighted by accuracy
-  const [vocabItem] = await db
-    .select()
-    .from(vocabulary)
-    .where(eq(vocabulary.languagePairId, userProfile.languagePairId))
-    .orderBy(
-      sql`(1 - COALESCE(${vocabulary.correctAttempts}::float / 
-          NULLIF(${vocabulary.totalAttempts}, 0), 0.5)) * random() DESC`
-    )
-    .limit(1);
+    if (!vocabItem) {
+      const errorMsg =
+        'No vocabulary item found for this user + language pair combination';
+      logger.error(errorMsg);
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: errorMsg,
+        },
+      };
+    }
 
-  return vocabItem;
+    // Validate database response
+    const parseResult = vocabItemSelectSchema.safeParse(vocabItem);
+
+    if (!parseResult.success) {
+      const validationError = handleValidationError(
+        parseResult.error,
+        'Select vocab item'
+      );
+      return {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: validationError.message,
+          details: validationError,
+        },
+      };
+    }
+
+    return { success: true, data: vocabItem };
+  } catch (error) {
+    const errorMsg = `Failed to select a vocabulary item for language pair ${languagePairId} and user ${userId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
+  }
 };
 
 export const generateMultipleChoiceAnswers = async (
@@ -86,18 +129,13 @@ export const checkAnswer = async ({
 };
 
 export const updateVocabStats = async (
-  userProfile: UserProfile,
+  userId: number,
   vocabId: number,
   correct: boolean
-): Promise<Result<null>> => {
+): Promise<ServiceResult<null>> => {
   try {
-    // Verify requested language pair belongs to user
-    await assertLanguagePairOwnership(userProfile);
-
-    // Verify the vocabItem belongs to the languagePair
-    await assertVocabItemOwnership(userProfile.languagePairId, vocabId);
-
-    await db
+    // Update item in database, matching user id with a subquery
+    const result = await db
       .update(vocabulary)
       .set({
         totalAttempts: sql`${vocabulary.totalAttempts} + 1`,
@@ -106,12 +144,35 @@ export const updateVocabStats = async (
           : vocabulary.correctAttempts,
         lastAttemptedAt: sql`NOW()`,
       })
-      .where(eq(vocabulary.id, vocabId));
+      .where(
+        and(
+          eq(vocabulary.id, vocabId),
+          inArray(
+            vocabulary.languagePairId,
+            db
+              .select({ id: languagePairs.id })
+              .from(languagePairs)
+              .where(eq(languagePairs.userId, userId))
+          )
+        )
+      );
+
+    if (!result) {
+      logger.warn(`Failed to update stats for vocab item ${vocabId}`);
+    }
+
     logger.debug(`Updated stats for vocab item ${vocabId}`);
     return { success: true, data: null };
   } catch (error) {
-    const errorMsg = `Failed to update stats for vocab item ${vocabId}: ${error instanceof Error ? error.message : String(error)}`;
-    logger.error(errorMsg, { error });
-    return { success: false, error: errorMsg };
+    const errorMsg = `Failed to update stats for vocab item ${vocabId}`;
+    logger.error(errorMsg, error);
+    return {
+      success: false,
+      error: {
+        code: 'DATABASE_ERROR',
+        message: errorMsg,
+        details: error,
+      },
+    };
   }
 };
