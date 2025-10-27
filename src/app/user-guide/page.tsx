@@ -1,3 +1,4 @@
+import { UserGuide } from '@/components/user-guide';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function UserGuidePage() {
-  return <div>User Guide</div>;
+  return <UserGuide />;
 }
