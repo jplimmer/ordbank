@@ -58,8 +58,9 @@ Currently in development, this app will allow language learners to test themselv
 ### Pre-requisites
 
 - Node.js (version 20 or higher recommended)
-- **npm** or **yarn** package manager
-- Neon PostgreSQL database
+- Node package manager (e.g. **npm** or **yarn**)
+- [Neon](https://console.neon.tech/app/) PostgreSQL database
+- [Clerk](https://dashboard.clerk.com/apps) project
 
 ### Steps
 
@@ -76,10 +77,20 @@ Currently in development, this app will allow language learners to test themselv
    npm install
    ```
 
-3. Add your neon database connection to your `.env` file (see [`.env.example`](.env.example)):
+3. Add your neon database connection and clerk keys to your `.env` file, and copy the below clerk sign-in redirects (see [`.env.example`](.env.example)):
 
-   ```
+   ```properties
+   # Neon database connection
    DATABASE_URL=your_neon_connection_string
+
+   # Clerk project keys
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_your_clerk_public_key
+   CLERK_SECRET_KEY=sk_your_clerk_secret_key
+
+   # Clerk sign-in redirects
+   NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+   NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+   NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
    ```
 
 4. Start the development server:
@@ -97,6 +108,8 @@ ordbank/
 ├── src/
 │   ├── app/               # Next.js App Router pages and routes
 │   │   ├── @modal/        # Parallel slot for intercepting modal routes
+│   │   ├── languages/
+│   │   ├── sign-in/
 │   │   ├── test/
 │   │   ├── user-guide/
 │   │   ├── vocab/
@@ -106,15 +119,16 @@ ordbank/
 │   ├── components/        # Reusable React components organised by feature
 │   ├── contexts/          # React contexts for global UI state
 │   ├── hooks/
-│   └── lib/
-│       ├── actions/       # Server actions
-│       ├── constants/
-│       ├── db/            # Database schema and configuration
-│       ├── services/      # Database and authentication operations
-│       ├── types/
-│       ├── validation/    # Zod validation schemas
-│       ├── logger.ts
-│       └── utils.ts
+│   ├── lib/
+│   |   ├── actions/       # Server actions organised by feature
+│   |   ├── constants/
+│   |   ├── db/            # Database schema and configuration
+│   |   ├── services/      # Database and authentication operations
+│   |   ├── types/
+│   |   ├── validation/    # Zod validation schemas
+│   |   ├── logger.ts
+│   |   └── utils.ts
+│   └── middleware.ts      # Clerk configuration
 ├── public/                # Static assets
 ├── package.json
 └── README.md
