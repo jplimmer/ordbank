@@ -1,4 +1,4 @@
-# <img src="public/icon.png" alt="Logo" width="36" style="border-radius: 50%; vertical-align: top; margin-right: 8px"> OrdBank
+# <img src="public/icon.png" alt="Logo" width="36" style="border-radius: 50%; vertical-align: top; margin-right: 8px"> Ordbank
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
