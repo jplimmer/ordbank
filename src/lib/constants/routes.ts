@@ -4,5 +4,5 @@ export const ROUTES = {
   SIGNIN: '/sign-in',
   TEST: '/test',
   USER_GUIDE: '/user-guide',
-  VOCAB: '/vocab',
+  VOCABULARY: '/vocabulary',
 } as const;

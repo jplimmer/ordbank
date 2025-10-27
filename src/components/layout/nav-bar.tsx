@@ -20,7 +20,7 @@ export function NavBar() {
         <li>
           <Button variant="ghost" className="py-2" asChild>
             <Link
-              href={isHome ? ROUTES.VOCAB : ROUTES.HOME}
+              href={isHome ? ROUTES.VOCABULARY : ROUTES.HOME}
               aria-label={isHome ? 'Vocab list' : 'Home'}
               className="h-fit"
             >

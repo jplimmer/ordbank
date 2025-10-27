@@ -20,8 +20,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ordbank',
-  description: 'A Next.js app for learning vocabulary',
+  metadataBase: new URL('https://ordbank.app'),
+  title: {
+    default: 'Ordbank',
+    template: '%s | Ordbank',
+  },
+  description: "Ordbank - Learn vocabulary that's important to you",
+  openGraph: {
+    siteName: 'Ordbank',
+    type: 'website',
+  },
 };
 
 export default async function RootLayout({

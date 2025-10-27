@@ -4,7 +4,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { AddVocabDialog, VocabTable } from '@/components/vocab';
 import { getCurrentUserOrRedirect } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
+import { Metadata } from 'next';
 import { Suspense } from 'react';
+
+export const metadata: Metadata = {
+  title: 'My Vocabulary',
+  description: 'Manage your vocabulary list',
+};
 
 export default async function VocabPage() {
   // Authenticate user profile

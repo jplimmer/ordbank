@@ -8,8 +8,14 @@ import {
   getUserLanguagePairs,
   getVocabCountByLanguagePairs,
 } from '@/lib/services/language-pairs';
+import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { toast } from 'react-hot-toast';
+
+export const metadata: Metadata = {
+  title: 'My Languages',
+  description: 'Manage your language pair profiles',
+};
 
 export default function LanguagesPage() {
   // Get language pairs for given user profile

@@ -10,6 +10,12 @@ import {
   getTestSettings,
 } from '@/lib/services/test-settings';
 import { TestSettings } from '@/lib/types/test';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Test Yourself',
+  description: 'Test your vocabulary knowledge',
+};
 
 export default async function TestPage() {
   // Authenticate user profile
