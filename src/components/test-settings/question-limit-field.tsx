@@ -21,7 +21,7 @@ export function QuestionLimitField({
       className="flex-row items-start justify-between"
     >
       <FieldContent>
-        <FieldLabel className="font-medium text-base">
+        <FieldLabel htmlFor="questionLimit" className="font-medium text-base">
           Number of questions
         </FieldLabel>
         <FieldDescription className="text-pretty">
@@ -32,9 +32,11 @@ export function QuestionLimitField({
         <Switch
           checked={questionLimitSet}
           onCheckedChange={setQuestionLimitSet}
+          aria-label="Enable question limit"
         />
         <Input
           className="w-17 text-center"
+          id="questionLimit"
           name="questionLimit"
           type="number"
           min={1}

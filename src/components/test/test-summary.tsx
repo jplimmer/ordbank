@@ -25,7 +25,7 @@ export function TestSummary({
 
   return (
     <div className="flex flex-col gap-12 items-center">
-      <span className="text-3xl">Test complete</span>
+      <h1 className="text-3xl">Test complete</h1>
       <div className="flex flex-col gap-4 items-center">
         <span className="text-2xl">
           Score: {score}/{totalQuestions}

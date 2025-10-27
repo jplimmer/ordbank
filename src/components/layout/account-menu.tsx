@@ -26,6 +26,7 @@ export function AccountMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           disabled={!user}
+          aria-label="Open account menu"
           variant="ghost"
           className="py-2 h-fit cursor-pointer"
         >

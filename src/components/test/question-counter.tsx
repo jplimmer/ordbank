@@ -17,11 +17,14 @@ export function QuestionCounter({
     <div className="flex items-center gap-2 text-sm">
       {questionLimit ? (
         <>
+          <h1 className="sr-only">
+            Question {currentQuestion} of {questionLimit}
+          </h1>
           <Progress value={progress} className="w-full" />
           <span>{questionLimit}</span>
         </>
       ) : (
-        <span>Question {currentQuestion}</span>
+        <h1>Question {currentQuestion}</h1>
       )}
     </div>
   );
