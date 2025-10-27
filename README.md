@@ -112,7 +112,7 @@ ordbank/
 │   │   ├── sign-in/
 │   │   ├── test/
 │   │   ├── user-guide/
-│   │   ├── vocab/
+│   │   ├── vocabulary/
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   └── page.tsx
