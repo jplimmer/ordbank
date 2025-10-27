@@ -33,12 +33,19 @@ export function LanguageSelect({
       }}
       disabled={hasError}
     >
-      <SelectTrigger>
+      <SelectTrigger
+        aria-label="Select language pair"
+        className="cursor-pointer min-w-[110px] border-border bg-border/30"
+      >
         <SelectValue placeholder="Languages" />
       </SelectTrigger>
-      <SelectContent align="start">
+      <SelectContent align="start" className="bg-border/30 min-w-[110px]">
         {languagePairs.map((lp) => (
-          <SelectItem key={lp.id} value={lp.id.toString()}>
+          <SelectItem
+            key={lp.id}
+            value={lp.id.toString()}
+            className="cursor-pointer"
+          >
             {lp.pairName}
           </SelectItem>
         ))}

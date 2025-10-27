@@ -21,7 +21,7 @@ export function TimeLimitField({
       className="flex-row items-start justify-between"
     >
       <FieldContent>
-        <FieldLabel className="font-medium text-base">
+        <FieldLabel htmlFor="timeLimitMins" className="font-medium text-base">
           Time limit (mins)
         </FieldLabel>
         <FieldDescription className="text-pretty">
@@ -29,9 +29,15 @@ export function TimeLimitField({
         </FieldDescription>
       </FieldContent>
       <div className="flex items-center gap-4">
-        <Switch checked={timeLimitSet} onCheckedChange={setTimeLimitSet} />
+        <Switch
+          checked={timeLimitSet}
+          onCheckedChange={setTimeLimitSet}
+          aria-label="Enable time limit"
+          className="data-[state=unchecked]:bg-border"
+        />
         <Input
-          className="w-17 text-center"
+          className="w-17 text-center disabled:border-border"
+          id="timeLimitMins"
           name="timeLimitMins"
           type="number"
           min={1}

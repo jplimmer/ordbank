@@ -7,7 +7,7 @@ const buttonStyle = 'w-1/2 h-fit rounded-xl p-6 text-xl hover:shadow-md';
 export function Home() {
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <h1 className="text-3xl mb-8">Ordbank</h1>
+      <h1 className="text-5xl mb-8">Ordbank</h1>
       <Button variant="secondary" className={buttonStyle} asChild>
         <Link href={ROUTES.VOCABULARY}>Add Word</Link>
       </Button>

@@ -22,7 +22,7 @@ export function AddLanguagePairDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={variant} className={`${className}`}>
+        <Button variant={variant} size="lg" className={`${className}`}>
           Create language pair
         </Button>
       </DialogTrigger>

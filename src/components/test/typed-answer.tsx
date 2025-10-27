@@ -1,5 +1,6 @@
 import { RefObject } from 'react';
 import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 interface TypedAnswerProps {
   value: string;
@@ -24,14 +25,20 @@ export function TypedAnswer({
   };
 
   return (
-    <Input
-      ref={ref}
-      type="text"
-      placeholder="Enter your answer..."
-      value={value}
-      onChange={(e) => onSetAnswer(e.target.value)}
-      onKeyDown={handleKeyDown}
-      disabled={disabled}
-    />
+    <>
+      <Label htmlFor="answer-input" className="sr-only">
+        Enter your answer
+      </Label>
+      <Input
+        ref={ref}
+        type="text"
+        id="answer-input"
+        placeholder="Enter your answer..."
+        value={value}
+        onChange={(e) => onSetAnswer(e.target.value)}
+        onKeyDown={handleKeyDown}
+        disabled={disabled}
+      />
+    </>
   );
 }

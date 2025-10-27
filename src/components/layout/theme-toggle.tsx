@@ -45,7 +45,7 @@ export function ThemeToggle() {
       onClick={handleToggle}
       title={`Switch to ${nextTheme} theme`}
       aria-label={`Switch to ${nextTheme} theme`}
-      className="h-fit py-2"
+      className="h-fit py-2 cursor-pointer"
     >
       {icon}
     </Button>

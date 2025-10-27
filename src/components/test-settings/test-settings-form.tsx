@@ -95,7 +95,12 @@ export function TestSettingsForm({
         <QuestionLimitField initialLimit={initialSettings.questionLimit} />
         <TimeLimitField initialLimit={initialSettings.timeLimitMins} />
         <FieldError className="whitespace-pre-line">{error}</FieldError>
-        <Button type="submit" className="text-lg py-5" disabled={formPending}>
+        <Button
+          type="submit"
+          size="lg"
+          className="text-lg"
+          disabled={formPending}
+        >
           {formPending ? <Spinner /> : 'Start test'}
         </Button>
       </form>

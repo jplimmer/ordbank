@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import {
   ColumnDef,
   flexRender,
@@ -99,11 +100,11 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md border border-input">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-input">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
@@ -131,7 +132,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={getRowClassName?.(row.original) ?? ''}
+                  className={cn(
+                    'border-input',
+                    getRowClassName?.(row.original) ?? ''
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

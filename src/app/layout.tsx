@@ -55,15 +55,26 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClerkProvider appearance={{ cssLayerName: 'clerk' }}>
+        <ClerkProvider
+          appearance={{
+            cssLayerName: 'clerk',
+            variables: {
+              colorPrimary: 'var(--night)',
+            },
+          }}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange={true}
+            disableTransitionOnChange={false}
           >
             <LanguagePairProvider initialPair={initialPair}>
-              <div className="content-grid grid-rows-[auto_1fr_auto] min-h-svh">
+              <div
+                className="app-shell content-grid grid-rows-[auto_1fr_auto] min-h-svh 
+                  bg-gradient-to-b transition-colors duration-700
+                  from-sky-start to-sky-end"
+              >
                 <Header />
                 <main className="full-width content-grid">{children}</main>
                 <footer>

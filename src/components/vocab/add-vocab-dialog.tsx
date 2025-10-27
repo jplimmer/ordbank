@@ -20,7 +20,7 @@ export function AddVocabDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={variant} className={`${className}`}>
+        <Button variant={variant} size="lg" className={`${className}`}>
           Add word
         </Button>
       </DialogTrigger>

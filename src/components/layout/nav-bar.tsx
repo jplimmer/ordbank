@@ -1,7 +1,7 @@
 'use client';
 
 import { ROUTES } from '@/lib/constants/routes';
-import { BookType, Home, Info } from 'lucide-react';
+import { Home, Info, NotepadText } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
@@ -25,7 +25,7 @@ export function NavBar() {
               className="h-fit"
             >
               {isHome ? (
-                <BookType className="size-8" />
+                <NotepadText className="size-8" />
               ) : (
                 <Home className="size-8" />
               )}
