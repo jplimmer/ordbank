@@ -7,19 +7,17 @@ const buttonStyle = 'text-lg h-fit w-40 px-8 py-4 ';
 export function LandingPage() {
   return (
     <div className="grid place-items-center py-4">
-      <div className="grid gap-12 px-4 sm:px-10 text-pretty">
-        <div className="grid gap-6">
-          <h1 className="font-semibold text-3xl text-center">
-            Welcome to Ordbank!
-          </h1>
-          <p className="text-muted-foreground">
-            Ordbank helps you learn words that you struggle to remember.
-          </p>
-          <p className="text-muted-foreground">
-            Create your own list of words and translations that are important to
-            you, and test yourself to commit them to memory.
-          </p>
-        </div>
+      <div className="grid gap-6 px-4 sm:px-10 text-center text-pretty">
+        <h1 className="font-semibold text-3xl text-center">
+          Welcome to Ordbank!
+        </h1>
+        <p className="text-muted-foreground">
+          Ordbank helps you learn words that you struggle to remember.
+        </p>
+        <p className="text-muted-foreground">
+          Create your own list of words and translations that are important to
+          you, and test yourself to commit them to memory.
+        </p>
         <p className="text-muted-foreground">
           Sign-in to get started, or read the user guide to find out more!
         </p>

@@ -2,6 +2,9 @@ import { useActivePair } from '@/contexts/language-pair';
 import { Direction } from '@/lib/types/test';
 import { RefObject } from 'react';
 
+const questionWordStyle =
+  'inline-block text-4xl font-semibold border border-[var(--color-primary)] rounded-md px-6 py-3';
+
 interface QuestionPanelProps {
   questionWord: string;
   direction: Direction;
@@ -35,9 +38,6 @@ export function QuestionPanel({
     </div>
   );
 }
-
-const questionWordStyle =
-  'inline-block text-4xl font-semibold border rounded-md px-6 py-3';
 
 function SourceQuestion({
   targetLanguage,
