@@ -54,8 +54,8 @@ export default function LanguagesPage() {
       <h1 className="text-center text-2xl font-semibold">Languages</h1>
       <div className="grid justify-items-center space-y-8">
         <Suspense fallback={<Spinner />}>
-          <AddLanguagePairDialog />
           <LanguagesTable dataPromise={getLanguagePairs()} />
+          <AddLanguagePairDialog />
         </Suspense>
       </div>
     </div>
