@@ -35,11 +35,11 @@ export function LanguageSelect({
     >
       <SelectTrigger
         aria-label="Select language pair"
-        className="cursor-pointer min-w-[110px]"
+        className="cursor-pointer min-w-[110px] border-border bg-border/30"
       >
         <SelectValue placeholder="Languages" />
       </SelectTrigger>
-      <SelectContent align="start" className="bg-input/30 min-w-[110px]">
+      <SelectContent align="start" className="bg-border/30 min-w-[110px]">
         {languagePairs.map((lp) => (
           <SelectItem
             key={lp.id}

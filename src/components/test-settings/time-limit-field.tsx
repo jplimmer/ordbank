@@ -33,9 +33,10 @@ export function TimeLimitField({
           checked={timeLimitSet}
           onCheckedChange={setTimeLimitSet}
           aria-label="Enable time limit"
+          className="data-[state=unchecked]:bg-border"
         />
         <Input
-          className="w-17 text-center"
+          className="w-17 text-center disabled:border-border"
           id="timeLimitMins"
           name="timeLimitMins"
           type="number"

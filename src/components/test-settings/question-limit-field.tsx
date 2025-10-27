@@ -33,9 +33,10 @@ export function QuestionLimitField({
           checked={questionLimitSet}
           onCheckedChange={setQuestionLimitSet}
           aria-label="Enable question limit"
+          className="data-[state=unchecked]:bg-border"
         />
         <Input
-          className="w-17 text-center"
+          className="w-17 text-center disabled:border-border"
           id="questionLimit"
           name="questionLimit"
           type="number"
