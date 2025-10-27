@@ -66,7 +66,7 @@ export const createVocabItem = async (
   }
 
   // Revalidate route and return created item
-  revalidatePath(ROUTES.VOCAB);
+  revalidatePath(ROUTES.VOCABULARY);
   return { success: true, data: createResult.data };
 };
 
@@ -116,7 +116,7 @@ export const updateVocabItem = async (
   }
 
   // Revalidate route and return updated item
-  revalidatePath(ROUTES.VOCAB);
+  revalidatePath(ROUTES.VOCABULARY);
   return { success: true, data: updateResult.data };
 };
 
@@ -138,6 +138,6 @@ export const deleteVocabItem = async (
   }
 
   // Revalidate route and return deleted item
-  revalidatePath(ROUTES.VOCAB);
+  revalidatePath(ROUTES.VOCABULARY);
   return { success: true, data: deleteResult.data };
 };
