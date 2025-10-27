@@ -55,7 +55,14 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClerkProvider appearance={{ cssLayerName: 'clerk' }}>
+        <ClerkProvider
+          appearance={{
+            cssLayerName: 'clerk',
+            variables: {
+              colorPrimary: 'var(--night)',
+            },
+          }}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
