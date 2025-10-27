@@ -2,7 +2,7 @@ import { SignIn } from '@clerk/nextjs';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sign In | Ordbank',
+  title: 'Sign In',
   description: 'Sign in to access your vocabulary lists and continue learning.',
 };
 

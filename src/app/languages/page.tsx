@@ -13,7 +13,7 @@ import { Suspense } from 'react';
 import { toast } from 'react-hot-toast';
 
 export const metadata: Metadata = {
-  title: 'Languages | Ordbank',
+  title: 'Languages',
   description: 'Manage your language pair profiles',
 };
 

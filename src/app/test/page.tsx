@@ -13,7 +13,7 @@ import { TestSettings } from '@/lib/types/test';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Test Yourself | Ordbank',
+  title: 'Test Yourself',
   description: 'Test your vocabulary knowledge',
 };
 
