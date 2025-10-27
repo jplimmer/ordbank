@@ -2,9 +2,9 @@
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
-A vocabulary learning application built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**.
+A lightweight, mobile-first vocabulary learning app built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**.
 
-Currently in development, this app will allow language learners to test themselves on the vocabulary they find most challenging.
+Create custom word lists for any language pair, then test yourself on the go. The app focuses on words you find challenging, making practice sessions more effective. Designed for learners who want control over what they study — no pre-made decks, just your vocabulary.
 
 ## Contents
 
@@ -17,10 +17,13 @@ Currently in development, this app will allow language learners to test themselv
 
 ## ✨ Features
 
-- **Vocabulary Management:** add, edit and delete vocabulary entries with source language terms and translations
-- **Interactive testing:** Multiple testing modes, including typing and multiple choice
-- **Flexible Practice:** Set time limits, question counts or unlimited practice sessions
-- **Adaptive Learning:** Words you struggle with most feature more heavily in tests
+- **Custom vocabulary lists** - Add your own words and translations for any language pair
+- **Multi-language support** - Manage multiple language pairs (e.g., Swedish-English, Italian-French) with easy switching
+- **Smart testing** - Adaptive question selection that prioritizes words you struggle with
+- **Flexible test options**
+  - Choose translation direction (source-to-target, target-to-source, or random)
+  - Multiple choice (3 options) or typed answers
+  - Optional question and time limits
 
 ## 🛠 Tech stack
 
@@ -44,8 +47,8 @@ Currently in development, this app will allow language learners to test themselv
 
 #### Features & Functionality
 
-- **[Zod](https://zod.dev/)** - Runtime type validation for forms and data schemas
 - **[Clerk](https://clerk.com/)** - Authentication and protected routes
+- **[Zod](https://zod.dev/)** - Runtime type validation for forms and data schemas
 - **[React Hot Toast](https://react-hot-toast.com/)** - Toast notification system for user feedback
 
 #### Development Tools

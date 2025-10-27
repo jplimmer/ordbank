@@ -189,12 +189,12 @@ export function UserGuide() {
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 ml-2">
               <li>Add new words with their translations</li>
               <li>Edit existing entries</li>
-              <li>Remove words you no longer want to practice</li>
+              <li>Remove words you no longer want to practise</li>
               <li>See your complete word list at a glance</li>
             </ul>
             <p className="text-sm text-muted-foreground mt-3">
-              Keep your lists focused on words you actually want to
-              learn—quality over quantity.
+              Keep your lists focused on words you actually want to learn -
+              quality over quantity.
             </p>
           </AccordionContent>
         </AccordionItem>
