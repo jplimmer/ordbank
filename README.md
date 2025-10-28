@@ -9,6 +9,7 @@ Create custom word lists for any language pair, then test yourself on the go. Th
 ## Contents
 
 - ✨ [Features](#-features)
+- 🖼️ [Screenshots](#️-screenshots)
 - 🛠 [Tech stack](#-tech-stack)
 - ⚙️ [Installation for development](#️-installation-for-development)
 - 📂 [Project structure](#-project-structure)
@@ -24,6 +25,31 @@ Create custom word lists for any language pair, then test yourself on the go. Th
   - Choose translation direction (source-to-target, target-to-source, or random)
   - Multiple choice (3 options) or typed answers
   - Optional question and time limits
+
+## 🖼️ Screenshots
+
+<table>
+    <tr>
+        <td width="50%">
+            <img src="screenshots/landing.png">
+            <i>Landing page</i>
+        </td>
+        <td width="50%">
+            <img src="screenshots/vocabulary.png">
+            <i>Vocabulary page with open language select</i>
+        </td>
+    </tr>
+    <tr>
+        <td width="50%">
+            <img src="screenshots/test-settings.png">
+            <i>Test settings</i>
+        </td>
+        <td width="50%">
+            <img src="screenshots/test.png">
+            <i>Example test question</i>
+        </td>
+    </tr>
+</table>
 
 ## 🛠 Tech stack
 
