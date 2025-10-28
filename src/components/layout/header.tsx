@@ -23,8 +23,8 @@ export async function Header() {
   return (
     <header className="full-width content-grid py-4">
       <div className="flex justify-between">
-        <LanguageSelect languagePairs={languagePairs} error={error} />
-        <ThemeToggle />
+        {user && <LanguageSelect languagePairs={languagePairs} error={error} />}
+        <ThemeToggle className="ml-auto" />
       </div>
     </header>
   );
