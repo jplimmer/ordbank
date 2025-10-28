@@ -30,7 +30,7 @@ export function LanguagesTable({ dataPromise }: LanguagesTableProps) {
       getRowClassName={(languagePair) => {
         const isActive = languagePair.id === activePair?.id;
         return isActive
-          ? 'bg-accent dark:bg-muted border-l-4 border-l-primary'
+          ? 'bg-accent dark:bg-muted !border-l-4 border-l-primary'
           : '';
       }}
     />
