@@ -3,23 +3,36 @@
 import { updateLanguagePair } from '@/lib/actions/language-pairs';
 import { FormResult } from '@/lib/types/common';
 import { LanguagePair } from '@/lib/types/language-pair';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { Form } from './form';
 
 interface EditDialogProps {
-  children: React.ReactNode;
   languagePair: LanguagePair;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const initialState: FormResult<LanguagePair> = {
-  success: false,
-  error: '',
-  formData: new FormData(),
-};
+export function EditDialog({
+  languagePair,
+  open,
+  onOpenChange,
+}: EditDialogProps) {
+  const createInitialFormData = (languagePair: LanguagePair): FormData => {
+    const formData = new FormData();
+    formData.set('source-language', languagePair.sourceLanguage);
+    formData.set('target-language', languagePair.targetLanguage);
 
-export function EditDialog({ children, languagePair }: EditDialogProps) {
+    return formData;
+  };
+
+  const initialState: FormResult<LanguagePair> = {
+    success: false,
+    error: '',
+    formData: createInitialFormData(languagePair),
+  };
+
   const boundUpdate = updateLanguagePair.bind(null, languagePair.id);
   const clientAction = async (
     prevState: FormResult<LanguagePair>,
@@ -28,8 +41,8 @@ export function EditDialog({ children, languagePair }: EditDialogProps) {
     const result = await boundUpdate(prevState, formData);
 
     if (result.success) {
-      setOpen(false);
-      toast.success(`${languagePair.pairName} updated!`);
+      onOpenChange(false);
+      toast.success(`${result.data.pairName} updated!`);
     }
 
     return result;
@@ -39,12 +52,11 @@ export function EditDialog({ children, languagePair }: EditDialogProps) {
     clientAction,
     initialState
   );
-  const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+        <DialogTitle className="py-2">{`Edit '${languagePair.pairName}'`}</DialogTitle>
         <Form state={state} formAction={formAction} isPending={isPending} />
       </DialogContent>
     </Dialog>

@@ -13,17 +13,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '../ui/alert-dialog';
 
 interface DeleteAlertDialogProps {
-  children: React.ReactNode;
   languagePair: LanguagePair;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function DeleteAlertDialog({
-  children,
   languagePair,
+  open,
+  onOpenChange,
 }: DeleteAlertDialogProps) {
   const { activePair, setActive } = useLanguagePairContext();
 
@@ -40,8 +41,7 @@ export function DeleteAlertDialog({
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
