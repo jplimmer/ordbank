@@ -58,8 +58,8 @@ export default function LanguagesPage() {
       <div className="grid justify-items-center space-y-8">
         <Suspense fallback={<Spinner />}>
           <LanguagesTable dataPromise={getLanguagePairs()} />
-          <div className="w-full flex justify-around">
-            <AddLanguagePairDialog />
+          <div className="w-full flex flex-col items-center gap-4 sm:flex-row sm:justify-around">
+            <AddLanguagePairDialog className="w-fit" />
             <Button size="lg" variant="secondary" className="w-[180px]" asChild>
               <Link href={ROUTES.VOCABULARY}>View vocabulary</Link>
             </Button>
