@@ -34,7 +34,7 @@ export function DeleteAlertDialog({
       if (deleteResult.data.id === activePair?.id) {
         setActive(null);
       }
-      toast.success(`'${languagePair.pairName}' deleted!`);
+      toast.success(`'${languagePair.pairName}' deleted`);
     } else {
       toast.error('Language pair could not be deleted, please try again.');
     }

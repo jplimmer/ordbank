@@ -1,5 +1,5 @@
-import { AddLanguagePairDialog } from '@/components/languages/add-language-pair-dialog';
 import { LanguagePairTableEntry } from '@/components/languages/columns';
+import { CreateDialog } from '@/components/languages/create-dialog';
 import { LanguagesTable } from '@/components/languages/table';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -59,7 +59,7 @@ export default function LanguagesPage() {
         <Suspense fallback={<Spinner />}>
           <LanguagesTable dataPromise={getLanguagePairs()} />
           <div className="w-full flex flex-col items-center gap-4 sm:flex-row sm:justify-around">
-            <AddLanguagePairDialog className="w-fit" />
+            <CreateDialog className="w-fit" />
             <Button size="lg" variant="secondary" className="w-[180px]" asChild>
               <Link href={ROUTES.VOCABULARY}>View vocabulary</Link>
             </Button>

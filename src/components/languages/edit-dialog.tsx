@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguagePairContext } from '@/contexts/language-pair';
 import { updateLanguagePair } from '@/lib/actions/language-pairs';
 import { FormResult } from '@/lib/types/common';
 import { LanguagePair } from '@/lib/types/language-pair';
@@ -19,6 +20,8 @@ export function EditDialog({
   open,
   onOpenChange,
 }: EditDialogProps) {
+  const { setActive } = useLanguagePairContext();
+
   const createInitialFormData = (languagePair: LanguagePair): FormData => {
     const formData = new FormData();
     formData.set('source-language', languagePair.sourceLanguage);
@@ -41,8 +44,9 @@ export function EditDialog({
     const result = await boundUpdate(prevState, formData);
 
     if (result.success) {
+      setActive(result.data);
       onOpenChange(false);
-      toast.success(`${result.data.pairName} updated!`);
+      toast.success(`${result.data.pairName} updated`);
     }
 
     return result;
