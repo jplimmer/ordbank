@@ -11,7 +11,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '../ui/empty';
-import { LanguagePairTableEntry, languagesColumns } from './languages-columns';
+import { LanguagePairTableEntry, languagesColumns } from './columns';
 
 interface LanguagesTableProps {
   dataPromise: Promise<LanguagePairTableEntry[]>;
