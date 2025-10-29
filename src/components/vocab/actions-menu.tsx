@@ -43,12 +43,12 @@ export function ActionsMenu({ vocabItem }: { vocabItem: VocabItem }) {
         </DropdownMenuContent>
       </DropdownMenu>
       <EditDialog
+        key={vocabItem.id + String(showEditDialog)}
         vocabItem={vocabItem}
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
       />
       <DeleteAlertDialog
-        key={vocabItem.id + String(showEditDialog)}
         vocabItem={vocabItem}
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}

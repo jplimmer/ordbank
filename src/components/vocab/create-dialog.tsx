@@ -36,10 +36,13 @@ export function CreateDialog({
     prevState: FormResult<VocabItem>,
     formData: FormData
   ) => {
+    const intent = formData.get('intent');
     const result = await createVocabItem(prevState, formData);
 
     if (result.success) {
-      setOpen(false);
+      if (intent === 'save') {
+        setOpen(false);
+      }
       toast.success(`Added '${result.data.source}'`);
     }
 
@@ -62,7 +65,12 @@ export function CreateDialog({
         <DialogHeader>
           <DialogTitle className="py-2">Add new word</DialogTitle>
         </DialogHeader>
-        <Form state={state} formAction={formAction} isPending={isPending} />
+        <Form
+          state={state}
+          formAction={formAction}
+          isPending={isPending}
+          showSaveAndAddAnother={true}
+        />
       </DialogContent>
     </Dialog>
   );
