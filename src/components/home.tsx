@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { CreateDialog } from './vocab';
 
 const buttonStyle =
-  'w-1/2 h-fit rounded-xl p-6 text-xl cursor-pointer hover:shadow-md capitalize';
+  'w-3xs h-fit rounded-xl p-6 text-xl cursor-pointer hover:shadow-md capitalize';
 
 export function Home() {
   return (
