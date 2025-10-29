@@ -1,7 +1,7 @@
 import { NoLanguagePairFallback } from '@/components/fallbacks/no-language-pair-fallback';
 import { RequireActivePairContext } from '@/components/guards/require-active-pair-context';
 import { Spinner } from '@/components/ui/spinner';
-import { AddVocabDialog, VocabTable } from '@/components/vocab';
+import { AddVocabDialog, Table } from '@/components/vocab';
 import { getCurrentUserOrRedirect } from '@/lib/services/auth';
 import { getVocab } from '@/lib/services/vocab';
 import { Metadata } from 'next';
@@ -33,7 +33,7 @@ export default async function VocabPage() {
       <div className="space-y-4">
         <RequireActivePairContext>
           <Suspense fallback={<Spinner />}>
-            <VocabTable dataPromise={vocabPromise} />
+            <Table dataPromise={vocabPromise} />
             <AddVocabDialog className="w-full" />
           </Suspense>
         </RequireActivePairContext>

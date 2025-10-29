@@ -13,13 +13,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '../ui/empty';
-import { getVocabColumns } from './vocab-columns';
+import { getVocabColumns } from './columns';
 
-interface VocabTableProps {
+interface TableProps {
   dataPromise: Promise<ServiceResult<VocabItem[]>>;
 }
 
-export function VocabTable({ dataPromise }: VocabTableProps) {
+export function Table({ dataPromise }: TableProps) {
   const { sourceLanguage, targetLanguage } = useActivePair();
 
   const columns = useMemo(

@@ -1,7 +1,7 @@
 import {
   CreateDialog,
   LanguagePairTableEntry,
-  LanguagesTable,
+  Table,
 } from '@/components/languages';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -59,7 +59,7 @@ export default function LanguagesPage() {
       <h1 className="text-center text-2xl font-semibold">Languages</h1>
       <div className="grid justify-items-center space-y-8">
         <Suspense fallback={<Spinner />}>
-          <LanguagesTable dataPromise={getLanguagePairs()} />
+          <Table dataPromise={getLanguagePairs()} />
           <div className="w-full flex flex-col items-center gap-4 sm:flex-row sm:justify-around">
             <CreateDialog className="w-fit" />
             <Button size="lg" variant="secondary" className="w-[180px]" asChild>

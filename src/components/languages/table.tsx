@@ -11,19 +11,19 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '../ui/empty';
-import { LanguagePairTableEntry, languagesColumns } from './columns';
+import { LanguagePairTableEntry, columns } from './columns';
 
-interface LanguagesTableProps {
+interface TableProps {
   dataPromise: Promise<LanguagePairTableEntry[]>;
 }
 
-export function LanguagesTable({ dataPromise }: LanguagesTableProps) {
+export function Table({ dataPromise }: TableProps) {
   const activePair = useLanguagePairContext().activePair;
   const data = use(dataPromise);
 
   return (
     <DataTable
-      columns={languagesColumns}
+      columns={columns}
       data={data}
       empty={empty}
       filter={false}

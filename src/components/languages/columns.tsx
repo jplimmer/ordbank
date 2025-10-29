@@ -9,7 +9,7 @@ export type LanguagePairTableEntry = LanguagePair & {
   vocabCount: number;
 };
 
-export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
+export const columns: ColumnDef<LanguagePairTableEntry>[] = [
   {
     accessorKey: 'sourceLanguage',
     header: ({ column }) => (
