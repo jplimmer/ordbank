@@ -3,7 +3,7 @@ import { Direction } from '@/lib/types/test';
 import { RefObject } from 'react';
 
 const questionWordStyle =
-  'inline-block text-4xl font-semibold border border-[var(--color-primary)] rounded-md px-6 py-3';
+  'inline-block text-4xl font-semibold border border-[var(--color-primary)] rounded-md bg-border/70 px-6 py-3';
 
 interface QuestionPanelProps {
   questionWord: string;

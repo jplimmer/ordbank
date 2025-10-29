@@ -109,6 +109,7 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
+                      className={header.column.columnDef.meta?.className}
                       style={{
                         width: header.getSize(),
                         textAlign: header.column.columnDef.meta?.align,
@@ -140,6 +141,7 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
+                      className={cell.column.columnDef.meta?.className}
                       style={{
                         width: cell.column.getSize(),
                         textAlign: cell.column.columnDef.meta?.align,

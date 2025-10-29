@@ -1,11 +1,12 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const iconStyle = 'size-5';
@@ -45,7 +46,7 @@ export function ThemeToggle() {
       onClick={handleToggle}
       title={`Switch to ${nextTheme} theme`}
       aria-label={`Switch to ${nextTheme} theme`}
-      className="h-fit py-2 cursor-pointer"
+      className={cn('h-fit py-2 cursor-pointer', className)}
     >
       {icon}
     </Button>

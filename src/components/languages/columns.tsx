@@ -9,7 +9,7 @@ export type LanguagePairTableEntry = LanguagePair & {
   vocabCount: number;
 };
 
-export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
+export const columns: ColumnDef<LanguagePairTableEntry>[] = [
   {
     accessorKey: 'sourceLanguage',
     header: ({ column }) => (
@@ -18,6 +18,9 @@ export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
     cell: ({ getValue }) => {
       const value = String(getValue() ?? '');
       return <span className="capitalize">{value}</span>;
+    },
+    meta: {
+      className: 'hidden sm:table-cell',
     },
   },
   {
@@ -29,6 +32,19 @@ export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
       const value = String(getValue() ?? '');
       return <span className="capitalize">{value}</span>;
     },
+    meta: {
+      className: 'hidden sm:table-cell',
+    },
+  },
+  {
+    accessorKey: 'pairName',
+    header: ({ column }) => (
+      <SortableColumnHeader column={column} header="Pair Name" />
+    ),
+    meta: {
+      className: 'sm:hidden',
+    },
+    size: 100,
   },
   {
     accessorKey: 'vocabCount',
@@ -39,11 +55,11 @@ export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
       align: 'end',
     },
     size: 110,
-    minSize: 110,
+    minSize: 100,
   },
   {
     id: 'actions',
-    header: 'Actions',
+    header: () => <span className="sr-only sm:not-sr-only">Actions</span>,
     cell: ({ row }) => {
       const languagePair = row.original;
 
@@ -53,6 +69,5 @@ export const languagesColumns: ColumnDef<LanguagePairTableEntry>[] = [
       align: 'end',
     },
     size: 80,
-    minSize: 80,
   },
 ];

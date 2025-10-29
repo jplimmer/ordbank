@@ -11,27 +11,25 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '../ui/empty';
-import { LanguagePairTableEntry, languagesColumns } from './languages-columns';
+import { LanguagePairTableEntry, columns } from './columns';
 
-interface LanguagesTableProps {
+interface TableProps {
   dataPromise: Promise<LanguagePairTableEntry[]>;
 }
 
-export function LanguagesTable({ dataPromise }: LanguagesTableProps) {
+export function Table({ dataPromise }: TableProps) {
   const activePair = useLanguagePairContext().activePair;
   const data = use(dataPromise);
 
   return (
     <DataTable
-      columns={languagesColumns}
+      columns={columns}
       data={data}
       empty={empty}
       filter={false}
       getRowClassName={(languagePair) => {
         const isActive = languagePair.id === activePair?.id;
-        return isActive
-          ? 'bg-accent dark:bg-muted border-l-4 border-l-primary'
-          : '';
+        return isActive ? 'bg-secondary !border-l-4 border-l-primary' : '';
       }}
     />
   );
