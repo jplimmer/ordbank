@@ -84,6 +84,15 @@ export function Form({
         )}
 
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+          <Button
+            type="submit"
+            name="intent"
+            value="save"
+            disabled={isPending}
+            className="sm:min-w-[170px] sm:ml-auto"
+          >
+            {isPending && clickedButton === 'save' ? 'Saving...' : 'Save'}
+          </Button>
           {showSaveAndAddAnother && (
             <Button
               type="submit"
@@ -97,15 +106,6 @@ export function Form({
                 : 'Save & Add Another'}
             </Button>
           )}
-          <Button
-            type="submit"
-            name="intent"
-            value="save"
-            disabled={isPending}
-            className="sm:min-w-[170px] sm:ml-auto"
-          >
-            {isPending && clickedButton === 'save' ? 'Saving...' : 'Save'}
-          </Button>
         </div>
       </form>
     </div>

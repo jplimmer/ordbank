@@ -35,7 +35,7 @@ export const getVocabColumns = (
   },
   {
     id: 'actions',
-    header: 'Actions',
+    header: () => <span className="sr-only sm:not-sr-only">Actions</span>,
     cell: ({ row }) => {
       const vocabItem = row.original;
 
@@ -44,8 +44,7 @@ export const getVocabColumns = (
     meta: {
       align: 'end',
     },
-    size: 80,
-    minSize: 80,
     enableGlobalFilter: false,
+    size: 80,
   },
 ];
