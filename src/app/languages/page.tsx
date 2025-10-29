@@ -1,6 +1,8 @@
-import { LanguagePairTableEntry } from '@/components/languages/columns';
-import { CreateDialog } from '@/components/languages/create-dialog';
-import { LanguagesTable } from '@/components/languages/table';
+import {
+  CreateDialog,
+  LanguagePairTableEntry,
+  LanguagesTable,
+} from '@/components/languages';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { DATABASE_ERROR } from '@/lib/constants/errors';
