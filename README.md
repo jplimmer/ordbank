@@ -2,7 +2,7 @@
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
-A lightweight, mobile-first vocabulary learning app built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**.
+A lightweight, mobile-first vocabulary learning app built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**. Install it as a **PWA** for a native app experience.
 
 Create custom word lists for any language pair, then test yourself on the go. The app focuses on words you find challenging, making practice sessions more effective. Designed for learners who want control over what they study — no pre-made decks, just your vocabulary.
 
@@ -13,6 +13,7 @@ Create custom word lists for any language pair, then test yourself on the go. Th
 - 🛠 [Tech stack](#-tech-stack)
 - ⚙️ [Installation for development](#️-installation-for-development)
 - 📂 [Project structure](#-project-structure)
+- 🚀 [Future development](#-future-development)
 - 🧩 [Contributing](#-contributing)
 - 📜 [Licence](#-licence)
 
@@ -25,6 +26,7 @@ Create custom word lists for any language pair, then test yourself on the go. Th
   - Choose translation direction (source-to-target, target-to-source, or random)
   - Multiple choice (3 options) or typed answers
   - Optional question and time limits
+- **Progressive Web App (PWA)** - Install on your device for a native app experience with offline support
 
 ## 🖼️ Screenshots
 
@@ -163,9 +165,21 @@ ordbank/
 └── README.md
 ```
 
+## 🚀 Future development
+
+Potential features and improvements include:
+
+- **Automatic word forms** - Integration with language APIs to automatically generate conjugations, declensions, and grammatical variations (plural forms, verb tenses, etc.) from a single word entry
+- **Import/export** - allow users to backup and share word lists
+- **Audio pronunciation** - speech-to-text and vice-versa for vocabulary practice
+
 ## 🧩 Contributing
 
-This is currently a personal project, but I'm open to contributions! If you'd like to contribute:
+This is currently a personal project, but suggestions and contributions are welcome!
+
+**For feature requests or bug reports:** Please open an issue first to discuss your ideas.
+
+**For code contributions:**
 
 1. Fork the repository.
 
@@ -189,6 +203,8 @@ This is currently a personal project, but I'm open to contributions! If you'd li
    ```
 
 5. Open a pull request from your fork to the main repository.
+
+Please note that as a personal project, I may be selective about which contributions to merge.
 
 ## 📜 Licence
 
