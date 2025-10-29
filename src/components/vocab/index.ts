@@ -1,2 +1,2 @@
-export { AddVocabDialog } from './add-vocab-dialog';
+export { CreateDialog } from './create-dialog';
 export { Table } from './table';
