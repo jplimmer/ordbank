@@ -50,3 +50,10 @@ next-env.d.ts
 
 # Neon
 .neon
+
+# Serwist
+public/sw*
+public/swe-worker*
+
+# HTTPS
+certificates

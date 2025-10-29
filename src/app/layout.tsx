@@ -19,16 +19,36 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+// Metadata constants
+const APP_NAME = 'Ordbank';
+const APP_DEFAULT_TITLE = 'Ordbank';
+const APP_TITLE_TEMPLATE = '%s | Ordbank';
+const APP_DESCRIPTION = "Ordbank - Learn vocabulary that's important to you";
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://ordbank.app'),
+  applicationName: APP_NAME,
   title: {
-    default: 'Ordbank',
-    template: '%s | Ordbank',
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
   },
-  description: "Ordbank - Learn vocabulary that's important to you",
+  description: APP_DESCRIPTION,
   openGraph: {
-    siteName: 'Ordbank',
     type: 'website',
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: APP_DEFAULT_TITLE,
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 
