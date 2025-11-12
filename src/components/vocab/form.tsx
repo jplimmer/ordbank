@@ -57,6 +57,7 @@ export function Form({
             defaultValue={inputValues?.source ?? ''}
             required
             autoComplete="off"
+            autoCapitalize="off"
           />
           {!state.success && state.fieldErrors?.source && (
             <FieldError>{state.fieldErrors.source.join('. ')}</FieldError>
@@ -73,6 +74,7 @@ export function Form({
             defaultValue={inputValues?.target ?? ''}
             required
             autoComplete="off"
+            autoCapitalize="off"
           />
           {!state.success && state.fieldErrors?.target && (
             <FieldError>{state.fieldErrors.target.join('. ')}</FieldError>
