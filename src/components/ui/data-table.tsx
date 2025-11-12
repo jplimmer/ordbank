@@ -86,6 +86,7 @@ export function DataTable<TData, TValue>({
               value={globalFilter}
               onChange={(e) => table.setGlobalFilter(e.target.value)}
               className="text-sm placeholder:italic"
+              autoComplete="off"
             />
             <InputGroupAddon>
               <Search />
