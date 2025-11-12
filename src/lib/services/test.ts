@@ -119,7 +119,7 @@ export const checkAnswer = async ({
     .where(eq(vocabulary.id, vocabId))
     .limit(1);
 
-  const correct = answer === correctAnswer.word;
+  const correct = answer.toLowerCase() === correctAnswer.word.toLowerCase();
 
   if (correct) {
     return { correct: true };
