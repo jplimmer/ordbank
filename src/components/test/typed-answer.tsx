@@ -38,6 +38,8 @@ export function TypedAnswer({
         onChange={(e) => onSetAnswer(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
+        autoComplete="off"
+        autoCapitalize="off"
       />
     </>
   );
