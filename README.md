@@ -2,7 +2,7 @@
 
 ![Development Status](https://img.shields.io/badge/Status-Development-yellow)
 
-A lightweight, mobile-first vocabulary learning app built with **Next.js & React**, **Neon PostgreSQL** and **Drizzle ORM**. Install it as a **PWA** for a native app experience.
+A lightweight, mobile-first vocabulary learning app built with **Next.js 15 & React 19**, **Neon PostgreSQL** and **Drizzle ORM**. Install it as a **PWA** for a native app experience.
 
 Create custom word lists for any language pair, then test yourself on the go. The app focuses on words you find challenging, making practice sessions more effective. Designed for learners who want control over what they study — no pre-made decks, just your vocabulary.
 
