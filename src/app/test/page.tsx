@@ -1,9 +1,7 @@
-import { ErrorFallback } from '@/components/fallbacks/error-fallback';
 import { NoLanguagePairFallback } from '@/components/fallbacks/no-language-pair-fallback';
 import { NoTestSettingsFallback } from '@/components/fallbacks/no-test-settings-fallback';
 import { RequireActivePairContext } from '@/components/guards/require-active-pair-context';
-import { TestPageManager } from '@/components/test/test-page-manager';
-import { getQuestion } from '@/lib/actions/test';
+import { TestManager } from '@/components/test/test-manager';
 import { getCurrentUserOrRedirect } from '@/lib/services/auth';
 import {
   createUserTestSettingsInDb,
@@ -56,23 +54,10 @@ export default async function TestPage() {
     );
   }
 
-  // Generate first question server-side
-  const questionResult = await getQuestion(
-    user.activeLanguagePairId,
-    settings.direction,
-    settings.answerMode
-  );
-  if (!questionResult.success) {
-    return <ErrorFallback />;
-  }
-
   return (
     <div className="full-width content-grid justify-items-center items-center">
       <RequireActivePairContext>
-        <TestPageManager
-          initialSettings={settings}
-          initialQuestion={questionResult.data}
-        />
+        <TestManager initialSettings={settings} />
       </RequireActivePairContext>
     </div>
   );

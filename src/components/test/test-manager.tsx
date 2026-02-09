@@ -1,22 +1,11 @@
 'use client';
 
-import { useActivePair } from '@/contexts/language-pair';
+import { useTestManager } from '@/hooks/use-test-manager';
 import { useTimer } from '@/hooks/use-timer';
-import { getQuestion, processAnswer } from '@/lib/actions/test';
-import { getLogger } from '@/lib/logger';
-import {
-  Question,
-  TestAction,
-  TestState,
-  UpdateTestSettings,
-} from '@/lib/types/test';
-import {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useTransition,
-} from 'react';
+import { TestSettings } from '@/lib/types/test';
+import { useEffect, useRef } from 'react';
+import { ErrorFallback } from '../fallbacks/error-fallback';
+import { TestSettingsForm } from '../test-settings/test-settings-form';
 import { Timer } from '../ui/timer';
 import { ActionButtons } from './action-buttons';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
@@ -26,147 +15,50 @@ import { ResultDisplay } from './result-display';
 import { TestSummary } from './test-summary';
 import { TypedAnswer } from './typed-answer';
 
-const logger = getLogger();
-
 interface TestManagerProps {
-  settings: UpdateTestSettings;
-  initialQuestion: Question;
+  initialSettings: TestSettings;
 }
 
-export function TestManager({ settings, initialQuestion }: TestManagerProps) {
-  const activePair = useActivePair();
-
-  // Initial state for reducer
-  const initialTestState: TestState = {
-    inProgress: true,
-    question: initialQuestion,
-    currentAnswer: '',
-    result: null,
-    currentQuestion: 1,
-    score: 0,
-    error: null,
-  };
-
-  const [testState, dispatch] = useReducer(testReducer, initialTestState);
+export function TestManager({ initialSettings }: TestManagerProps) {
   const {
+    testState,
+    startTest,
+    setAnswer,
+    submitAnswer,
+    getNextQuestion,
+    endTest,
+    reset: resetTest,
+    loading,
+  } = useTestManager(initialSettings);
+
+  const {
+    phase,
     question,
     currentAnswer,
     result,
-    currentQuestion,
+    currentQuestionIndex,
     score,
     error,
-    inProgress,
   } = testState;
 
-  // Transitions for loading
-  const [isLoading, startTransition] = useTransition();
-  const isAnswerDisabled = result !== null || isLoading;
+  const isAnswerDisabled = result !== null || loading;
+
+  // Define parameters for Timer component
+  const { seconds, reset: resetTimer } = useTimer({
+    timeLimitSecs: initialSettings.timeLimitMins
+      ? initialSettings.timeLimitMins * 60
+      : undefined,
+    onTimeExpired: endTest,
+  });
 
   // Refs for focus behaviour
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const typedAnswerRef = useRef<HTMLInputElement>(null);
   const questionRef = useRef<HTMLDivElement>(null);
 
-  // Callback function for children to update current answer
-  const setAnswer = (value: string) => {
-    dispatch({ type: 'SET_ANSWER', payload: value });
-  };
-
-  // Submits answer for processing, updates result, score and question count
-  const handleSubmit = async () => {
-    if (!currentAnswer.trim()) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please enter an answer' });
-      return;
-    }
-
-    dispatch({ type: 'SET_ERROR', payload: null });
-    startTransition(async () => {
-      try {
-        const result = await processAnswer({
-          vocabId: question.vocabId,
-          direction: question.direction,
-          answerString: currentAnswer,
-        });
-
-        dispatch({
-          type: 'SUBMIT_ANSWER',
-          payload: result,
-        });
-
-        const isTestEnding =
-          settings.questionLimit !== null &&
-          currentQuestion >= settings.questionLimit;
-
-        if (isTestEnding) handleTestEnd();
-      } catch (error) {
-        logger.error('Error processing answer', error);
-        dispatch({
-          type: 'SET_ERROR',
-          payload: 'Failed to submit answer. Please try again.',
-        });
-      }
-    });
-  };
-
-  // Loads next question and resets currentAnswer and result
-  const handleNextQuestion = async () => {
-    dispatch({ type: 'SET_ERROR', payload: null });
-    startTransition(async () => {
-      try {
-        const nextQuestionResult = await getQuestion(
-          activePair.id,
-          settings.direction,
-          settings.answerMode
-        );
-        if (!nextQuestionResult.success) {
-          throw new Error('Could not fetch next question');
-        }
-        dispatch({
-          type: 'LOAD_NEXT_QUESTION',
-          payload: nextQuestionResult.data,
-        });
-      } catch (error) {
-        logger.error('Error loading question', error);
-        dispatch({
-          type: 'SET_ERROR',
-          payload: 'Failed to load next question. Please try again.',
-        });
-      }
-    });
-  };
-
-  // Sets test state 'inProgress' to false, with a delay for user to see final result
-  const handleTestEnd = useCallback(() => {
-    startTransition(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      dispatch({ type: 'END_TEST' });
-    });
-  }, []);
-
-  // Resets test to initial state
-  const handleReset = () => {
-    startTransition(async () => {
-      // Reset timer
-      reset();
-      // Get new initial question and pass to reducer
-      const newQuestionResult = await getQuestion(
-        activePair.id,
-        settings.direction,
-        settings.answerMode
-      );
-      if (!newQuestionResult.success) {
-        throw new Error('Could not fetch new question');
-      }
-      dispatch({
-        type: 'RESET_TEST',
-        payload: { ...initialTestState, question: newQuestionResult.data },
-      });
-    });
-  };
-
   // Focuses on TypedAnswer component or QuestionPanel when new question loads
   useEffect(() => {
-    if (!result) {
+    if (!result && question) {
       if (question.answerMode === 'typed') {
         requestAnimationFrame(() => typedAnswerRef.current?.focus());
       } else {
@@ -177,41 +69,60 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
 
   // Focuses on NextQuestionButton when result returned
   useEffect(() => {
-    if (result && !isLoading) {
+    if (result && !loading) {
       nextButtonRef.current?.focus();
     }
-  }, [result, isLoading]);
+  }, [result, loading]);
 
-  // Define parameters for Timer component
-  const { seconds, reset } = useTimer({
-    timeLimitSecs: settings.timeLimitMins
-      ? settings.timeLimitMins * 60
-      : undefined,
-    onTimeExpired: handleTestEnd,
-  });
+  // Resets both timer and test
+  const handleReset = () => {
+    resetTimer();
+    resetTest();
+  };
 
-  // Show test summary screen if test not in progress
-  if (!inProgress) {
+  // Ends test after a short delay, so user can see the final result
+  const handleEndTest = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    endTest();
+  };
+
+  // Show settings form if test not yet started
+  if (phase === 'settings') {
+    return (
+      <TestSettingsForm
+        initialSettings={initialSettings}
+        onSubmit={startTest}
+        isLoading={loading}
+      />
+    );
+  }
+
+  // Show test summary screen if test completed
+  if (phase === 'completed') {
     return (
       <TestSummary
         score={score}
-        totalQuestions={settings.questionLimit ?? currentQuestion - 1}
+        totalQuestions={initialSettings.questionLimit ?? currentQuestionIndex}
         onReset={handleReset}
-        isLoading={isLoading}
+        isLoading={loading}
       />
     );
+  }
+
+  if (!question) {
+    return <ErrorFallback />;
   }
 
   return (
     <div className="grid justify-center gap-12">
       <div className="grid grid-cols-2 items-center font-mono">
         <QuestionCounter
-          questionLimit={settings.questionLimit}
-          currentQuestion={currentQuestion}
+          questionLimit={initialSettings.questionLimit}
+          currentQuestion={currentQuestionIndex + 1}
         />
         <Timer
           seconds={seconds}
-          isCountingDown={settings.timeLimitMins !== null}
+          isCountingDown={initialSettings.timeLimitMins !== null}
           className="justify-self-end"
         />
       </div>
@@ -231,7 +142,7 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         <TypedAnswer
           value={currentAnswer}
           onSetAnswer={setAnswer}
-          onSubmit={handleSubmit}
+          onSubmit={submitAnswer}
           disabled={isAnswerDisabled}
           ref={typedAnswerRef}
         />
@@ -246,54 +157,17 @@ export function TestManager({ settings, initialQuestion }: TestManagerProps) {
         )}
         <ActionButtons
           isAnswered={result !== null}
-          onSubmit={handleSubmit}
-          onNext={handleNextQuestion}
-          isLoading={isLoading}
-          onEnd={handleTestEnd}
+          onSubmit={submitAnswer}
+          onNext={getNextQuestion}
+          isLoading={loading}
+          onEnd={handleEndTest}
           showEndButton={
-            settings.questionLimit !== null || settings.timeLimitMins !== null
+            initialSettings.questionLimit !== null ||
+            initialSettings.timeLimitMins !== null
           }
           nextButtonRef={nextButtonRef}
         />
       </div>
     </div>
   );
-}
-
-// Reducer to handle state updates from user actions
-function testReducer(state: TestState, action: TestAction): TestState {
-  switch (action.type) {
-    case 'SET_ANSWER': {
-      return {
-        ...state,
-        currentAnswer: action.payload,
-      };
-    }
-    case 'SUBMIT_ANSWER': {
-      return {
-        ...state,
-        result: action.payload,
-        score: action.payload.correct ? state.score + 1 : state.score,
-        currentQuestion: state.currentQuestion + 1,
-        error: null,
-      };
-    }
-    case 'LOAD_NEXT_QUESTION': {
-      return {
-        ...state,
-        question: action.payload,
-        currentAnswer: '',
-        result: null,
-      };
-    }
-    case 'END_TEST': {
-      return { ...state, inProgress: false };
-    }
-    case 'RESET_TEST': {
-      return action.payload;
-    }
-    case 'SET_ERROR': {
-      return { ...state, error: action.payload };
-    }
-  }
 }
