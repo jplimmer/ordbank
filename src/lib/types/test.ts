@@ -62,20 +62,21 @@ export type AnswerResult =
     };
 
 // Type for managing which screen to show in the TestPage
-export type TestPhase = 'settings' | 'test';
+export type TestPhase = 'settings' | 'test' | 'completed';
 
 // State and Action types for TestManager's reducer
 export type TestState = {
-  inProgress: boolean;
-  question: Question;
+  phase: TestPhase;
+  question: Question | null;
   currentAnswer: string;
   result: AnswerResult | null;
-  currentQuestion: number;
+  currentQuestionIndex: number;
   score: number;
   error: string | null;
 };
 
 export type TestAction =
+  | { type: 'START_TEST'; payload: Question }
   | { type: 'SET_ANSWER'; payload: string }
   | { type: 'SUBMIT_ANSWER'; payload: AnswerResult }
   | { type: 'LOAD_NEXT_QUESTION'; payload: Question }

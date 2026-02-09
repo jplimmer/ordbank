@@ -1,13 +1,10 @@
 'use client';
 
-import { saveSettings } from '@/lib/actions/test-settings';
 import { ROUTES } from '@/lib/constants/routes';
-import { getLogger } from '@/lib/logger';
 import { TestSettings, UpdateTestSettings } from '@/lib/types/test';
 import { handleValidationError } from '@/lib/utils';
 import { testSettingsUpdateSchema } from '@/lib/validation/test-settings-schemas';
 import { useState, useTransition } from 'react';
-import { toast } from 'react-hot-toast';
 import { Button } from '../ui/button';
 import { FauxDialog } from '../ui/faux-dialog';
 import { FieldError } from '../ui/field';
@@ -16,8 +13,6 @@ import { AnswerModeFieldSet } from './answer-mode-field-set';
 import { DirectionFieldSet } from './direction-field-set';
 import { QuestionLimitField } from './question-limit-field';
 import { TimeLimitField } from './time-limit-field';
-
-const logger = getLogger();
 
 interface TestSettingsFormProps {
   initialSettings: TestSettings;
@@ -67,19 +62,9 @@ export function TestSettingsForm({
         setError(
           fieldErrors.length > 0
             ? `Please correct errors in the following fields:\n\n${fieldErrors.join('\n ')}`
-            : 'There was a problem submitting your settings, please referesh the page and try again'
+            : 'There was a problem submitting your settings, please referesh the page and try again.'
         );
         return;
-      }
-
-      // Save settings to database
-      const saveResult = await saveSettings(
-        initialSettings.id,
-        parseResult.data
-      );
-      if (!saveResult.success) {
-        logger.error('Failed to save settings:', error);
-        toast('Settings only saved temporarily', { icon: '⚙️' });
       }
 
       onSubmit(parseResult.data);
