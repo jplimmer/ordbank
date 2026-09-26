@@ -8,9 +8,9 @@ import { db } from '../db';
 import { languagePairs, users } from '../db/schema';
 import { getLogger } from '../logger';
 import { ServiceResult } from '../types/common';
-import { InsertUser, UpdateUser, User } from '../types/user';
+import { InsertUser, User } from '../types/user';
 import { handleValidationError } from '../utils';
-import { userInsertSchema, userUpdateScema } from '../validation/user-schemas';
+import { userInsertSchema } from '../validation/user-schemas';
 import { createUserTestSettingsInDb } from './test-settings';
 
 const logger = getLogger();
@@ -85,44 +85,6 @@ const createUser = async (
     return { success: true, data: user };
   } catch (error) {
     const errorMsg = 'Failed to create new user';
-    logger.error(errorMsg, error);
-    return {
-      success: false,
-      error: { code: 'DATABASE_ERROR', message: errorMsg, details: error },
-    };
-  }
-};
-
-const updateUser = async (
-  userId: number,
-  updates: UpdateUser
-): Promise<ServiceResult<User>> => {
-  try {
-    // Validate updates
-    const parseResult = userUpdateScema.safeParse(updates);
-
-    if (!parseResult.success) {
-      const validationError = handleValidationError(
-        parseResult.error,
-        'Update user'
-      );
-      return {
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: validationError.message },
-      };
-    }
-
-    // Update user in database and return updated user
-    const [updatedUser] = await db
-      .update(users)
-      .set(parseResult.data)
-      .where(eq(users.id, userId))
-      .returning();
-
-    logger.info(`Updated user ${updatedUser.id} in database`);
-    return { success: true, data: updatedUser };
-  } catch (error) {
-    const errorMsg = 'Failed to update user';
     logger.error(errorMsg, error);
     return {
       success: false,
