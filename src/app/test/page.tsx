@@ -57,7 +57,7 @@ export default async function TestPage() {
   return (
     <div className="full-width content-grid justify-items-center items-center">
       <RequireActivePairContext>
-        <TestManager initialSettings={settings} />
+        <TestManager savedSettings={settings} />
       </RequireActivePairContext>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { ROUTES } from '@/lib/constants/routes';
-import { TestSettings, UpdateTestSettings } from '@/lib/types/test';
+import { UpdateTestSettings } from '@/lib/types/test';
 import { handleValidationError } from '@/lib/utils';
 import { testSettingsUpdateSchema } from '@/lib/validation/test-settings-schemas';
 import { useState, useTransition } from 'react';
@@ -15,7 +15,7 @@ import { QuestionLimitField } from './question-limit-field';
 import { TimeLimitField } from './time-limit-field';
 
 interface TestSettingsFormProps {
-  initialSettings: TestSettings;
+  initialSettings: UpdateTestSettings;
   onSubmit: (settings: UpdateTestSettings) => void;
   isLoading: boolean;
 }

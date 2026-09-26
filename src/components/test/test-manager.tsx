@@ -15,10 +15,10 @@ import { TestTimer } from './test-timer';
 import { TypedAnswer } from './typed-answer';
 
 interface TestManagerProps {
-  initialSettings: TestSettings;
+  savedSettings: TestSettings;
 }
 
-export function TestManager({ initialSettings }: TestManagerProps) {
+export function TestManager({ savedSettings }: TestManagerProps) {
   const {
     testState,
     activeSettings,
@@ -29,7 +29,7 @@ export function TestManager({ initialSettings }: TestManagerProps) {
     endTest,
     reset: resetTest,
     loading,
-  } = useTestManager(initialSettings);
+  } = useTestManager(savedSettings);
 
   const {
     phase,
@@ -76,7 +76,7 @@ export function TestManager({ initialSettings }: TestManagerProps) {
   if (phase === 'settings') {
     return (
       <TestSettingsForm
-        initialSettings={initialSettings}
+        initialSettings={activeSettings}
         onSubmit={startTest}
         isLoading={loading}
       />

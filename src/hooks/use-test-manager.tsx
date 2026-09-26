@@ -72,12 +72,12 @@ function testReducer(state: TestState, action: TestAction): TestState {
   }
 }
 
-export const useTestManager = (initialSettings: TestSettings) => {
+export const useTestManager = (savedSettings: TestSettings) => {
   const activePair = useActivePair();
 
   const [testState, dispatch] = useReducer(testReducer, INITIAL_TEST_STATE);
   const [activeSettings, setActiveSettings] =
-    useState<UpdateTestSettings>(initialSettings);
+    useState<UpdateTestSettings>(savedSettings);
   const [loading, startTransition] = useTransition();
 
   const startTest = (settings: UpdateTestSettings) => {
@@ -86,7 +86,7 @@ export const useTestManager = (initialSettings: TestSettings) => {
         setActiveSettings(settings);
 
         // Save settings to database
-        const saveResult = await saveSettings(initialSettings.id, settings);
+        const saveResult = await saveSettings(savedSettings.id, settings);
         if (!saveResult.success) {
           logger.error('Failed to save settings:', saveResult.error);
           toast('Settings only saved temporarily', { icon: '⚙️' });
