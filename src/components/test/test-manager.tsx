@@ -1,18 +1,17 @@
 'use client';
 
 import { useTestManager } from '@/hooks/use-test-manager';
-import { useTimer } from '@/hooks/use-timer';
 import { TestSettings } from '@/lib/types/test';
 import { useEffect, useRef } from 'react';
 import { ErrorFallback } from '../fallbacks/error-fallback';
 import { TestSettingsForm } from '../test-settings/test-settings-form';
-import { Timer } from '../ui/timer';
 import { ActionButtons } from './action-buttons';
 import { MultipleChoiceAnswer } from './multiple-choice-answer';
 import { QuestionCounter } from './question-counter';
 import { QuestionPanel } from './question-panel';
 import { ResultDisplay } from './result-display';
 import { TestSummary } from './test-summary';
+import { TestTimer } from './test-timer';
 import { TypedAnswer } from './typed-answer';
 
 interface TestManagerProps {
@@ -22,6 +21,7 @@ interface TestManagerProps {
 export function TestManager({ initialSettings }: TestManagerProps) {
   const {
     testState,
+    activeSettings,
     startTest,
     setAnswer,
     submitAnswer,
@@ -42,14 +42,6 @@ export function TestManager({ initialSettings }: TestManagerProps) {
   } = testState;
 
   const isAnswerDisabled = result !== null || loading;
-
-  // Define parameters for Timer component
-  const { seconds, reset: resetTimer } = useTimer({
-    timeLimitSecs: initialSettings.timeLimitMins
-      ? initialSettings.timeLimitMins * 60
-      : undefined,
-    onTimeExpired: endTest,
-  });
 
   // Refs for focus behaviour
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -74,12 +66,6 @@ export function TestManager({ initialSettings }: TestManagerProps) {
     }
   }, [result, loading]);
 
-  // Resets both timer and test
-  const handleReset = () => {
-    resetTimer();
-    resetTest();
-  };
-
   // Ends test after a short delay, so user can see the final result
   const handleEndTest = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -102,8 +88,8 @@ export function TestManager({ initialSettings }: TestManagerProps) {
     return (
       <TestSummary
         score={score}
-        totalQuestions={initialSettings.questionLimit ?? currentQuestionIndex}
-        onReset={handleReset}
+        totalQuestions={activeSettings.questionLimit ?? currentQuestionIndex}
+        onReset={resetTest}
         isLoading={loading}
       />
     );
@@ -117,12 +103,12 @@ export function TestManager({ initialSettings }: TestManagerProps) {
     <div className="grid justify-center gap-12">
       <div className="grid grid-cols-2 items-center font-mono">
         <QuestionCounter
-          questionLimit={initialSettings.questionLimit}
+          questionLimit={activeSettings.questionLimit}
           currentQuestion={currentQuestionIndex + 1}
         />
-        <Timer
-          seconds={seconds}
-          isCountingDown={initialSettings.timeLimitMins !== null}
+        <TestTimer
+          timeLimitMins={activeSettings.timeLimitMins}
+          onTimeExpired={endTest}
           className="justify-self-end"
         />
       </div>
@@ -162,8 +148,8 @@ export function TestManager({ initialSettings }: TestManagerProps) {
           isLoading={loading}
           onEnd={handleEndTest}
           showEndButton={
-            initialSettings.questionLimit !== null ||
-            initialSettings.timeLimitMins !== null
+            activeSettings.questionLimit !== null ||
+            activeSettings.timeLimitMins !== null
           }
           nextButtonRef={nextButtonRef}
         />

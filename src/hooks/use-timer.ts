@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface UseTimerOptions {
   timeLimitSecs?: number;
@@ -47,11 +47,5 @@ export const useTimer = ({
     }
   }, [seconds, isCountingDown, onTimeExpired, timeLimitSecs]);
 
-  // Timer reset
-  const reset = useCallback(() => {
-    setSeconds(timeLimitSecs ?? 0);
-    hasExpiredRef.current = false;
-  }, [timeLimitSecs]);
-
-  return { seconds, reset };
+  return { seconds };
 };

@@ -205,6 +205,7 @@ export const useTestManager = (initialSettings: TestSettings) => {
 
   return {
     testState,
+    activeSettings,
     startTest,
     setAnswer,
     submitAnswer,
