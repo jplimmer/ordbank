@@ -14,6 +14,9 @@ const eslintConfig = [
       'build/**',
       'next-env.d.ts',
       '.husky/',
+      // Serwist service worker output, generated on build
+      'public/sw*',
+      'public/swe-worker*',
     ],
   },
 ];
