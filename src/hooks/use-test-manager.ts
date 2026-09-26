@@ -32,12 +32,9 @@ function testReducer(state: TestState, action: TestAction): TestState {
   switch (action.type) {
     case 'START_TEST': {
       return {
-        ...state,
+        ...INITIAL_TEST_STATE,
         phase: 'test',
         question: action.payload,
-        currentAnswer: '',
-        result: null,
-        currentQuestionIndex: 0,
       };
     }
     case 'SET_ANSWER': {
@@ -108,10 +105,10 @@ export const useTestManager = (savedSettings: TestSettings) => {
         dispatch({ type: 'START_TEST', payload: questionResult.data });
       } catch (error) {
         logger.error('Failed to start test:', error);
-        dispatch({
-          type: 'SET_ERROR',
-          payload: 'Test could not be loaded! Please try refreshing the page.',
-        });
+        // Toast rather than test state, as errors aren't rendered in the settings phase
+        toast.error(
+          'Test could not be loaded! Please try refreshing the page.'
+        );
       }
     });
   };
