@@ -66,12 +66,6 @@ export function TestManager({ savedSettings }: TestManagerProps) {
     }
   }, [result, loading]);
 
-  // Ends test after a short delay, so user can see the final result
-  const handleEndTest = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    endTest();
-  };
-
   // Show settings form if test not yet started
   if (phase === 'settings') {
     return (
@@ -146,7 +140,7 @@ export function TestManager({ savedSettings }: TestManagerProps) {
           onSubmit={submitAnswer}
           onNext={getNextQuestion}
           isLoading={loading}
-          onEnd={handleEndTest}
+          onEnd={endTest}
           showEndButton={
             activeSettings.questionLimit !== null ||
             activeSettings.timeLimitMins !== null

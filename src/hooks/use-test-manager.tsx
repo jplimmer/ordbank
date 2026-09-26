@@ -13,6 +13,9 @@ import { toast } from 'react-hot-toast';
 
 const logger = getLogger();
 
+// Delay before showing the test summary
+const END_TEST_DELAY_MS = 1000;
+
 // Initial state for reducer & reset
 const INITIAL_TEST_STATE: TestState = {
   phase: 'settings',
@@ -193,9 +196,12 @@ export const useTestManager = (savedSettings: TestSettings) => {
     });
   }, [activePair.id, activeSettings.answerMode, activeSettings.direction]);
 
-  // Moves to 'completed' phase
+  // Moves to 'completed' phase after a short delay, so user can see the final result
   const endTest = useCallback(() => {
-    dispatch({ type: 'END_TEST' });
+    startTransition(async () => {
+      await new Promise((resolve) => setTimeout(resolve, END_TEST_DELAY_MS));
+      dispatch({ type: 'END_TEST' });
+    });
   }, []);
 
   // Resets test to initial state and 'settings' phase
