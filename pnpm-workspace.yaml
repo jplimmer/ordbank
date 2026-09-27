@@ -1,0 +1,12 @@
+# Dependency install scripts are blocked unless listed here. Everything below is denied because
+# none of these packages needs its script to work.
+allowBuilds:
+  # Only prints Clerk's telemetry notice
+  '@clerk/shared': false
+  # Checks the platform binary is present, downloading it if not. It already arrives as a
+  # platform-specific optional dependency.
+  esbuild: false
+  unrs-resolver: false
+
+# Supply-chain delay: don't install versions published in the last 3 days (in minutes).
+minimumReleaseAge: 4320
