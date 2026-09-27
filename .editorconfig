@@ -1,2 +1,4 @@
-[*.{js,ts,jsx,tsx,json,md,yml,yaml,html,css}]
+root = true
+
+[*]
 end_of_line = lf
