@@ -7,7 +7,7 @@ process it describes.
 
 | Tool                                                                                                          | Why                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [fnm](https://github.com/Schniz/fnm)                                                                          | Switches to the Node version in `.nvmrc` (Node 24 LTS) when you enter the repo                        |
+| Node 24                                                                                                       | Pinned in `.nvmrc`, which fnm, nvm and pnpm's `node` shim can all read                                |
 | [pnpm](https://pnpm.io/installation)                                                                          | Package manager. Any recent install works: it switches itself to the version pinned in `package.json` |
 | [just](https://just.systems/man/en/)                                                                          | Task runner — the commands below                                                                      |
 | [Git for Windows](https://gitforwindows.org)                                                                  | Windows only: provides the `sh` that `just` runs recipes with                                         |
@@ -23,24 +23,12 @@ too, append it to your user PATH once and open a new terminal:
 Appending to the user PATH is safe: Windows searches the system PATH first, so its own `find`, `sort` and
 `curl` still take precedence over Git's.
 
-Set fnm up to switch Node versions automatically:
-
-```bash
-# Git Bash (~/.bashrc)
-eval "$(fnm env --use-on-cd --shell bash)"
-```
-
-```powershell
-# PowerShell ($PROFILE)
-fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
-```
-
 ## First-time setup
 
 ```bash
 git clone https://github.com/jplimmer/ordbank.git
 cd ordbank
-fnm install      # installs the Node version from .nvmrc
+node -v          # should print v24.x
 just install
 ```
 
