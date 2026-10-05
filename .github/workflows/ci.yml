@@ -1,0 +1,46 @@
+# Runs `just ci` — the same checks as locally — on every PR and on main. The `ci` job is a required status
+# check (the "Require CI" ruleset), so keep the job name stable and don't add `paths:` filters: a required
+# check that never reports leaves the PR waiting forever.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Supersede stale PR runs, but let every push to main finish
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # The build imports the database client, which only parses the URL, so a placeholder is enough. No
+      # page connects to the database or reads the Clerk keys at build time.
+      DATABASE_URL: postgresql://ci:ci@db.invalid/ci
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # pnpm from `packageManager` in package.json and Node from .nvmrc. The store is cached, keyed on
+      # pnpm-lock.yaml. Installing is left to `just install`, as locally.
+      - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          cache: true
+          install: false
+
+      - uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        with:
+          tool: just@1.58.0
+
+      - run: just install
+      - run: just ci

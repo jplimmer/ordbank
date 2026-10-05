@@ -13,11 +13,11 @@ Use **pnpm** for every package operation (`pnpm add`, `pnpm exec`). The lockfile
 
 ## Environment
 
-- Node 24, pinned in `.nvmrc` and managed by fnm. If `node -v` isn't v24, run
-  `eval "$(fnm env --shell bash)" && fnm use` in that shell first.
+- Node 24, pinned in `.nvmrc`. `node -v` should report v24 in this repo; if it doesn't, stop and ask rather
+  than changing the pin.
 - Local secrets live in `.env.local`.
 
 ## Further reading
 
-[`docs/development.md`](docs/development.md) covers setup, adding dependencies (build-script approval,
-release-age delay) and deployment.
+[`docs/development.md`](docs/development.md) covers setup, the pull request flow, adding dependencies
+(build-script approval, release-age delay) and deployment.

@@ -88,7 +88,7 @@ Create custom word lists for any language pair, then test yourself on the go. Th
 
 ## ⚙️ Development
 
-Requires Node 24 (via [fnm](https://github.com/Schniz/fnm)), [pnpm](https://pnpm.io/) and [just](https://just.systems/), plus a Neon database and a Clerk application.
+Requires Node 24 (pinned in `.nvmrc`), [pnpm](https://pnpm.io/) and [just](https://just.systems/), plus a Neon database and a Clerk application.
 
 ```bash
 git clone https://github.com/jplimmer/ordbank.git
