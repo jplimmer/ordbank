@@ -19,5 +19,5 @@ Use **pnpm** for every package operation (`pnpm add`, `pnpm exec`). The lockfile
 
 ## Further reading
 
-[`docs/development.md`](docs/development.md) covers setup, adding dependencies (build-script approval,
-release-age delay) and deployment.
+[`docs/development.md`](docs/development.md) covers setup, the pull request flow, adding dependencies
+(build-script approval, release-age delay) and deployment.

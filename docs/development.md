@@ -71,6 +71,23 @@ pnpm's settings live in [`pnpm-workspace.yaml`](../pnpm-workspace.yaml).
 
 Line endings are LF on every OS (`.gitattributes`), matching Prettier.
 
+## Pull requests
+
+`main` only changes through pull requests, which are squash-merged: the PR title and description become the
+commit.
+
+1. Branch from `main`, run `just ci` to catch failures before CI does, then push.
+2. Open a PR. The [CI workflow](../.github/workflows/ci.yml) runs `just ci` on the same pinned Node and pnpm
+   versions, and Vercel builds a preview deployment.
+3. Merge once the `ci` check passes. The "Require CI" ruleset blocks the merge button until it does. For a
+   failure that isn't the PR's fault, such as an outage, a repository admin can tick "bypass rules" on the PR.
+   That records the override on the PR rather than skipping the check silently.
+4. Delete the local branch with `git branch -D`: squashed commits aren't ancestors of `main`, so `-d` refuses.
+
+CI builds without production secrets, using a placeholder `DATABASE_URL` (the workflow explains why that's
+enough). If the build starts needing a real value, look for something that now runs at build time, such as a
+page that became static.
+
 ## Deployment
 
 Vercel builds every push: pull requests get a preview deployment, and `main` deploys to production.
