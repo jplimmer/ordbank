@@ -22,9 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # The build imports the database client, which only parses the URL, so a placeholder is enough. No
-      # page connects to the database or reads the Clerk keys at build time.
+      # The build validates these variables' format only, and no page connects to the database or calls
+      # Clerk at build time, so well-formed placeholders are enough and CI never holds real secrets
       DATABASE_URL: postgresql://ci:ci@db.invalid/ci
+      CLERK_SECRET_KEY: sk_test_ci
+      # Base64 of `clerk.example.com$`, so it decodes the way Clerk expects a real key to
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
+      NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+      NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: /
+      NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: /
       NEXT_TELEMETRY_DISABLED: 1
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
