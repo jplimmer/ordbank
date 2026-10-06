@@ -32,8 +32,17 @@ node -v          # should print v24.x
 just install
 ```
 
-Copy [`.env.example`](../.env.example) to `.env.local` and fill in the Neon connection string and Clerk keys.
-`next dev` and `next build` read `.env.local`. drizzle-kit (the `db:*` scripts) currently reads only `.env`.
+Copy [`.env.example`](../.env.example) to `.env.local` and fill it in: the `development` branch's connection
+string (see [Environments](#environments)) and the Clerk development-instance keys. Use `.env.local`, not
+`.env.development.local`: `next dev`, `next build`, `next start` and drizzle-kit all read `.env.local`, but a
+build skips `.env.development*` files.
+
+To use the `db-seed` and `db-reset-dev` recipes, sign the Neon CLI in and point it at the project once:
+
+```bash
+pnpm exec neonctl auth
+pnpm exec neonctl set-context --project-id <project id>   # from the Neon console; writes .neon (gitignored)
+```
 
 Then `just dev` and open <http://localhost:3000>.
 
@@ -42,18 +51,64 @@ Then `just dev` and open <http://localhost:3000>.
 Run `just` to list the recipes. Each one runs a `package.json` script, so the scripts stay the single
 definition of how a tool is invoked.
 
-| Recipe              | Does                                                          |
-| ------------------- | ------------------------------------------------------------- |
-| `just install`      | Install dependencies exactly as locked                        |
-| `just dev`          | Dev server (Turbopack)                                        |
-| `just lint`         | ESLint                                                        |
-| `just typecheck`    | `tsc --noEmit`                                                |
-| `just format`       | Prettier, writing changes                                     |
-| `just format-check` | Prettier, check only                                          |
-| `just build`        | Production build                                              |
-| `just ci`           | Everything CI checks: format-check, lint, typecheck and build |
+| Recipe              | Does                                                               |
+| ------------------- | ------------------------------------------------------------------ |
+| `just install`      | Install dependencies exactly as locked                             |
+| `just dev`          | Dev server (Turbopack)                                             |
+| `just lint`         | ESLint                                                             |
+| `just typecheck`    | `tsc --noEmit`                                                     |
+| `just format`       | Prettier, writing changes                                          |
+| `just format-check` | Prettier, check only                                               |
+| `just build`        | Production build                                                   |
+| `just ci`           | Everything CI checks: format-check, lint, typecheck and build      |
+| `just db-seed`      | Seed the `staging` Neon branch (see [Environments](#environments)) |
+| `just db-reset-dev` | Reset the `development` Neon branch to `staging`                   |
 
 A pre-commit hook (Husky + lint-staged) runs ESLint and Prettier on staged files.
+
+## Environments
+
+Production data never leaves production. Every other database descends from `staging`, which has
+production's schema but only seeded sample data.
+
+```
+production       root    real data                                 Vercel Production
+staging          root    production's schema + seed data            template for everything below
+└─ development   child   local dev (.env.local) and every Vercel preview
+```
+
+| Environment | Database            | Clerk instance | Configured in                             |
+| ----------- | ------------------- | -------------- | ----------------------------------------- |
+| Production  | `production`        | production     | Vercel, Production variables              |
+| Preview     | `development`       | development    | Vercel, Preview variables                 |
+| Local       | `development`       | development    | `.env.local`                              |
+| CI build    | none (placeholders) | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+
+The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 and 3. Branches are
+copy-on-write: a child shares its parent's storage until either changes.
+
+**Environment variables** are validated by [`src/lib/env/schema.ts`](../src/lib/env/schema.ts), at build
+(`next.config.ts` imports it) and at runtime (the database client imports it). A missing or malformed value
+stops with an error naming the variable. When adding a variable, add it to the schema, `.env.example`, the CI
+placeholders and each Vercel environment. Server code reads it from `env` in `src/lib/env`, not `process.env`.
+
+**Branch lifecycles**
+
+- **`staging`** is a schema-only branch of `production`, so it has no parent to reset from. When production's
+  schema changes, apply the same change to `staging`: for now, `db:push` to both (#113 replaces this with
+  migrations applied to `staging`, then `production`). If it drifts, delete it, recreate it as a schema-only
+  branch of `production` in the Neon console, and re-seed.
+- **`just db-seed`** writes a Swedish–English language pair to `staging`, owned by `SEED_CLERK_USER_ID` (your
+  user in the Clerk development instance). It asks `neonctl` for `staging` by name rather than reading
+  `DATABASE_URL`, so it can't reach production, and it replaces its own data on each run. Re-run it after
+  changing [`scripts/seed.ts`](../scripts/seed.ts).
+- **`development`** is a child of `staging`. `just db-reset-dev` discards everything in it and copies
+  `staging` again: run it after re-seeding, or whenever local data gets into a mess. Its connection string
+  survives a reset.
+
+**Revisit this model** if previews need their own databases: for example, two open PRs whose schema changes
+conflict, since every preview shares `development`. The Neon–Vercel integration was ruled out because it
+branches previews from the default branch, copying production data into each one (#112).
 
 ## Dependencies
 
@@ -77,16 +132,16 @@ Line endings are LF on every OS (`.gitattributes`), matching Prettier.
 commit.
 
 1. Branch from `main`, run `just ci` to catch failures before CI does, then push.
-2. Open a PR. The [CI workflow](../.github/workflows/ci.yml) runs `just ci` on the same pinned Node and pnpm
+2. Open a PR. The [CI workflow](../.github/workflows/ci.yaml) runs `just ci` on the same pinned Node and pnpm
    versions, and Vercel builds a preview deployment.
 3. Merge once the `ci` check passes. The "Require CI" ruleset blocks the merge button until it does. For a
    failure that isn't the PR's fault, such as an outage, a repository admin can tick "bypass rules" on the PR.
    That records the override on the PR rather than skipping the check silently.
 4. Delete the local branch with `git branch -D`: squashed commits aren't ancestors of `main`, so `-d` refuses.
 
-CI builds without production secrets, using a placeholder `DATABASE_URL` (the workflow explains why that's
-enough). If the build starts needing a real value, look for something that now runs at build time, such as a
-page that became static.
+CI builds without secrets, using well-formed placeholders for every validated variable (the workflow explains
+why that's enough). If the build starts needing a real value, look for something that now runs at build time,
+such as a page that became static.
 
 ## Deployment
 
