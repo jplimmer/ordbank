@@ -33,12 +33,20 @@ format:
 format-check:
     pnpm format:check
 
+[doc("Run the unit tests")]
+test:
+    pnpm test
+
+[doc("Re-run the unit tests on every change")]
+test-watch:
+    pnpm test:watch
+
 [doc("Production build")]
 build:
     pnpm build
 
 [doc("Everything CI checks, cheapest first")]
-ci: format-check lint typecheck build
+ci: format-check lint typecheck test build
 
 [doc("Seed the template Neon branch (never production)")]
 db-seed:
