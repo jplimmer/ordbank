@@ -8,6 +8,11 @@ set default-list
 install:
     pnpm install --frozen-lockfile
 
+# Separate from install so later setup steps can join without changing the docs; the install also
+# generates the husky hooks
+[doc("Set up a fresh clone or worktree")]
+setup: install
+
 [doc("Start the dev server (Turbopack)")]
 dev:
     pnpm dev

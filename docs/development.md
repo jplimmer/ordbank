@@ -29,7 +29,7 @@ Appending to the user PATH is safe: Windows searches the system PATH first, so i
 git clone https://github.com/jplimmer/ordbank.git
 cd ordbank
 node -v          # should print v24.x
-just install
+just setup
 ```
 
 Copy [`.env.example`](../.env.example) to `.env.local` and fill it in: the `development` branch's connection
@@ -53,6 +53,7 @@ definition of how a tool is invoked.
 
 | Recipe              | Does                                                               |
 | ------------------- | ------------------------------------------------------------------ |
+| `just setup`        | Set up a fresh clone or worktree (installs dependencies)           |
 | `just install`      | Install dependencies exactly as locked                             |
 | `just dev`          | Dev server (Turbopack)                                             |
 | `just lint`         | ESLint                                                             |
