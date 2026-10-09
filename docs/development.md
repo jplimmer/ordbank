@@ -51,30 +51,31 @@ Then `just dev` and open <http://localhost:3000>.
 Run `just` to list the recipes. Each one runs a `package.json` script, so the scripts stay the single
 definition of how a tool is invoked.
 
-| Recipe              | Does                                                               |
-| ------------------- | ------------------------------------------------------------------ |
-| `just setup`        | Set up a fresh clone or worktree (installs dependencies)           |
-| `just install`      | Install dependencies exactly as locked                             |
-| `just dev`          | Dev server (Turbopack)                                             |
-| `just lint`         | ESLint                                                             |
-| `just typecheck`    | `tsc --noEmit`                                                     |
-| `just format`       | Prettier, writing changes                                          |
-| `just format-check` | Prettier, check only                                               |
-| `just build`        | Production build                                                   |
-| `just ci`           | Everything CI checks: format-check, lint, typecheck and build      |
-| `just db-seed`      | Seed the `staging` Neon branch (see [Environments](#environments)) |
-| `just db-reset-dev` | Reset the `development` Neon branch to `staging`                   |
+| Recipe              | Does                                                                |
+| ------------------- | ------------------------------------------------------------------- |
+| `just setup`        | Set up a fresh clone or worktree (installs dependencies)            |
+| `just install`      | Install dependencies exactly as locked                              |
+| `just dev`          | Dev server (Turbopack)                                              |
+| `just lint`         | ESLint                                                              |
+| `just typecheck`    | `tsc --noEmit`                                                      |
+| `just format`       | Prettier, writing changes                                           |
+| `just format-check` | Prettier, check only                                                |
+| `just build`        | Production build                                                    |
+| `just ci`           | Everything CI checks: format-check, lint, typecheck and build       |
+| `just db-seed`      | Seed the `template` Neon branch (see [Environments](#environments)) |
+| `just db-reset-dev` | Reset the `development` Neon branch to `template`                   |
 
 A pre-commit hook (Husky + lint-staged) runs ESLint and Prettier on staged files.
 
 ## Environments
 
-Production data never leaves production. Every other database descends from `staging`, which has
-production's schema but only seeded sample data.
+Production data never leaves production. Every other database is copied from `template`, which has
+production's schema but only seeded sample data. No app is deployed to or connects to `template`: it exists
+only to be seeded and copied.
 
 ```
 production       root    real data                                 Vercel Production
-staging          root    production's schema + seed data            template for everything below
+template         root    production's schema + seed data            copied by every branch below, no app
 └─ development   child   local dev (.env.local) and every Vercel preview
 ```
 
@@ -95,17 +96,27 @@ placeholders and each Vercel environment. Server code reads it from `env` in `sr
 
 **Branch lifecycles**
 
-- **`staging`** is a schema-only branch of `production`, so it has no parent to reset from. When production's
-  schema changes, apply the same change to `staging`: for now, `db:push` to both (#113 replaces this with
-  migrations applied to `staging`, then `production`). If it drifts, delete it, recreate it as a schema-only
-  branch of `production` in the Neon console, and re-seed.
-- **`just db-seed`** writes a Swedish–English language pair to `staging`, owned by `SEED_CLERK_USER_ID` (your
-  user in the Clerk development instance). It asks `neonctl` for `staging` by name rather than reading
-  `DATABASE_URL`, so it can't reach production, and it replaces its own data on each run. Re-run it after
-  changing [`scripts/seed.ts`](../scripts/seed.ts).
-- **`development`** is a child of `staging`. `just db-reset-dev` discards everything in it and copies
-  `staging` again: run it after re-seeding, or whenever local data gets into a mess. Its connection string
+- **`template`** is a schema-only branch of `production`, so it has no parent to reset from. If it drifts from
+  `production`, delete it, recreate it as a schema-only branch of `production` in the Neon console and re-seed.
+- **`just db-seed`** writes sample data to `template`. It asks `neonctl` for `template` by name rather than
+  reading `DATABASE_URL`, so it can't reach production. Each run replaces the seed users' data and nothing
+  else. Re-run it after changing [`scripts/seed.ts`](../scripts/seed.ts).
+- **`development`** is a child of `template`. `just db-reset-dev` discards everything in it and copies
+  `template` again: run it after re-seeding, or whenever local data gets into a mess. Its connection string
   survives a reset.
+
+**Seed data** is what every migration is tested against (#113), so it covers the awkward states the app can
+produce, and nothing it can't. Languages and words go through the app's own validation, so they're stored
+lowercased, as the app stores them.
+
+| Seed user                      | Data                                                                                                                                                                       |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SEED_CLERK_USER_ID`           | A Swedish–English pair with words at every stage of learning, the longest word allowed, a multi-word phrase and synonyms sharing a target; an empty Norwegian–English pair |
+| `seed_no_limits_dangling_pair` | Test settings with no question or time limit; an active pair that was deleted (#138); a French–English pair with a few words                                               |
+| `seed_new_user`                | Nothing: no pairs, no test settings, no active pair                                                                                                                        |
+
+`SEED_CLERK_USER_ID` is your user in the Clerk development instance, so you can sign in as it. The others
+have made-up Clerk IDs (real ones start with `user_`): nobody signs in as them, they exist to be migrated.
 
 **Revisit this model** if previews need their own databases: for example, two open PRs whose schema changes
 conflict, since every preview shares `development`. The Neon–Vercel integration was ruled out because it
