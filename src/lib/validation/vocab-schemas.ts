@@ -13,7 +13,6 @@ const max = VALIDATION_LIMITS.MAX_WORD_LENGTH_CH;
 // Reusable word field schema
 const wordFieldSchema = z
   .string()
-  .trim()
   .min(1, { message: 'Field cannot be empty' })
   .max(max, {
     message: `Word cannot be longer than ${max} characters`,
