@@ -60,12 +60,35 @@ definition of how a tool is invoked.
 | `just typecheck`    | `tsc --noEmit`                                                      |
 | `just format`       | Prettier, writing changes                                           |
 | `just format-check` | Prettier, check only                                                |
+| `just test`         | Unit tests, once (see [Tests](#tests))                              |
+| `just test-watch`   | Unit tests, re-run on every change                                  |
 | `just build`        | Production build                                                    |
-| `just ci`           | Everything CI checks: format-check, lint, typecheck and build       |
+| `just ci`           | Everything CI checks: format-check, lint, typecheck, test and build |
 | `just db-seed`      | Seed the `template` Neon branch (see [Environments](#environments)) |
 | `just db-reset-dev` | Reset the `development` Neon branch to `template`                   |
 
 A pre-commit hook (Husky + lint-staged) runs ESLint and Prettier on staged files.
+
+## Tests
+
+Unit tests use [Vitest](https://vitest.dev) and sit next to the code they test as `*.test.ts` under `src/`.
+To run one file, pass its path: `pnpm exec vitest run src/lib/utils.test.ts`. Imports can use the `@/` alias,
+which Vitest reads from `tsconfig.json`.
+
+Tests check behaviour through a module's exports, not how it works inside. Don't export something only to
+test it, and don't mock the module's own collaborators. When code is random or time-dependent, make the random
+source or clock a parameter and pass a seeded or fixed one in tests, rather than patching `Math.random` or
+`Date`. If a module can't be tested without mocks, move the boundary so the logic sits apart from its I/O.
+
+| Belongs in unit tests                                                  | Belongs in E2E tests                                  |
+| ---------------------------------------------------------------------- | ----------------------------------------------------- |
+| Pure logic: validation schemas, formatting, rules computed from data   | Async Server Components, which Vitest can't render    |
+| Modules whose imports don't reach the database, Clerk or `server-only` | Server actions and services, which need auth and Neon |
+|                                                                        | Anything whose result depends on how Next compiles it |
+
+Importing `server-only`, `@/lib/env` or the database client (`@/lib/db`; the table definitions in
+`@/lib/db/schema` are fine) from a test fails or needs real secrets, so it's a sign the test belongs in E2E or
+the logic should move into a pure module. E2E tests arrive with Playwright in #115.
 
 ## Environments
 

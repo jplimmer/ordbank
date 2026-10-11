@@ -6,8 +6,10 @@ Next.js (App Router) vocabulary-learning PWA: Neon Postgres via Drizzle, Clerk a
 
 Use the `just` recipes, which wrap the `package.json` scripts:
 
-- `just ci` — the full check (format-check, lint, typecheck, build). Run it before calling work done.
-- `just lint`, `just typecheck`, `just format`, `just build` — individual steps.
+- `just ci` — the full check (format-check, lint, typecheck, test, build). Run it before calling work done.
+- `just lint`, `just typecheck`, `just format`, `just test`, `just build` — individual steps. One test file:
+  `pnpm exec vitest run <path>`. Write tests black-box, as
+  [`docs/development.md#tests`](docs/development.md#tests) describes.
 
 Use **pnpm** for every package operation (`pnpm add`, `pnpm exec`). The lockfile is `pnpm-lock.yaml`.
 
