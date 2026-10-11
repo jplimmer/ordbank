@@ -40,10 +40,10 @@ build:
 [doc("Everything CI checks, cheapest first")]
 ci: format-check lint typecheck build
 
-[doc("Seed the staging Neon branch (never production)")]
+[doc("Seed the template Neon branch (never production)")]
 db-seed:
     pnpm db:seed
 
-[doc("Reset the development Neon branch to staging, discarding its changes")]
+[doc("Reset the development Neon branch to template, discarding its changes")]
 db-reset-dev:
     pnpm db:reset-dev
