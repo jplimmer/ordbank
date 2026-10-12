@@ -8,7 +8,7 @@ runs:
   using: composite
   steps:
     # pnpm from `packageManager` in package.json and Node from .nvmrc. The store is cached, keyed on
-    # pnpm-lock.yaml. Installing is left to `just install`, as locally.
+    # pnpm-lock.yaml.
     - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
       with:
         cache: true

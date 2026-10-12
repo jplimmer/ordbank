@@ -66,6 +66,7 @@ definition of how a tool is invoked.
 | `just ci`           | Everything CI checks: format-check, lint, typecheck, test and build   |
 | `just db-generate`  | Generate a migration from `schema.ts` (see [Migrations](#migrations)) |
 | `just db-migrate`   | Apply pending migrations to the `DATABASE_URL` database               |
+| `just db-drop`      | Delete the latest migration, before it merges                         |
 | `just db-seed`      | Seed the `template` Neon branch (see [Environments](#environments))   |
 | `just db-reset-dev` | Reset the `development` Neon branch to `template`                     |
 
@@ -171,7 +172,7 @@ migrations in [`drizzle/`](../drizzle). Nothing pushes `schema.ts` to a shared d
 
 1. Edit [`src/lib/db/schema.ts`](../src/lib/db/schema.ts).
 2. `just db-generate` writes the SQL to `drizzle/NNNN_<name>.sql`. Pass a name to make it readable:
-   `pnpm db:generate --name=add_word_notes`.
+   `just db-generate --name=add_word_notes`.
 3. Read the SQL. It's what production will run, so check it does what you meant, especially anything that
    drops, renames or adds a constraint (see below).
 4. `just db-migrate` applies it to `development` (the `DATABASE_URL` in `.env.local`), so you can try it in the
@@ -179,7 +180,7 @@ migrations in [`drizzle/`](../drizzle). Nothing pushes `schema.ts` to a shared d
 5. Commit the SQL file and the `drizzle/meta/` changes with the code that needs them.
 
 `just test` fails if `schema.ts` has changes that no migration covers, and shows the missing SQL. Until a PR
-merges, its migrations can still change: `pnpm exec drizzle-kit drop` removes the latest one cleanly, then
+merges, its migrations can still change: `just db-drop` removes the latest one cleanly, then
 `just db-reset-dev` and generate again. Once merged, a migration is history: never edit it, write a new one.
 If another PR's migration merges first, the `drizzle/meta/_journal.json` conflict is the signal to drop yours,
 rebase and regenerate.
@@ -199,7 +200,17 @@ rebase and regenerate.
 
 `drizzle/0000_baseline.sql` is the schema production had before migrations existed, when `db:push` managed it.
 It was recorded as applied in `production` and `template` without being run there, so it only ever runs on
-empty databases.
+empty databases. Recording it means creating Drizzle's history table and inserting the row Drizzle would have
+written: the file's SHA-256 and its `when` from `drizzle/meta/_journal.json`. Drizzle applies only migrations
+whose `when` is later than the newest `created_at` recorded, so a row stamped with the current time would
+silently skip `0001`.
+
+```sql
+CREATE SCHEMA IF NOT EXISTS drizzle;
+CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at bigint);
+INSERT INTO drizzle.__drizzle_migrations (hash, created_at)
+VALUES ('a54e3bf6f6092612d132ac132c99a147cdddaf4a135af257b56ddaaa989eac72', 1791832620303);
+```
 
 **Changes that existing rows or running code can break.** Migrations run while the old deployment is still
 serving, and a Vercel rollback runs old code against the new schema. So:

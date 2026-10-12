@@ -83,12 +83,8 @@ jobs:
         run: |
           echo "::notice::Skipped: pull requests from forks can't reach Neon, so a maintainer must test these migrations"
 
-      - if: env.IS_FORK == 'false'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - if: env.IS_FORK == 'false'
-        uses: ./.github/actions/setup
+      # Every step that uses the API key runs before the checkout. Once the PR's code is on the runner it
+      # could tamper with later steps, so it must never share the runner with the key.
 
       # A backstop for close events that never run: Neon deletes the branch itself after two weeks
       - if: env.IS_FORK == 'false'
@@ -115,8 +111,14 @@ jobs:
           branch: ${{ steps.branch.outputs.branch_id }}
           parent: true
 
-      # The connection string survives a reset. Only this step runs the PR's code, and it never sees the
-      # API key.
+      - if: env.IS_FORK == 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: env.IS_FORK == 'false'
+        uses: ./.github/actions/setup
+
+      # The connection string survives a reset
       - if: env.IS_FORK == 'false'
         run: just db-migrate
         env:

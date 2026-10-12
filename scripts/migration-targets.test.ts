@@ -9,10 +9,10 @@ describe('migrationTargets', () => {
     ['a local or CI build', {}],
     ['a Vercel preview build', { VERCEL_ENV: 'preview' }],
     ['a Vercel development build', { VERCEL_ENV: 'development' }],
-  ])('migrates nothing in %s', (_, vercel) => {
+  ])('migrates nothing in %s', (_, vercelEnv) => {
     expect(
       migrationTargets({
-        ...vercel,
+        ...vercelEnv,
         DATABASE_URL: PRODUCTION_URL,
         TEMPLATE_DATABASE_URL: TEMPLATE_URL,
       })

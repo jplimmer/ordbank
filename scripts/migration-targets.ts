@@ -6,10 +6,16 @@ const productionEnvSchema = z.object({
   TEMPLATE_DATABASE_URL: envSchema.shape.DATABASE_URL,
 });
 
+/** A Neon branch a deploy migrates, and how to connect to it. */
+export type MigrationTarget = {
+  branch: 'production' | 'template';
+  url: string;
+};
+
 /** The databases a build applies pending migrations to, in order. */
 export function migrationTargets(
   env: Record<string, string | undefined>
-): { branch: string; url: string }[] {
+): MigrationTarget[] {
   // Previews share `development` with local dev, so only production deploys
   // migrate; everything else is migrated by hand or by CI
   if (env.VERCEL_ENV !== 'production') return [];

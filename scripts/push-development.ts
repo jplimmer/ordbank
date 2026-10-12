@@ -4,13 +4,14 @@ import { execSync } from 'node:child_process';
 import { neonConnectionString } from './neon';
 
 // Resolved by branch name rather than read from DATABASE_URL, so a push can
-// only ever reach development. drizzle.config.ts keeps a DATABASE_URL that's
-// already set, so this overrides .env.local.
+// only ever reach development
 const DATABASE_URL = neonConnectionString('development');
 
 try {
   execSync('drizzle-kit push', {
     stdio: 'inherit',
+    // drizzle.config.ts keeps a DATABASE_URL that's already set, so this wins
+    // over .env.local
     env: { ...process.env, DATABASE_URL },
   });
 } catch {
