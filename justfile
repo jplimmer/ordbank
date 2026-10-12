@@ -48,6 +48,14 @@ build:
 [doc("Everything CI checks, cheapest first")]
 ci: format-check lint typecheck test build
 
+[doc("Generate a migration from changes to schema.ts")]
+db-generate:
+    pnpm db:generate
+
+[doc("Apply pending migrations to the DATABASE_URL database (development, locally)")]
+db-migrate:
+    pnpm db:migrate
+
 [doc("Seed the template Neon branch (never production)")]
 db-seed:
     pnpm db:seed

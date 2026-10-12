@@ -1,6 +1,7 @@
-# Runs `just ci` — the same checks as locally — on every PR and on main. The `ci` job is a required status
-# check (the "Require CI" ruleset), so keep the job name stable and don't add `paths:` filters: a required
-# check that never reports leaves the PR waiting forever.
+# Runs `just ci` — the same checks as locally — and tests the PR's migrations, on every PR and on main. The
+# `ci`, `migration-replay` and `pr-branch` jobs are required status checks (the "Require CI" ruleset), so
+# keep their names stable and don't add `paths:` filters: a required check that never reports leaves the PR
+# waiting forever.
 
 name: CI
 
@@ -36,17 +37,87 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      # pnpm from `packageManager` in package.json and Node from .nvmrc. The store is cached, keyed on
-      # pnpm-lock.yaml. Installing is left to `just install`, as locally.
-      - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
-        with:
-          cache: true
-          install: false
-
-      - uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
-        with:
-          tool: just@1.58.0
-
-      - run: just install
+      - uses: ./.github/actions/setup
       - run: just ci
+
+  # Replays the whole history on an empty database, proving the baseline plus every migration since builds
+  # the schema from nothing. Needs no secrets, so it runs on forks too.
+  migration-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        # Production's major version
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: just db-migrate
+
+  # Applies the PR's migrations to a copy of template (production's schema and history, plus seed data
+  # covering awkward states), the incremental path production will take on merge. The Neon branch
+  # `pr-<number>` is reset on every push and deleted when the PR closes (pr-branch-cleanup.yaml).
+  pr-branch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Fork PRs get no secrets, so they can't create a branch. The job still passes, as the required check
+      # must report, and says it was skipped.
+      IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+    steps:
+      - if: env.IS_FORK == 'true'
+        run: |
+          echo "::notice::Skipped: pull requests from forks can't reach Neon, so a maintainer must test these migrations"
+
+      - if: env.IS_FORK == 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: env.IS_FORK == 'false'
+        uses: ./.github/actions/setup
+
+      # A backstop for close events that never run: Neon deletes the branch itself after two weeks
+      - if: env.IS_FORK == 'false'
+        id: expiry
+        run: echo "expires_at=$(date -u -d '+14 days' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      # Creates the branch from template on the PR's first run and reuses it afterwards
+      - if: env.IS_FORK == 'false'
+        id: branch
+        uses: neondatabase/create-branch-action@fb620d43d4c565abaf088b848a4e28e5c4ea4d9c # v6.3.1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch_name: pr-${{ github.event.number }}
+          parent_branch: template
+          expires_at: ${{ steps.expiry.outputs.expires_at }}
+
+      # A reused branch still has the previous push's migrations, which may since have been edited
+      - if: env.IS_FORK == 'false' && steps.branch.outputs.created == 'false'
+        uses: neondatabase/reset-branch-action@470ab8101095ea33737c294d17364a72fd80761b # v1.3.2
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch: ${{ steps.branch.outputs.branch_id }}
+          parent: true
+
+      # The connection string survives a reset. Only this step runs the PR's code, and it never sees the
+      # API key.
+      - if: env.IS_FORK == 'false'
+        run: just db-migrate
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url }}

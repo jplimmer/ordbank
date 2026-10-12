@@ -1,0 +1,22 @@
+# Node, pnpm and just at their pinned versions, then `just install`, as locally. Every job runs it after
+# checking out, so the pins live in one place.
+
+name: Setup
+description: Install the toolchain and dependencies
+
+runs:
+  using: composite
+  steps:
+    # pnpm from `packageManager` in package.json and Node from .nvmrc. The store is cached, keyed on
+    # pnpm-lock.yaml. Installing is left to `just install`, as locally.
+    - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+      with:
+        cache: true
+        install: false
+
+    - uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+      with:
+        tool: just@1.58.0
+
+    - run: just install
+      shell: bash
