@@ -107,14 +107,14 @@ template         root    production's schema + seed data            copied by ev
 └─ pr-<number>   child   one per open PR, where CI tests its migrations
 ```
 
-| Environment           | Database                | Clerk instance | Configured in                             |
-| --------------------- | ----------------------- | -------------- | ----------------------------------------- |
-| Production            | `production`            | production     | Vercel, Production variables              |
-| Preview               | `development`           | development    | Vercel, Preview variables                 |
-| Local                 | `development`           | development    | `.env.local`                              |
-| CI build              | none (placeholders)     | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
-| CI `migration-replay` | empty Postgres 17 in CI | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
-| CI `pr-branch`        | `pr-<number>` (Neon)    | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| Environment            | Database                | Clerk instance | Configured in                             |
+| ---------------------- | ----------------------- | -------------- | ----------------------------------------- |
+| Production             | `production`            | production     | Vercel, Production variables              |
+| Preview                | `development`           | development    | Vercel, Preview variables                 |
+| Local                  | `development`           | development    | `.env.local`                              |
+| CI build               | none (placeholders)     | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| CI `replay-migrations` | empty Postgres 17 in CI | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| CI `migrate-db-branch` | `pr-<number>` (Neon)    | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
 
 The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 root branches and 3 plus
 one per open PR. Branches are copy-on-write: a child shares its parent's storage until either changes.
@@ -175,8 +175,8 @@ migrations in [`drizzle/`](../drizzle). Nothing pushes `schema.ts` to a shared d
    `just db-generate --name=add_word_notes`.
 3. Read the SQL. It's what production will run, so check it does what you meant, especially anything that
    drops, renames or adds a constraint (see below).
-4. `just db-migrate` applies it to `development` (the `DATABASE_URL` in `.env.local`), so you can try it in the
-   app.
+4. `just db-migrate` applies it to `development` (the `DATABASE_URL` in `.env.local`), so you can try it in
+   the app.
 5. Commit the SQL file and the `drizzle/meta/` changes with the code that needs them.
 
 `just test` fails if `schema.ts` has changes that no migration covers, and shows the missing SQL. Until a PR
@@ -187,10 +187,11 @@ rebase and regenerate.
 
 **What runs where**
 
-- **Every PR:** `migration-replay` runs the whole history on an empty Postgres 17, proving it builds the schema
-  from nothing. `pr-branch` applies the PR's migrations to its own copy of `template` (see
+- **Every PR:** `replay-migrations` runs the whole history on an empty Postgres 17, proving it builds the
+  schema from nothing. `migrate-db-branch` applies the PR's migrations to its own copy of `template` (see
   [Environments](#environments)): the step production will take on merge, against seed data built to catch
-  constraints that existing rows break. PRs from forks skip `pr-branch`, since they get no secrets.
+  constraints that existing rows break. PRs from forks skip `migrate-db-branch`, since they get no secrets.
+  The migrated branch is also the PR's database for later jobs, such as E2E tests (#115).
 - **Merge to `main`:** the production build runs [`scripts/migrate-deploy.ts`](../scripts/migrate-deploy.ts)
   before `next build`, migrating `production` and then `template`. Drizzle applies the pending migrations in
   one transaction, so one that fails on production data rolls back and fails the build, and the previous
@@ -218,10 +219,11 @@ serving, and a Vercel rollback runs old code against the new schema. So:
 - **Drop, rename or retype a column with expand–contract**, over separate PRs: add the new column and write
   to both; backfill and switch reads to the new one; then, once nothing uses the old one, drop it. #138 is a
   worked example.
-- **Before adding a constraint over existing data** (`NOT NULL`, `CHECK`, a foreign key, a unique index), count
-  the rows that would break it in production, from the Neon console's SQL editor, for example
+- **Before adding a constraint over existing data** (`NOT NULL`, `CHECK`, a foreign key, a unique index),
+  count the rows that would break it in production, from the Neon console's SQL editor, for example
   `SELECT count(*) FROM test_settings WHERE question_limit IS NULL;`. If any would, the migration must fix
-  them first. `pr-branch` only tests against seed data, which can't know every state production has reached.
+  them first. `migrate-db-branch` only tests against seed data, which can't know every state production has
+  reached.
 
 **Your local database** keeps whatever you applied to it. After closing a PR whose migration you applied with
 `just db-migrate`, run `just db-reset-dev`, or `development` keeps a schema `main` doesn't have.
@@ -264,10 +266,10 @@ commit.
 2. Open a PR. The [CI workflow](../.github/workflows/ci.yaml) runs `just ci` on the same pinned Node and pnpm
    versions and tests the PR's migrations (see [Migrations](#migrations)), and Vercel builds a preview
    deployment.
-3. Merge once the `ci`, `migration-replay` and `pr-branch` checks pass. The "Require CI" ruleset blocks the
-   merge button until they do. For a failure that isn't the PR's fault, such as an outage, a repository admin
-   can tick "bypass rules" on the PR. That records the override on the PR rather than skipping the check
-   silently.
+3. Merge once the `ci`, `replay-migrations` and `migrate-db-branch` checks pass. The "Require CI" ruleset
+   blocks the merge button until they do. For a failure that isn't the PR's fault, such as an outage, a
+   repository admin can tick "bypass rules" on the PR. That records the override on the PR rather than
+   skipping the check silently.
 4. Delete the local branch with `git branch -D`: squashed commits aren't ancestors of `main`, so `-d` refuses.
    If you applied its migration locally, run `just db-reset-dev`.
 

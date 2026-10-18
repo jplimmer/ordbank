@@ -1,7 +1,7 @@
-# Deletes the PR's Neon branch, created by the `pr-branch` job in ci.yaml, when the PR is merged or closed.
-# Reopening the PR creates it again on the next CI run.
+# Deletes the PR's Neon branch, created by the `migrate-db-branch` job in ci.yaml, when the PR is merged or
+# closed. Reopening the PR creates it again on the next CI run.
 
-name: PR branch cleanup
+name: DB branch cleanup
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 permissions: {}
 
 jobs:
-  delete:
+  delete-db-branch:
     # Fork PRs never got a branch, and get no secrets to delete one with
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest

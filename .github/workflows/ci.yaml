@@ -1,7 +1,7 @@
 # Runs `just ci` — the same checks as locally — and tests the PR's migrations, on every PR and on main. The
-# `ci`, `migration-replay` and `pr-branch` jobs are required status checks (the "Require CI" ruleset), so
-# keep their names stable and don't add `paths:` filters: a required check that never reports leaves the PR
-# waiting forever.
+# `ci`, `replay-migrations` and `migrate-db-branch` jobs are required status checks (the "Require CI"
+# ruleset), so keep their names stable and don't add `paths:` filters: a required check that never reports
+# leaves the PR waiting forever.
 
 name: CI
 
@@ -42,7 +42,7 @@ jobs:
 
   # Replays the whole history on an empty database, proving the baseline plus every migration since builds
   # the schema from nothing. Needs no secrets, so it runs on forks too.
-  migration-replay:
+  replay-migrations:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -69,8 +69,10 @@ jobs:
 
   # Applies the PR's migrations to a copy of template (production's schema and history, plus seed data
   # covering awkward states), the incremental path production will take on merge. The Neon branch
-  # `pr-<number>` is reset on every push and deleted when the PR closes (pr-branch-cleanup.yaml).
-  pr-branch:
+  # `pr-<number>` is reset on every push and deleted when the PR closes (db-branch-cleanup.yaml). Jobs that
+  # need the PR's database, such as E2E tests, should `needs:` this job and look the branch up by name: a job
+  # output can't carry its connection string, because GitHub drops outputs that contain secrets.
+  migrate-db-branch:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
