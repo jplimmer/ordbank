@@ -1,6 +1,6 @@
 {
-  "id": "8438b253-baa3-43f7-9e87-1b049303efc6",
-  "prevId": "43d0608b-3171-49d7-bd45-03c2146b8f91",
+  "id": "1cbf2de2-272e-4f42-be73-cfc353b78da3",
+  "prevId": "4aa643fc-01fc-47f3-b5a3-3595e262746d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -91,8 +91,12 @@
           "name": "language_pairs_user_id_users_id_fk",
           "tableFrom": "language_pairs",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -196,8 +200,12 @@
           "name": "test_settings_user_id_users_id_fk",
           "tableFrom": "test_settings",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -238,17 +246,17 @@
             "cycle": false
           }
         },
-        "clerk_id": {
-          "name": "clerk_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "active_language_pair_id": {
           "name": "active_language_pair_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "clerk_id": {
+          "name": "clerk_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -310,12 +318,6 @@
             "cycle": false
           }
         },
-        "language_pair_id": {
-          "name": "language_pair_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "source": {
           "name": "source",
           "type": "text",
@@ -325,6 +327,12 @@
         "target": {
           "name": "target",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language_pair_id": {
+          "name": "language_pair_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -377,8 +385,12 @@
           "name": "vocabulary_language_pair_id_language_pairs_id_fk",
           "tableFrom": "vocabulary",
           "tableTo": "language_pairs",
-          "columnsFrom": ["language_pair_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "language_pair_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -424,12 +436,6 @@
             "cycle": false
           }
         },
-        "language_pair_id": {
-          "name": "language_pair_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "source": {
           "name": "source",
           "type": "text",
@@ -439,6 +445,12 @@
         "target": {
           "name": "target",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language_pair_id": {
+          "name": "language_pair_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -481,7 +493,7 @@
           "notNull": true
         }
       },
-      "definition": "select \"vocabulary\".\"id\", \"vocabulary\".\"language_pair_id\", \"vocabulary\".\"source\", \"vocabulary\".\"target\", \"vocabulary\".\"total_attempts\", \"vocabulary\".\"correct_attempts\", \"vocabulary\".\"last_attempted_at\", \"language_pairs\".\"user_id\", \"language_pairs\".\"source_language\", \"language_pairs\".\"target_language\" from \"vocabulary\" inner join \"language_pairs\" on \"vocabulary\".\"language_pair_id\" = \"language_pairs\".\"id\"",
+      "definition": "select \"vocabulary\".\"id\", \"vocabulary\".\"source\", \"vocabulary\".\"target\", \"vocabulary\".\"language_pair_id\", \"vocabulary\".\"total_attempts\", \"vocabulary\".\"correct_attempts\", \"vocabulary\".\"last_attempted_at\", \"language_pairs\".\"user_id\", \"language_pairs\".\"source_language\", \"language_pairs\".\"target_language\" from \"vocabulary\" inner join \"language_pairs\" on \"vocabulary\".\"language_pair_id\" = \"language_pairs\".\"id\"",
       "name": "user_vocabulary",
       "schema": "public",
       "isExisting": false,

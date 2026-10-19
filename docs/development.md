@@ -210,7 +210,7 @@ silently skip `0001`.
 CREATE SCHEMA IF NOT EXISTS drizzle;
 CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at bigint);
 INSERT INTO drizzle.__drizzle_migrations (hash, created_at)
-VALUES ('a54e3bf6f6092612d132ac132c99a147cdddaf4a135af257b56ddaaa989eac72', 1791832620303);
+VALUES ('33f930073bd4f16869e6b7fd0484e418ddf96a9847a5a2812ac54fbc619d9f3b', 1792437259710);
 ```
 
 **Changes that existing rows or running code can break.** Migrations run while the old deployment is still
