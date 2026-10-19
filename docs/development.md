@@ -51,27 +51,31 @@ Then `just dev` and open <http://localhost:3000>.
 Run `just` to list the recipes. Each one runs a `package.json` script, so the scripts stay the single
 definition of how a tool is invoked.
 
-| Recipe              | Does                                                                |
-| ------------------- | ------------------------------------------------------------------- |
-| `just setup`        | Set up a fresh clone or worktree (installs dependencies)            |
-| `just install`      | Install dependencies exactly as locked                              |
-| `just dev`          | Dev server (Turbopack)                                              |
-| `just lint`         | ESLint                                                              |
-| `just typecheck`    | `tsc --noEmit`                                                      |
-| `just format`       | Prettier, writing changes                                           |
-| `just format-check` | Prettier, check only                                                |
-| `just test`         | Unit tests, once (see [Tests](#tests))                              |
-| `just test-watch`   | Unit tests, re-run on every change                                  |
-| `just build`        | Production build                                                    |
-| `just ci`           | Everything CI checks: format-check, lint, typecheck, test and build |
-| `just db-seed`      | Seed the `template` Neon branch (see [Environments](#environments)) |
-| `just db-reset-dev` | Reset the `development` Neon branch to `template`                   |
+| Recipe              | Does                                                                  |
+| ------------------- | --------------------------------------------------------------------- |
+| `just setup`        | Set up a fresh clone or worktree (installs dependencies)              |
+| `just install`      | Install dependencies exactly as locked                                |
+| `just dev`          | Dev server (Turbopack)                                                |
+| `just lint`         | ESLint                                                                |
+| `just typecheck`    | `tsc --noEmit`                                                        |
+| `just format`       | Prettier, writing changes                                             |
+| `just format-check` | Prettier, check only                                                  |
+| `just test`         | Unit tests, once (see [Tests](#tests))                                |
+| `just test-watch`   | Unit tests, re-run on every change                                    |
+| `just build`        | Production build                                                      |
+| `just ci`           | Everything CI checks: format-check, lint, typecheck, test and build   |
+| `just db-generate`  | Generate a migration from `schema.ts` (see [Migrations](#migrations)) |
+| `just db-migrate`   | Apply pending migrations to the `DATABASE_URL` database               |
+| `just db-drop`      | Delete the latest migration, before it merges                         |
+| `just db-seed`      | Seed the `template` Neon branch (see [Environments](#environments))   |
+| `just db-reset-dev` | Reset the `development` Neon branch to `template`                     |
 
 A pre-commit hook (Husky + lint-staged) runs ESLint and Prettier on staged files.
 
 ## Tests
 
-Unit tests use [Vitest](https://vitest.dev) and sit next to the code they test as `*.test.ts` under `src/`.
+Unit tests use [Vitest](https://vitest.dev) and sit next to the code they test as `*.test.ts` under `src/` or
+`scripts/`.
 To run one file, pass its path: `pnpm exec vitest run src/lib/utils.test.ts`. Imports can use the `@/` alias,
 which Vitest reads from `tsconfig.json`.
 
@@ -93,24 +97,27 @@ the logic should move into a pure module. E2E tests arrive with Playwright in #1
 ## Environments
 
 Production data never leaves production. Every other database is copied from `template`, which has
-production's schema but only seeded sample data. No app is deployed to or connects to `template`: it exists
-only to be seeded and copied.
+production's schema and migration history but only seeded sample data. No app is deployed to or connects to
+`template`: it exists to be seeded, migrated after production and copied.
 
 ```
 production       root    real data                                 Vercel Production
 template         root    production's schema + seed data            copied by every branch below, no app
-└─ development   child   local dev (.env.local) and every Vercel preview
+├─ development   child   local dev (.env.local) and every Vercel preview
+└─ pr-<number>   child   one per open PR, where CI tests its migrations
 ```
 
-| Environment | Database            | Clerk instance | Configured in                             |
-| ----------- | ------------------- | -------------- | ----------------------------------------- |
-| Production  | `production`        | production     | Vercel, Production variables              |
-| Preview     | `development`       | development    | Vercel, Preview variables                 |
-| Local       | `development`       | development    | `.env.local`                              |
-| CI build    | none (placeholders) | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| Environment            | Database                | Clerk instance | Configured in                             |
+| ---------------------- | ----------------------- | -------------- | ----------------------------------------- |
+| Production             | `production`            | production     | Vercel, Production variables              |
+| Preview                | `development`           | development    | Vercel, Preview variables                 |
+| Local                  | `development`           | development    | `.env.local`                              |
+| CI build               | none (placeholders)     | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| CI `replay-migrations` | empty Postgres 17 in CI | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| CI `migrate-db-branch` | `pr-<number>` (Neon)    | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
 
-The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 and 3. Branches are
-copy-on-write: a child shares its parent's storage until either changes.
+The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 root branches and 3 plus
+one per open PR. Branches are copy-on-write: a child shares its parent's storage until either changes.
 
 **Environment variables** are validated by [`src/lib/env/schema.ts`](../src/lib/env/schema.ts), at build
 (`next.config.ts` imports it) and at runtime (the database client imports it). A missing or malformed value
@@ -119,8 +126,20 @@ placeholders and each Vercel environment. Server code reads it from `env` in `sr
 
 **Branch lifecycles**
 
-- **`template`** is a schema-only branch of `production`, so it has no parent to reset from. If it drifts from
-  `production`, delete it, recreate it as a schema-only branch of `production` in the Neon console and re-seed.
+- **`template`** is a schema-only branch of `production`, so it has no parent to reset from. It stays in step
+  because every production deploy applies the same migrations to it, straight after `production`. If it drifts
+  anyway, delete it, recreate it as a schema-only branch of `production` in the Neon console, copy the
+  migration history across (a schema-only branch has the `drizzle.__drizzle_migrations` table but not its
+  rows), re-seed and run `just db-reset-dev`:
+
+  ```bash
+  pg_dump --data-only --table=drizzle.__drizzle_migrations "$(pnpm exec neonctl connection-string production)" \
+    | psql "$(pnpm exec neonctl connection-string template)"
+  ```
+
+- **`pr-<number>`** is created from `template` by CI on a PR's first push, reset to `template` on every later
+  push and deleted when the PR closes. Neon also deletes it after two weeks, in case the close event is
+  missed; the next push creates it again.
 - **`just db-seed`** writes sample data to `template`. It asks `neonctl` for `template` by name rather than
   reading `DATABASE_URL`, so it can't reach production. Each run replaces the seed users' data and nothing
   else. Re-run it after changing [`scripts/seed.ts`](../scripts/seed.ts).
@@ -143,7 +162,84 @@ have made-up Clerk IDs (real ones start with `user_`): nobody signs in as them, 
 
 **Revisit this model** if previews need their own databases: for example, two open PRs whose schema changes
 conflict, since every preview shares `development`. The Neon–Vercel integration was ruled out because it
-branches previews from the default branch, copying production data into each one (#112).
+branches previews from the default branch, copying production data into each one (#112). Deploying previews
+against their PR's branch is #139.
+
+## Migrations
+
+Schema changes reach every database as committed, reviewed [Drizzle](https://orm.drizzle.team/docs/migrations)
+migrations in [`drizzle/`](../drizzle). Nothing pushes `schema.ts` to a shared database directly.
+
+1. Edit [`src/lib/db/schema.ts`](../src/lib/db/schema.ts).
+2. `just db-generate` writes the SQL to `drizzle/NNNN_<name>.sql`. Pass a name to make it readable:
+   `just db-generate --name=add_word_notes`.
+3. Read the SQL. It's what production will run, so check it does what you meant, especially anything that
+   drops, renames or adds a constraint (see below).
+4. `just db-migrate` applies it to `development` (the `DATABASE_URL` in `.env.local`), so you can try it in
+   the app.
+5. Commit the SQL file and the `drizzle/meta/` changes with the code that needs them.
+
+`just test` fails if `schema.ts` has changes that no migration covers, and shows the missing SQL. Until a PR
+merges, its migrations can still change: `just db-drop` removes the latest one cleanly, then
+`just db-reset-dev` and generate again. Once merged, a migration is history: never edit it, write a new one.
+If another PR's migration merges first, the `drizzle/meta/_journal.json` conflict is the signal to drop yours,
+rebase and regenerate.
+
+**What runs where**
+
+- **Every PR:** `replay-migrations` runs the whole history on an empty Postgres 17, proving it builds the
+  schema from nothing. `migrate-db-branch` applies the PR's migrations to its own copy of `template` (see
+  [Environments](#environments)): the step production will take on merge, against seed data built to catch
+  constraints that existing rows break. PRs from forks skip `migrate-db-branch`, since they get no secrets.
+  The migrated branch is also the PR's database for later jobs, such as E2E tests (#115).
+- **Merge to `main`:** the production build runs [`scripts/migrate-deploy.ts`](../scripts/migrate-deploy.ts)
+  before `next build`, migrating `production` and then `template`. Drizzle applies the pending migrations in
+  one transaction, so one that fails on production data rolls back and fails the build, and the previous
+  deployment stays live. New code only goes live once its schema is in place.
+- **Preview, local and CI builds** never migrate. The script only acts when Vercel sets
+  `VERCEL_ENV=production`.
+
+`drizzle/0000_baseline.sql` is the schema production had before migrations existed, when `db:push` managed it.
+It was recorded as applied in `production` and `template` without being run there, so it only ever runs on
+empty databases. Recording it means creating Drizzle's history table and inserting the row Drizzle would have
+written: the file's SHA-256 and its `when` from `drizzle/meta/_journal.json`. Drizzle applies only migrations
+whose `when` is later than the newest `created_at` recorded, so a row stamped with the current time would
+silently skip `0001`.
+
+```sql
+CREATE SCHEMA IF NOT EXISTS drizzle;
+CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at bigint);
+INSERT INTO drizzle.__drizzle_migrations (hash, created_at)
+VALUES ('33f930073bd4f16869e6b7fd0484e418ddf96a9847a5a2812ac54fbc619d9f3b', 1792437259710);
+```
+
+**Changes that existing rows or running code can break.** Migrations run while the old deployment is still
+serving, and a Vercel rollback runs old code against the new schema. So:
+
+- **Drop, rename or retype a column with expand–contract**, over separate PRs: add the new column and write
+  to both; backfill and switch reads to the new one; then, once nothing uses the old one, drop it. #138 is a
+  worked example.
+- **Before adding a constraint over existing data** (`NOT NULL`, `CHECK`, a foreign key, a unique index),
+  count the rows that would break it in production, from the Neon console's SQL editor, for example
+  `SELECT count(*) FROM test_settings WHERE question_limit IS NULL;`. If any would, the migration must fix
+  them first. `migrate-db-branch` only tests against seed data, which can't know every state production has
+  reached.
+
+**Your local database** keeps whatever you applied to it. After closing a PR whose migration you applied with
+`just db-migrate`, run `just db-reset-dev`, or `development` keeps a schema `main` doesn't have.
+
+**`pnpm db:push`** writes `schema.ts` straight to a database without a migration, for quick experiments. It
+looks up `development` by name with `neonctl`, ignoring `DATABASE_URL`, so it can't reach any other branch.
+Run `just db-reset-dev` before generating the real migration, or it will fail on objects the push already
+created.
+
+**Configuration**
+
+| Where                       | Name                    | Value                                                     |
+| --------------------------- | ----------------------- | --------------------------------------------------------- |
+| Vercel, Production (Secret) | `TEMPLATE_DATABASE_URL` | `template`'s connection string, for `migrate-deploy.ts`   |
+| GitHub, Actions secret      | `NEON_API_KEY`          | A Neon API key, for creating and deleting `pr-*` branches |
+| GitHub, Actions variable    | `NEON_PROJECT_ID`       | The Neon project ID                                       |
 
 ## Dependencies
 
@@ -168,11 +264,14 @@ commit.
 
 1. Branch from `main`, run `just ci` to catch failures before CI does, then push.
 2. Open a PR. The [CI workflow](../.github/workflows/ci.yaml) runs `just ci` on the same pinned Node and pnpm
-   versions, and Vercel builds a preview deployment.
-3. Merge once the `ci` check passes. The "Require CI" ruleset blocks the merge button until it does. For a
-   failure that isn't the PR's fault, such as an outage, a repository admin can tick "bypass rules" on the PR.
-   That records the override on the PR rather than skipping the check silently.
+   versions and tests the PR's migrations (see [Migrations](#migrations)), and Vercel builds a preview
+   deployment.
+3. Merge once the `ci`, `replay-migrations` and `migrate-db-branch` checks pass. The "Require CI" ruleset
+   blocks the merge button until they do. For a failure that isn't the PR's fault, such as an outage, a
+   repository admin can tick "bypass rules" on the PR. That records the override on the PR rather than
+   skipping the check silently.
 4. Delete the local branch with `git branch -D`: squashed commits aren't ancestors of `main`, so `-d` refuses.
+   If you applied its migration locally, run `just db-reset-dev`.
 
 CI builds without secrets, using well-formed placeholders for every validated variable (the workflow explains
 why that's enough). If the build starts needing a real value, look for something that now runs at build time,
@@ -180,7 +279,9 @@ such as a page that became static.
 
 ## Deployment
 
-Vercel builds every push: pull requests get a preview deployment, and `main` deploys to production.
+Vercel builds every push: pull requests get a preview deployment, and `main` deploys to production. The
+production build migrates `production` and `template` before building, so a deploy log starts with
+`Migrating production…`, or `Skipping migrations` in a preview (see [Migrations](#migrations)).
 
 - **Node** comes from `engines.node` in `package.json`, which overrides the Vercel project setting.
 - **pnpm** comes from `packageManager`. Vercel only detects pnpm 10 and older by itself, so the project sets
