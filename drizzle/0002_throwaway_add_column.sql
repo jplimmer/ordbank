@@ -1,0 +1,3 @@
+DROP VIEW "public"."user_vocabulary";--> statement-breakpoint
+ALTER TABLE "vocabulary" ADD COLUMN "notes" text;--> statement-breakpoint
+CREATE VIEW "public"."user_vocabulary" AS (select "vocabulary"."id", "vocabulary"."source", "vocabulary"."target", "vocabulary"."language_pair_id", "vocabulary"."total_attempts", "vocabulary"."correct_attempts", "vocabulary"."last_attempted_at", "vocabulary"."notes", "language_pairs"."user_id", "language_pairs"."source_language", "language_pairs"."target_language" from "vocabulary" inner join "language_pairs" on "vocabulary"."language_pair_id" = "language_pairs"."id");
