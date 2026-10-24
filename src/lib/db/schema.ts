@@ -76,6 +76,7 @@ export const vocabulary = pgTable(
     totalAttempts: integer('total_attempts').notNull().default(0),
     correctAttempts: integer('correct_attempts').notNull().default(0),
     lastAttemptedAt: timestamp('last_attempted_at'),
+    notes: text('notes'),
   },
   (t) => [
     uniqueIndex('vocabulary_language_pair_source_unique').on(
