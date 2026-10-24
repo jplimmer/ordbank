@@ -106,9 +106,9 @@ export const testSettings = pgTable(
     answerMode: text('answer_mode', { enum: AnswerModeSettingEnum })
       .notNull()
       .default(TEST_SETTINGS_DEFAULTS.answerMode),
-    questionLimit: integer('question_limit').default(
-      TEST_SETTINGS_DEFAULTS.questionLimit
-    ),
+    questionLimit: integer('question_limit')
+      .notNull()
+      .default(TEST_SETTINGS_DEFAULTS.questionLimit),
     timeLimitMins: integer('time_limit_mins').default(
       TEST_SETTINGS_DEFAULTS.timeLimitMins
     ),
