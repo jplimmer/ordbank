@@ -1,0 +1,1 @@
+ALTER TABLE "test_settings" ALTER COLUMN "question_limit" SET NOT NULL;
