@@ -12,8 +12,7 @@ export type ServiceError = {
 
 // Result types
 export type Result<T, E> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+  { success: true; data: T } | { success: false; error: E };
 
 export type ServiceResult<T> = Result<T, ServiceError>;
 export type ActionResult<T> = Result<T, string>;
