@@ -1,7 +1,6 @@
 /** Applies pending migrations in a Vercel production build; runs before `next build`. */
 
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { applyMigrations } from './apply-migrations';
 import { migrationTargets } from './migration-targets';
 
 async function main() {
@@ -12,17 +11,10 @@ async function main() {
   }
 
   for (const { branch, url } of targets) {
-    console.log(`Migrating ${branch}…`);
-    const db = drizzle(url);
-    try {
-      // All pending migrations run in one transaction, so a failure rolls back
-      // and fails the build, leaving the previous deployment live
-      await migrate(db, { migrationsFolder: 'drizzle' });
-    } finally {
-      await db.$client.end();
-    }
+    // A failure rolls back, fails the build and leaves the previous deployment
+    // live; template is never migrated past production
+    await applyMigrations(url, branch);
   }
-  console.log('Migrations applied');
 }
 
 main().catch((error: unknown) => {
