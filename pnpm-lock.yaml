@@ -234,7 +234,7 @@ importers:
         version: 0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5)
       drizzle-zod:
         specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5))(zod@4.2.1)
+        version: 0.8.3(drizzle-orm@0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5))(zod@4.6.6)
       lucide-react:
         specifier: ^0.539.0
         version: 0.539.0(react@19.2.4)
@@ -266,8 +266,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       zod:
-        specifier: ^4.1.12
-        version: 4.2.1
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -4091,9 +4091,6 @@ packages:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
     engines: {node: '>=4.0.0'}
 
-  pg-protocol@1.10.3:
-    resolution: {integrity: sha512-6DIBgBQaTKDJyxnXaLiLR8wBpQQcGWuAESkRBX/t6OwA8YsqP+iVSiond2EDy6Y/dsGk8rh/jtax3js5NeV7JQ==}
-
   pg-protocol@1.16.1:
     resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
 
@@ -4851,8 +4848,8 @@ packages:
   zod@4.2.1:
     resolution: {integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==}
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
 snapshots:
 
@@ -5645,7 +5642,7 @@ snapshots:
     dependencies:
       '@neon/sdk': 7.0.0
       jiti: 2.7.0
-      zod: 4.6.5
+      zod: 4.6.6
 
   '@neon/sdk@7.0.0': {}
 
@@ -6395,7 +6392,7 @@ snapshots:
   '@types/pg@8.15.5':
     dependencies:
       '@types/node': 24.13.6
-      pg-protocol: 1.10.3
+      pg-protocol: 1.16.1
       pg-types: 2.2.0
 
   '@types/react-dom@19.1.7(@types/react@19.1.10)':
@@ -6941,10 +6938,10 @@ snapshots:
       '@neondatabase/serverless': 1.0.2
       '@types/pg': 8.15.5
 
-  drizzle-zod@0.8.3(drizzle-orm@0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5))(zod@4.2.1):
+  drizzle-zod@0.8.3(drizzle-orm@0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5))(zod@4.6.6):
     dependencies:
       drizzle-orm: 0.45.3(@libsql/client@0.15.11)(@neondatabase/serverless@1.0.2)(@types/pg@8.15.5)
-      zod: 4.2.1
+      zod: 4.6.6
 
   dset@3.1.4: {}
 
@@ -8301,8 +8298,6 @@ snapshots:
 
   pg-int8@1.0.1: {}
 
-  pg-protocol@1.10.3: {}
-
   pg-protocol@1.16.1: {}
 
   pg-types@2.2.0:
@@ -9095,4 +9090,4 @@ snapshots:
 
   zod@4.2.1: {}
 
-  zod@4.6.5: {}
+  zod@4.6.6: {}
