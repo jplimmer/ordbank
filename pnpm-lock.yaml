@@ -4432,8 +4432,8 @@ packages:
     resolution: {integrity: sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w==}
     engines: {node: '>=18'}
 
-  source-map-js@1.2.1:
-    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+  source-map-js@1.2.2:
+    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
 
   source-map-support@0.5.21:
@@ -4652,8 +4652,8 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
-  undici@7.30.0:
-    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
+  undici@7.30.2:
+    resolution: {integrity: sha512-mLyPQnHwUxaM/rideoK/+KL8DaAJLRl4aBCfmX444aCSLnIaomqPLtNRe2jdCYcsk5wZzXrDIQC8ZeYNRAYyIA==}
     engines: {node: '>=20.18.1'}
 
   unicorn-magic@0.3.0:
@@ -6340,7 +6340,7 @@ snapshots:
       jiti: 2.7.0
       lightningcss: 1.30.2
       magic-string: 0.30.21
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
       tailwindcss: 4.1.18
 
   '@tailwindcss/oxide-android-arm64@4.1.18':
@@ -8164,7 +8164,7 @@ snapshots:
       prettier: 3.9.8
       prompts: 2.4.2
       semver: 7.7.2
-      undici: 7.30.0
+      undici: 7.30.2
       which: 3.0.1
       ws: 8.21.3
       yaml: 2.9.1
@@ -8417,13 +8417,13 @@ snapshots:
     dependencies:
       nanoid: 3.3.19
       picocolors: 1.1.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   postcss@8.5.28:
     dependencies:
       nanoid: 3.3.19
       picocolors: 1.1.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   postgres-array@2.0.0: {}
 
@@ -8732,7 +8732,7 @@ snapshots:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
 
-  source-map-js@1.2.1: {}
+  source-map-js@1.2.2: {}
 
   source-map-support@0.5.21:
     dependencies:
@@ -8977,7 +8977,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici@7.30.0: {}
+  undici@7.30.2: {}
 
   unicorn-magic@0.3.0: {}
 
