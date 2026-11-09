@@ -89,11 +89,15 @@ jobs:
       # Every step that uses the API key runs before the checkout. Once the PR's code is on the runner it
       # could tamper with later steps, so it must never share the runner with the key.
 
-      # A backstop for close events that never run: Neon deletes the branch itself after two weeks
+      # A backstop for close events that never run: Neon deletes the branch itself after two weeks. Neon
+      # only applies it on creation, so a reused branch keeps its first date and is recreated once expired.
       - name: Set the branch expiry
         if: env.IS_FORK == 'false'
         id: expiry
-        run: echo "expires_at=$(date -u -d '+14 days' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+        run: |
+          expires_at=$(date -u -d '+14 days' +%Y-%m-%dT%H:%M:%SZ)
+          echo "If created now, pr-${{ github.event.number }} expires at $expires_at"
+          echo "expires_at=$expires_at" >> "$GITHUB_OUTPUT"
 
       # Creates the branch from template on the PR's first run and reuses it afterwards
       - name: Create Neon branch pr-${{ github.event.number }}
@@ -107,15 +111,38 @@ jobs:
           parent_branch: template
           expires_at: ${{ steps.expiry.outputs.expires_at }}
 
-      # A reused branch still has the previous push's migrations, which may since have been edited
+      # A reused branch still has the previous push's migrations, which may since have been edited. Calls
+      # Neon's API directly rather than reset-branch-action, which installs an unlocked neonctl from npm at
+      # run time and hands it the API key.
       - name: Reset pr-${{ github.event.number }} to template
         if: env.IS_FORK == 'false' && steps.branch.outputs.created == 'false'
-        uses: neondatabase/reset-branch-action@470ab8101095ea33737c294d17364a72fd80761b # v1.3.2
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          branch: ${{ steps.branch.outputs.branch_id }}
-          parent: true
+        timeout-minutes: 3
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          API: https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}
+          BRANCH_ID: ${{ steps.branch.outputs.branch_id }}
+        run: |
+          # Retries also cover 423 Locked, which Neon returns while another operation runs on the project
+          api() {
+            curl -sS --fail-with-body --retry 5 --retry-delay 3 --retry-all-errors \
+              -H "Authorization: Bearer $NEON_API_KEY" -H 'Content-Type: application/json' "$@"
+          }
+          parent_id=$(api "$API/branches/$BRANCH_ID" | jq -r .branch.parent_id)
+          operations=$(api -X POST "$API/branches/$BRANCH_ID/restore" \
+            -d "{\"source_branch_id\": \"$parent_id\"}" | jq -r '.operations[].id')
+
+          # The restore runs in the background: wait, so migrations don't reach the branch mid-reset
+          for operation in $operations; do
+            while true; do
+              status=$(api "$API/operations/$operation" | jq -r .operation.status)
+              case $status in
+                finished | skipped) break ;;
+                failed | error | cancelled) echo "::error::Reset operation $operation $status"; exit 1 ;;
+                *) sleep 2 ;;
+              esac
+            done
+          done
+          echo "Reset $BRANCH_ID to its parent $parent_id"
 
       - name: Check out
         if: env.IS_FORK == 'false'
