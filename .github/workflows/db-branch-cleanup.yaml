@@ -1,0 +1,41 @@
+# Deletes the PR's Neon branch, created by the `migrate-db-branch` job in ci.yaml, when the PR is merged or
+# closed. Reopening the PR creates it again on the next CI run.
+
+name: DB branch cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions: {}
+
+jobs:
+  delete-db-branch:
+    # Fork PRs never got a branch, and get no secrets to delete one with
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Calls Neon's API directly rather than delete-branch-action, which installs an unlocked neonctl from
+      # npm at run time and hands it the API key
+      - name: Delete Neon branch pr-${{ github.event.number }}
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          API: https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}
+          BRANCH: pr-${{ github.event.number }}
+        run: |
+          # Retries also cover 423 Locked, which Neon returns while another operation runs on the project
+          api() {
+            curl -sS --fail-with-body --retry 5 --retry-delay 3 --retry-all-errors \
+              -H "Authorization: Bearer $NEON_API_KEY" "$@"
+          }
+          branch_id=$(api "$API/branches?search=$BRANCH" |
+            jq -r --arg name "$BRANCH" '.branches[] | select(.name == $name) | .id')
+
+          # Not an error: the branch may have expired, or CI may never have created it
+          if [ -z "$branch_id" ]; then
+            echo "$BRANCH doesn't exist, so there's nothing to delete"
+            exit 0
+          fi
+          api -X DELETE "$API/branches/$branch_id" > /dev/null
+          echo "Deleted $BRANCH ($branch_id)"

@@ -4,7 +4,6 @@ import { Pool } from '@neondatabase/serverless';
 import { loadEnvConfig } from '@next/env';
 import { eq, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { execSync } from 'node:child_process';
 import { z } from 'zod';
 import { VALIDATION_LIMITS } from '../src/lib/constants/validation';
 import {
@@ -17,10 +16,9 @@ import { parseEnv } from '../src/lib/env/schema';
 import { generatePairName } from '../src/lib/utils';
 import { languagePairInsertSchema } from '../src/lib/validation/language-pair-schemas';
 import { vocabInsertSchema } from '../src/lib/validation/vocab-schemas';
+import { neonConnectionString } from './neon';
 
-// Every non-production branch is copied from template and inherits this data.
-// Named explicitly because `neonctl connection-string` with no branch returns
-// the project's default branch, which is production.
+// Every non-production branch is copied from template and inherits this data
 const TARGET_BRANCH = 'template';
 
 // Edge-case users nobody signs in as. Real Clerk IDs start with `user_`, so
@@ -117,10 +115,7 @@ async function main() {
 
   // Resolved by branch name rather than read from DATABASE_URL, so the seed
   // can only ever reach template
-  const connectionString = execSync(
-    `neonctl connection-string ${TARGET_BRANCH}`,
-    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
-  ).trim();
+  const connectionString = neonConnectionString(TARGET_BRANCH);
 
   // A WebSocket pool rather than the app's HTTP driver, which can't run a
   // transaction whose later statements need earlier results (the new IDs)

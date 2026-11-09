@@ -4,3 +4,5 @@ build/
 .git/
 .vscode/
 pnpm-lock.yaml
+# Written by drizzle-kit, which rewrites them in its own format on every generate
+drizzle/meta/

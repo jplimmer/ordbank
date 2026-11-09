@@ -14,12 +14,14 @@ import { VALIDATION_LIMITS } from '../constants/validation';
 import { AnswerModeSettingEnum, DirectionSettingEnum } from '../types/test';
 
 // Tables
+// Listed in production's column order, so the baseline migration matches it:
+// Postgres appends columns added after a table exists and can't reorder them.
 export const users = pgTable(
   'users',
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    clerkId: varchar('clerk_id', { length: 255 }).notNull(),
     activeLanguagePairId: integer('active_language_pair_id'),
+    clerkId: varchar('clerk_id', { length: 255 }).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()
@@ -66,11 +68,11 @@ export const vocabulary = pgTable(
   'vocabulary',
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    source: text('source').notNull(),
+    target: text('target').notNull(),
     languagePairId: integer('language_pair_id')
       .notNull()
       .references(() => languagePairs.id, { onDelete: 'cascade' }),
-    source: text('source').notNull(),
-    target: text('target').notNull(),
     totalAttempts: integer('total_attempts').notNull().default(0),
     correctAttempts: integer('correct_attempts').notNull().default(0),
     lastAttemptedAt: timestamp('last_attempted_at'),
