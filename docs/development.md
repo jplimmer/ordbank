@@ -103,7 +103,8 @@ production's schema and migration history but only seeded sample data. No app is
 ```
 production       root    real data                                 Vercel Production
 template         root    production's schema + seed data            copied by every branch below, no app
-└─ development   child   local dev (.env.local) and every Vercel preview
+├─ development   child   local dev (.env.local) and every Vercel preview
+└─ pr-<number>   child   one per open PR, where CI tests its migrations
 ```
 
 | Environment            | Database                | Clerk instance | Configured in                             |
@@ -113,9 +114,10 @@ template         root    production's schema + seed data            copied by ev
 | Local                  | `development`           | development    | `.env.local`                              |
 | CI build               | none (placeholders)     | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
 | CI `replay-migrations` | empty Postgres 17 in CI | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
+| CI `migrate-db-branch` | `pr-<number>` (Neon)    | none           | [`ci.yaml`](../.github/workflows/ci.yaml) |
 
-The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 and 3. Branches are
-copy-on-write: a child shares its parent's storage until either changes.
+The Neon free plan allows 3 root branches and 10 branches in total, so this uses 2 root branches and 3 plus
+one per open PR. Branches are copy-on-write: a child shares its parent's storage until either changes.
 
 **Environment variables** are validated by [`src/lib/env/schema.ts`](../src/lib/env/schema.ts), at build
 (`next.config.ts` imports it) and at runtime (the database client imports it). A missing or malformed value
@@ -135,6 +137,11 @@ placeholders and each Vercel environment. Server code reads it from `env` in `sr
     | psql "$(pnpm exec neonctl connection-string template)"
   ```
 
+- **`pr-<number>`** is created from `template` by CI on a PR's first push, reset to `template` on every later
+  push and deleted when the PR closes. Neon also deletes it after two weeks, in case the close event is
+  missed; the next push creates it again. Its password is `PR_DB_PASSWORD`, which CI sets after every create
+  and reset, so the Neon console's connection string for it doesn't work: to inspect one, use the console's
+  host with that password.
 - **`just db-seed`** writes sample data to `template`. It asks `neonctl` for `template` by name rather than
   reading `DATABASE_URL`, so it can't reach production. Each run replaces the seed users' data and nothing
   else. Re-run it after changing [`scripts/seed.ts`](../scripts/seed.ts).
@@ -157,7 +164,8 @@ have made-up Clerk IDs (real ones start with `user_`): nobody signs in as them, 
 
 **Revisit this model** if previews need their own databases: for example, two open PRs whose schema changes
 conflict, since every preview shares `development`. The Neon–Vercel integration was ruled out because it
-branches previews from the default branch, copying production data into each one (#112).
+branches previews from the default branch, copying production data into each one (#112). Deploying previews
+against their PR's branch is #139.
 
 ## Migrations
 
@@ -182,7 +190,17 @@ rebase and regenerate.
 **What runs where**
 
 - **Every PR:** `replay-migrations` runs the whole history on an empty Postgres 17, proving it builds the
-  schema from nothing, then runs it again to prove recorded migrations aren't re-applied.
+  schema from nothing, then runs it again to prove recorded migrations aren't re-applied. `create-db-branch`
+  makes the PR its own copy of `template` (see [Environments](#environments)) and `migrate-db-branch` applies
+  the PR's migrations to it: the step production will take on merge, against seed data built to catch
+  constraints that existing rows break. PRs from forks and Dependabot skip both, since they get no secrets.
+  The migrated branch is also the PR's database for later jobs, such as E2E tests (#115).
+- **Which job holds which secret:** the Neon API key can reach production, so only `create-db-branch` holds
+  it, and that job never checks out the PR or uses an action: it calls Neon's API with the runner's own
+  tools, so no dependency update changes what runs with the key. Jobs that run the PR's code, dependencies
+  included, connect with `PR_DB_PASSWORD`, which opens only `pr-*` branches. A new job that needs the
+  database should `needs:` `create-db-branch` and build its connection string the way `migrate-db-branch`
+  does.
 - **Merge to `main`:** the production build runs [`scripts/migrate-deploy.ts`](../scripts/migrate-deploy.ts)
   before `next build`, migrating `production` and then `template`. Drizzle applies the pending migrations in
   one transaction, so one that fails on production data rolls back and fails the build, and the previous
@@ -213,7 +231,8 @@ serving, and a Vercel rollback runs old code against the new schema. So:
 - **Before adding a constraint over existing data** (`NOT NULL`, `CHECK`, a foreign key, a unique index),
   count the rows that would break it in production, from the Neon console's SQL editor, for example
   `SELECT count(*) FROM test_settings WHERE question_limit IS NULL;`. If any would, the migration must fix
-  them first.
+  them first. `migrate-db-branch` only tests against seed data, which can't know every state production has
+  reached.
 
 **Your local database** keeps whatever you applied to it. After closing a PR whose migration you applied with
 `just db-migrate`, run `just db-reset-dev`, or `development` keeps a schema `main` doesn't have.
@@ -225,9 +244,15 @@ created.
 
 **Configuration**
 
-| Where                       | Name                    | Value                                                   |
-| --------------------------- | ----------------------- | ------------------------------------------------------- |
-| Vercel, Production (Secret) | `TEMPLATE_DATABASE_URL` | `template`'s connection string, for `migrate-deploy.ts` |
+| Where                       | Name                    | Value                                                     |
+| --------------------------- | ----------------------- | --------------------------------------------------------- |
+| Vercel, Production (Secret) | `TEMPLATE_DATABASE_URL` | `template`'s connection string, for `migrate-deploy.ts`   |
+| GitHub, Actions secret      | `NEON_API_KEY`          | A Neon API key, for creating and deleting `pr-*` branches |
+| GitHub, Actions secret      | `PR_DB_PASSWORD`        | The password CI gives every `pr-*` branch (see below)     |
+| GitHub, Actions variable    | `NEON_PROJECT_ID`       | The Neon project ID                                       |
+
+Generate `PR_DB_PASSWORD` with `openssl rand -hex 32`: Neon rejects weak passwords, and hex needs no escaping
+in a connection string. Changing it takes effect on each PR's next push.
 
 ## Dependencies
 
@@ -254,8 +279,8 @@ commit.
 2. Open a PR. The [CI workflow](../.github/workflows/ci.yaml) runs `just ci` on the same pinned Node and pnpm
    versions and tests the PR's migrations (see [Migrations](#migrations)), and Vercel builds a preview
    deployment.
-3. Merge once the `ci` and `replay-migrations` checks pass. The "Require CI" ruleset blocks the merge button
-   until they do. For a failure that isn't the PR's fault, such as an outage, a
+3. Merge once the `ci`, `replay-migrations` and `migrate-db-branch` checks pass. The "Require CI" ruleset
+   blocks the merge button until they do. For a failure that isn't the PR's fault, such as an outage, a
    repository admin can tick "bypass rules" on the PR. That records the override on the PR rather than
    skipping the check silently.
 4. Delete the local branch with `git branch -D`: squashed commits aren't ancestors of `main`, so `-d` refuses.
