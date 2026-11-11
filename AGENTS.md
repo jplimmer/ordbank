@@ -11,6 +11,10 @@ Use the `just` recipes, which wrap the `package.json` scripts:
   `pnpm exec vitest run <path>`. Write tests black-box, as
   [`docs/development.md#tests`](docs/development.md#tests) describes.
 
+After editing `src/lib/db/schema.ts`, run `just db-generate` and commit the SQL it writes to `drizzle/`; never
+edit a migration that's on `main`. [`docs/development.md#migrations`](docs/development.md#migrations) has the
+workflow.
+
 Use **pnpm** for every package operation (`pnpm add`, `pnpm exec`). The lockfile is `pnpm-lock.yaml`.
 
 ## Environment

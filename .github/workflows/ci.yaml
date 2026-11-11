@@ -1,6 +1,6 @@
-# Runs `just ci` — the same checks as locally — on every PR and on main. The `ci` job is a required status
-# check (the "Require CI" ruleset), so keep the job name stable and don't add `paths:` filters: a required
-# check that never reports leaves the PR waiting forever.
+# Runs `just ci` — the same checks as locally — and replays the migrations, on every PR and on main. The `ci`
+# and `replay-migrations` jobs are required status checks (the "Require CI" ruleset), so keep their names
+# stable and don't add `paths:` filters: a required check that never reports leaves the PR waiting forever.
 
 name: CI
 
@@ -36,17 +36,35 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      # pnpm from `packageManager` in package.json and Node from .nvmrc. The store is cached, keyed on
-      # pnpm-lock.yaml. Installing is left to `just install`, as locally.
-      - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
-        with:
-          cache: true
-          install: false
-
-      - uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
-        with:
-          tool: just@1.58.0
-
-      - run: just install
+      - uses: ./.github/actions/setup
       - run: just ci
+
+  # Replays the whole history on an empty database, proving the baseline plus every migration since builds
+  # the schema from nothing. Needs no secrets, so it runs on forks too.
+  replay-migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        # Production's major version
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: just db-migrate
+      # Starts from existing history, as production does, so it fails if a migrator upgrade re-applies
+      # migrations that are already recorded
+      - run: just db-migrate
