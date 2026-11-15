@@ -19,10 +19,11 @@ describe('migrationTargets', () => {
     ).toEqual([]);
   });
 
-  it('migrates production, then template, in a Vercel production build', () => {
+  it('migrates production, then template, in a Vercel production build of main', () => {
     expect(
       migrationTargets({
         VERCEL_ENV: 'production',
+        VERCEL_GIT_COMMIT_REF: 'main',
         DATABASE_URL: PRODUCTION_URL,
         TEMPLATE_DATABASE_URL: TEMPLATE_URL,
       })
@@ -32,12 +33,29 @@ describe('migrationTargets', () => {
     ]);
   });
 
+  // Their migrations haven't been reviewed, and skipping them would put the
+  // code live without its schema
+  it.each([
+    ['a promoted preview', { VERCEL_GIT_COMMIT_REF: 'feature/notes' }],
+    ['a CLI deploy', {}],
+  ])('rejects a production build of %s', (_, git) => {
+    expect(() =>
+      migrationTargets({
+        ...git,
+        VERCEL_ENV: 'production',
+        DATABASE_URL: PRODUCTION_URL,
+        TEMPLATE_DATABASE_URL: TEMPLATE_URL,
+      })
+    ).toThrow('Refusing to migrate production');
+  });
+
   // Before migrating anything, so production never moves ahead of template
   // because of a misconfigured variable
   it('rejects a production build without a template connection string', () => {
     expect(() =>
       migrationTargets({
         VERCEL_ENV: 'production',
+        VERCEL_GIT_COMMIT_REF: 'main',
         DATABASE_URL: PRODUCTION_URL,
       })
     ).toThrow('TEMPLATE_DATABASE_URL');

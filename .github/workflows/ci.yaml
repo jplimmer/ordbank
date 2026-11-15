@@ -65,6 +65,14 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - run: just db-migrate
-      # Starts from existing history, as production does, so it fails if a migrator upgrade re-applies
-      # migrations that are already recorded
+      # Starts from existing history, as production does
       - run: just db-migrate
+      # A migrator upgrade that re-applies recorded migrations leaves extra rows, even when the SQL it
+      # re-ran is idempotent and didn't fail
+      - name: Check each migration is recorded once
+        run: |
+          recorded=$(psql "$DATABASE_URL" --tuples-only --no-align \
+            --command 'SELECT count(*) FROM drizzle.__drizzle_migrations')
+          expected=$(jq '.entries | length' drizzle/meta/_journal.json)
+          echo "Recorded $recorded migrations; the journal has $expected"
+          [ "$recorded" -eq "$expected" ]

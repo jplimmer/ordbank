@@ -167,13 +167,15 @@ rebase and regenerate.
 **What runs where**
 
 - **Every PR:** `replay-migrations` runs the whole history on an empty Postgres 17, proving it builds the
-  schema from nothing, then runs it again to prove recorded migrations aren't re-applied.
+  schema from nothing, then runs it again and checks each migration is recorded exactly once, proving
+  recorded migrations aren't re-applied.
 - **Merge to `main`:** the production build runs [`scripts/migrate-deploy.ts`](../scripts/migrate-deploy.ts)
   before `next build`, migrating `production` and then `template`. Drizzle applies the pending migrations in
   one transaction, so one that fails on production data rolls back and fails the build, and the previous
   deployment stays live. New code only goes live once its schema is in place.
 - **Preview, local and CI builds** never migrate. The script only acts when Vercel sets
-  `VERCEL_ENV=production`.
+  `VERCEL_ENV=production`, and it fails a production build of any branch but `main`, such as a promoted
+  preview or a `vercel deploy --prod`, whose migrations haven't been reviewed.
 
 `drizzle/0000_baseline.sql` is the schema production had before migrations existed, when `db:push` managed it.
 It was recorded as applied in `production` and `template` without being run there, so it only ever runs on
