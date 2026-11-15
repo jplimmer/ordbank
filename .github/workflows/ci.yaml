@@ -1,6 +1,6 @@
-# Runs `just ci` — the same checks as locally — and replays the migrations, on every PR and on main. The `ci`
-# and `replay-migrations` jobs are required status checks (the "Require CI" ruleset), so keep their names
-# stable and don't add `paths:` filters: a required check that never reports leaves the PR waiting forever.
+# The `ci`, `replay-migrations` and `migrate-db-branch` jobs are required status checks (the "Require CI"
+# ruleset), so keep their names stable and don't add `paths:` filters: a required check that never reports
+# leaves the PR waiting forever.
 
 name: CI
 
@@ -68,3 +68,165 @@ jobs:
       # Starts from existing history, as production does, so it fails if a migrator upgrade re-applies
       # migrations that are already recorded
       - run: just db-migrate
+
+  # Creates the PR's database, the Neon branch `pr-<number>`: a copy of template, reset on every push and
+  # deleted when the PR closes (db-branch-cleanup.yaml). Never check out the PR or use an action here: this
+  # job holds the Neon API key, which can reach production, and a job's secrets stay readable in the runner's
+  # memory whichever step used them. Jobs that need the database build its URL as migrate-db-branch does.
+  create-db-branch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # PRs from forks and Dependabot get no secrets, so they can't create a branch. The job still passes
+      # and says it was skipped.
+      NO_SECRETS: >-
+        ${{ github.event.pull_request.head.repo.full_name != github.repository
+        || github.event.pull_request.user.login == 'dependabot[bot]' }}
+      DB_ROLE: neondb_owner
+      DB_NAME: neondb
+    outputs:
+      db_host: ${{ steps.branch.outputs.db_host }}
+      db_role: ${{ env.DB_ROLE }}
+      db_name: ${{ env.DB_NAME }}
+    steps:
+      - name: Skip pull requests without secrets
+        if: env.NO_SECRETS == 'true'
+        run: |
+          echo "::notice::Skipped: pull requests from forks and Dependabot can't reach Neon, so a maintainer must test these migrations"
+
+      # Calls Neon's API directly rather than through Neon's actions, so that no dependency update can
+      # change the code that runs with the API key
+      - name: Create or reset pr-${{ github.event.number }} and set its password
+        if: env.NO_SECRETS == 'false'
+        id: branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          PR_DB_PASSWORD: ${{ secrets.PR_DB_PASSWORD }}
+          API: https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}
+          BRANCH: pr-${{ github.event.number }}
+          PGUSER: ${{ env.DB_ROLE }}
+          PGDATABASE: ${{ env.DB_NAME }}
+          PGSSLMODE: require
+          PGCONNECT_TIMEOUT: 30
+        run: |
+          set -o pipefail
+          : "${PR_DB_PASSWORD:?Set the PR_DB_PASSWORD Actions secret (see docs/development.md#migrations)}"
+
+          # Retries also cover 423 Locked, which Neon returns while another operation runs on the project
+          api() {
+            curl -sS --fail-with-body --retry 5 --retry-delay 3 --retry-all-errors \
+              -H "Authorization: Bearer $NEON_API_KEY" -H 'Content-Type: application/json' "$@"
+          }
+          # Prints nothing if no branch has exactly this name
+          find_branch() {
+            api "$API/branches?search=$1" | jq -r --arg name "$1" '.branches[] | select(.name == $name) | .id'
+          }
+          # Neon applies changes in the background: wait for the operations that a response lists
+          wait_for_operations() {
+            for operation in $(jq -r '.operations[].id' <<< "$1"); do
+              while true; do
+                status=$(api "$API/operations/$operation" | jq -r .operation.status)
+                case $status in
+                  finished | skipped) break ;;
+                  failed | error | cancelled) echo "::error::Operation $operation $status"; exit 1 ;;
+                  *) sleep 2 ;;
+                esac
+              done
+            done
+          }
+
+          branch_id=$(find_branch "$BRANCH")
+          if [ -z "$branch_id" ]; then
+            parent_id=$(find_branch template)
+            : "${parent_id:?No template branch to copy}"
+            # A backstop for close events that never run: Neon deletes the branch itself after two weeks.
+            # A reused branch keeps its first date, and is created again once that passes.
+            expires_at=$(date -u -d '+14 days' +%Y-%m-%dT%H:%M:%SZ)
+            response=$(jq -n --arg name "$BRANCH" --arg parent_id "$parent_id" --arg expires_at "$expires_at" \
+              '{branch: {name: $name, parent_id: $parent_id, expires_at: $expires_at}, endpoints: [{type: "read_write"}]}' |
+              api -X POST "$API/branches" -d @-)
+            branch_id=$(jq -r .branch.id <<< "$response")
+            echo "Created $BRANCH ($branch_id) from template, expiring at $expires_at"
+          else
+            # A reused branch still has the previous push's migrations, which may since have been edited
+            parent_id=$(api "$API/branches/$branch_id" | jq -r .branch.parent_id)
+            response=$(api -X POST "$API/branches/$branch_id/restore" -d "{\"source_branch_id\": \"$parent_id\"}")
+            echo "Reset $BRANCH ($branch_id) to its parent $parent_id"
+          fi
+          wait_for_operations "$response"
+
+          PGHOST=$(api "$API/branches/$branch_id/endpoints" |
+            jq -r '.endpoints[] | select(.type == "read_write") | .host')
+          export PGHOST="${PGHOST:?$BRANCH has no read-write endpoint}"
+          echo "db_host=$PGHOST" >> "$GITHUB_OUTPUT"
+
+          # Neon's API can only set a random password, so ask for one, which works whatever the create or
+          # reset left behind, and use it to set the one later jobs know. Runs on every push, because a
+          # reset undoes it.
+          response=$(api -X POST "$API/branches/$branch_id/roles/$PGUSER/reset_password")
+          temporary_password=$(jq -r .role.password <<< "$response")
+          echo "::add-mask::$temporary_password"
+          wait_for_operations "$response"
+
+          # Piped in because psql only substitutes :'variables' in a script, not in -c
+          echo "ALTER ROLE CURRENT_USER PASSWORD :'password';" |
+            PGPASSWORD=$temporary_password psql --quiet -v ON_ERROR_STOP=1 -v password="$PR_DB_PASSWORD"
+
+          # Retries in case Neon is slow to apply the new password
+          for attempt in 1 2 3 4 5; do
+            if PGPASSWORD=$PR_DB_PASSWORD psql --quiet -c 'SELECT 1' > /dev/null; then
+              echo "Set the password on $BRANCH ($PGHOST)"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "::error::$BRANCH rejected PR_DB_PASSWORD"
+          exit 1
+
+  # Applies the PR's migrations to its database, the incremental path production will take on merge. It
+  # runs the PR's code, so the only secret it holds is PR_DB_PASSWORD.
+  migrate-db-branch:
+    needs: create-db-branch
+    # Runs even when create-db-branch failed, so that it fails too: a job skipped because one it needs
+    # failed would satisfy the required check
+    if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NO_SECRETS: >-
+        ${{ github.event.pull_request.head.repo.full_name != github.repository
+        || github.event.pull_request.user.login == 'dependabot[bot]' }}
+      DB_HOST: ${{ needs.create-db-branch.outputs.db_host }}
+      DB_ROLE: ${{ needs.create-db-branch.outputs.db_role }}
+      DB_NAME: ${{ needs.create-db-branch.outputs.db_name }}
+    steps:
+      - name: Skip pull requests without secrets
+        if: env.NO_SECRETS == 'true'
+        run: |
+          echo "::notice::Skipped: pull requests from forks and Dependabot can't reach Neon, so a maintainer must test these migrations"
+
+      - name: Check that create-db-branch provided a database
+        if: env.NO_SECRETS == 'false' && (needs.create-db-branch.result != 'success' || env.DB_HOST == '')
+        run: |
+          echo "::error::create-db-branch (${{ needs.create-db-branch.result }}) didn't provide a database host"
+          exit 1
+
+      - name: Check out
+        if: env.NO_SECRETS == 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up
+        if: env.NO_SECRETS == 'false'
+        uses: ./.github/actions/setup
+
+      # The host in the name comes from Neon's API and the one in the log from the connection actually
+      # used, so matching them shows which branch was migrated
+      - name: Migrate pr-${{ github.event.number }} (${{ env.DB_HOST }})
+        if: env.NO_SECRETS == 'false'
+        env:
+          PR_DB_PASSWORD: ${{ secrets.PR_DB_PASSWORD }}
+        run: |
+          export DATABASE_URL="postgresql://$DB_ROLE:$PR_DB_PASSWORD@$DB_HOST/$DB_NAME?sslmode=require"
+          just db-migrate
